@@ -5,3 +5,52 @@
  */
 
 export const VERSION = '0.1.0-dev';
+
+// Core types
+export type {
+  KnowledgeEntry,
+  EntryEmbedding,
+  SearchVocabulary,
+  AttributeSignal,
+  RetrievalStats,
+  CallerInfo,
+  TraceIds,
+} from './types.js';
+export { EMPTY_VOCABULARY, newRetrievalStats } from './types.js';
+
+// Knowledge retrieval
+export {
+  hybridSearch,
+  hybridSearchWithDiagnostics,
+  type SearchResult,
+  type HybridSearchDiagnostics,
+  type HybridSearchOptions,
+} from './search/hybrid-search.js';
+export { rerankResults, type RerankOptions } from './search/reranker.js';
+export {
+  singularize,
+  inferCanonicalCategory,
+  entryMatchesCanonical,
+} from './search/vocabulary.js';
+
+// Conversation phases
+export {
+  derivePhase,
+  DEFAULT_PHASE_TOOLS,
+  type ConversationPhase,
+  type PhaseSignals,
+} from './state/state-machine.js';
+
+// Embeddings
+export {
+  warmupEmbeddings,
+  getQueryEmbedding,
+  getPassageEmbedding,
+  getPassageEmbeddings,
+  cosineSimilarity,
+  getEmbeddingProvider,
+  getEmbeddingDimensions,
+} from './embeddings/index.js';
+
+// Tracing
+export { traceLog, type TraceLevel } from './trace.js';
