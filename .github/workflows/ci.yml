@@ -1,5 +1,4 @@
 # Tier 1 (unit) + Tier 2 (golden scenario) tests — deterministic, no API keys.
-# Stub until v0.1 code lands.
 name: CI
 on:
   push:
@@ -11,5 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Tier 1 + Tier 2 tests (placeholder)
-        run: echo "Test suite lands with v0.1 — see README status."
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test

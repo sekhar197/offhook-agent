@@ -1,0 +1,41 @@
+# offhook example: business receptionist
+# Answers hours/FAQ from the knowledge folder, takes messages, transfers.
+agent:
+  id: bright-smile-dental
+  businessName: Bright Smile Dental
+  agentName: June
+  tone: warm
+  timezone: America/New_York
+  # AI disclosure defaults to ON — several US states require it.
+
+business:
+  address: 12 Main Street, Maplewood, NJ
+  phone: "9735550142"
+  hours:
+    monday: from 9 AM to 5 PM
+    tuesday: from 9 AM to 5 PM
+    wednesday: from 9 AM to 7 PM
+    thursday: from 9 AM to 5 PM
+    friday: from 9 AM to 3 PM
+  policies:
+    insurance: We accept most major plans — bring your card to the first visit.
+    parking: Free lot behind the building, entrance on Oak Street.
+    cancellations: Please give us 24 hours notice to avoid a fee.
+
+knowledge:
+  folder: ./knowledge
+  vocabulary:
+    categorySynonyms:
+      services: [services, service, treatments, procedures, appointments]
+    aliases:
+      cleening: Teeth Cleaning
+    asrVariants:
+      crowns: Dental Crown   # "crowns" often transcribed for "crown"
+
+tools:
+  enabled: [answer_from_knowledge, take_message, transfer_to_human, end_call]
+  transferPhone: "+19735550100"
+  # webhookUrl: https://your-server.example.com/offhook  # receives messages
+
+voice:
+  endpointingMaxDelayMs: 2000
