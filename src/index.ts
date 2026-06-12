@@ -52,6 +52,27 @@ export {
   getEmbeddingDimensions,
 } from './embeddings/index.js';
 
+// Entity resolution + ASR correction
+export {
+  buildEntityIndex,
+  resolveEntityCandidates,
+  normalizeForLookup,
+  levenshtein,
+  type EntityIndex,
+  type EntityIndexOptions,
+  type ResolverCandidate,
+} from './resolver/entity-index.js';
+export {
+  englishMetaphone,
+  registerPhoneticBackend,
+  getPhoneticBackend,
+  type PhoneticBackend,
+} from './resolver/phonetic.js';
+export {
+  correctAsrTranscript,
+  type AsrCorrectionResult,
+} from './asr/asr-correction.js';
+
 // Voice human-feel layer
 export {
   computeRecommendedMaxDelay,
