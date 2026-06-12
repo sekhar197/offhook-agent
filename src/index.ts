@@ -52,5 +52,28 @@ export {
   getEmbeddingDimensions,
 } from './embeddings/index.js';
 
+// Voice human-feel layer
+export {
+  computeRecommendedMaxDelay,
+  p50,
+  ENDPOINTING_BOUNDS,
+  type TuneInput,
+  type TuneResult,
+} from './voice/endpointing-tuner.js';
+export { isLikelyInterruption } from './voice/semantic-interrupt.js';
+export {
+  shouldStartSpeculation,
+  shouldKeepSpeculation,
+  tokenOverlap,
+  type SpeculationStartOpts,
+  type SpeculationKeepOpts,
+} from './voice/interim-speculation.js';
+export {
+  buildPhonemeMap,
+  applyPronunciationOverrides,
+  type PhonemeMap,
+} from './voice/pronunciation.js';
+export { createNaturalizer } from './voice/text-naturalize.js';
+
 // Tracing
 export { traceLog, type TraceLevel } from './trace.js';
