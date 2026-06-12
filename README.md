@@ -23,11 +23,20 @@ Frameworks give you Lego bricks. Platforms give you a SaaS. **offhook gives you 
 - **Published eval scorecard**: LLM-simulated callers (interrupters, mumblers, topic-switchers) graded on task completion and caller safety — regenerated every release ([eval framework](docs/evals.md))
 - **Latency receipts**: measured TTFT breakdown, not vibes — core hot-path numbers are already published and reproducible via `npm run bench` ([benchmarks](docs/benchmarks.md))
 
-## Quickstart (coming with v0.1)
+## Quickstart
+
+**Today — text test mode.** Chat with your configured agent in the terminal: real prompts, real knowledge search, real tools, any LLM. One key (or zero, with Ollama), no voice keys:
 
 ```bash
-docker compose up   # → prints a local URL → talk to it in your browser
+git clone https://github.com/sekhar197/offhook && cd offhook
+npm install && npm run build
+
+node bin/offhook.js init     # wizard: pick a template, paste your key
+node bin/offhook.js doctor   # verifies config, knowledge, keys, endpoint
+node bin/offhook.js chat     # talk to your agent
 ```
+
+**With v0.1 — voice.** `docker compose up` → browser mic session, then optional phone connectivity (the same `npx offhook` flow, no clone needed).
 
 ## Scope & governance
 
