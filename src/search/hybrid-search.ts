@@ -469,7 +469,7 @@ export async function hybridSearchWithDiagnostics(
 
   // Category fallback: try category synonym matching when BM25 found nothing
   // OR only returned weak fuzzy-only matches (score ≤ 0.4). Weak fuzzy hits
-  // like "drinks" -> "Onion Rings" should not block the correct category result.
+  // like "classes" -> "Glasses Case" should not block the correct category result.
   // ALSO: when BM25 returned fewer than maxFinalResults and the query is a
   // category/browse term, union-supplement with category matches so
   // pagination ("more options") has headroom via exclude_ids.

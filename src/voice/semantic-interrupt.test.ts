@@ -27,7 +27,7 @@ describe('isLikelyInterruption', () => {
   describe('intent phrases', () => {
     it('catches "wait" anywhere in utterance', () => {
       expect(isLikelyInterruption('wait a minute')).toBe(true);
-      expect(isLikelyInterruption('oh wait, I meant biryani')).toBe(true);
+      expect(isLikelyInterruption('oh wait, I meant pilates')).toBe(true);
     });
 
     it('catches "hold on"', () => {
@@ -43,7 +43,7 @@ describe('isLikelyInterruption', () => {
     });
 
     it('catches "stop"', () => {
-      expect(isLikelyInterruption('stop the order please')).toBe(true);
+      expect(isLikelyInterruption('stop the booking please')).toBe(true);
     });
 
     it('catches "sorry, but"', () => {
@@ -80,7 +80,7 @@ describe('isLikelyInterruption', () => {
     it('catches WH-word openers', () => {
       expect(isLikelyInterruption('what time do you close')).toBe(true);
       expect(isLikelyInterruption('where are you located')).toBe(true);
-      expect(isLikelyInterruption('how much is the biryani')).toBe(true);
+      expect(isLikelyInterruption('how much is the facial')).toBe(true);
       expect(isLikelyInterruption('why is it spicy')).toBe(true);
     });
 

@@ -11,8 +11,8 @@ function run(chunks: string[]): string {
 
 describe('createNaturalizer', () => {
   it('rewrites common LLM tells in a single chunk', () => {
-    expect(run(['We are going to start with the biryani.'])).toBe(
-      'We are gonna start with the biryani.',
+    expect(run(['We are going to start with the session.'])).toBe(
+      'We are gonna start with the session.',
     );
   });
 

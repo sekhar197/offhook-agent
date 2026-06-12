@@ -2,13 +2,13 @@
  * Per-deployment pronunciation overrides for the TTS pipeline.
  *
  * Phase 4 of the v10 human-feel plan. Cartesia tends to mangle names
- * that don't follow English phoneme patterns (biryani → "bree-AH-ni",
- * gyoza → "ghee-O-za", banh mi → "ban mi"). Each knowledge entry can
+ * that don't follow English phoneme patterns (Qigong → "chee-gong",
+ * Nguyen → "win"). Each knowledge entry can
  * carry a `pronunciationHint` — this module turns
  * those hints into a text-stream transform that rewrites occurrences
  * of the canonical name to the hint before Cartesia sees it.
  *
- * Shape: { "biryani": "bir-YAH-nee", "gyoza": "gyo-zah" }. Hints are
+ * Shape: { "qigong": "chee-gong", "nguyen": "win" }. Hints are
  * spoken-text (not IPA) because Cartesia's SSML support varies across
  * voices; a phonetic respelling is robust across the default voice
  * list we ship.
@@ -22,8 +22,8 @@
  *
  * This helper is a PURE transform on a completed sentence. It
  * integrates with the naturalizer's sentence-buffered output — runs
- * AFTER naturalize so "going to biryani" → "gonna biryani" → "gonna
- * bir-YAH-nee".
+ * AFTER naturalize so "going to qigong" → "gonna qigong" → "gonna
+ * chee-gong".
  */
 
 export type PhonemeMap = Readonly<Record<string, string>>;

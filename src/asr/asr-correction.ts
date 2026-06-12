@@ -5,7 +5,7 @@
  * resolver (phonetic keys, ASR variant maps, alias indices) to catch misheard
  * entity names before the LLM sees them.
  *
- * Example: STT outputs "English" or "Iglis" -> resolver maps to "Idli"
+ * Example: STT outputs "rakey" -> resolver maps to "Reiki"
  *
  * Pure in-memory matching — zero latency impact.
  *
@@ -35,7 +35,7 @@ export interface AsrCorrectionResult {
 }
 
 /** Guard lists: ASR correction must never fire for negation phrases or
- *  conversational greetings (CLAUDE-rule inherited from production). */
+ *  conversational greetings (production rule). */
 const NEGATION_PREFIXES = ["i didn't", "i don't", "no i said", "not the", "cancel", "never mind"];
 const CONVERSATIONAL_PHRASES = [
   'hello', 'can you hear me', 'are you there', 'hi', 'hey',
@@ -70,7 +70,7 @@ export function correctAsrTranscript(
   const lower = transcript.toLowerCase().trim();
 
   // Guard: skip ASR correction entirely for conversational phrases that
-  // should never trigger entity matches (e.g. "I didn't say Paneer", "Hello?")
+  // should never trigger entity matches (e.g. "I didn't say that", "Hello?")
   if (NEGATION_PREFIXES.some(p => lower.startsWith(p)) ||
       CONVERSATIONAL_PHRASES.some(p => lower === p || lower === p + '?')) {
     return result;
@@ -81,7 +81,7 @@ export function correctAsrTranscript(
 
     // Per-word fallback: if the full utterance yields no results, try
     // individual words separately. This catches cases like "do you have
-    // any biryani" where "biryani" alone maps to an entry.
+    // any pilates" where "pilates" alone maps to an entry.
     //
     // Scaling strategy (language-agnostic, no hardcoded denylists):
     // 1. Minimum 5 chars — short words are almost always common words
@@ -115,7 +115,7 @@ export function correctAsrTranscript(
     // Dedup guard: if the candidate's significant name tokens already appear
     // verbatim in the transcript, skip phonetic/token corrections. The caller
     // pronounced the word clearly — annotating it as a mishearing confuses
-    // the LLM (e.g. "shrimp" → "Nizam Shrimp" when caller actually said "shrimp").
+    // the LLM (e.g. "reformer" → "Pilates Reformer" when caller actually said "reformer").
     // Applies only to non-curated match types; alias/asr maps are intentional.
     const transcriptTokens = new Set(
       lower.split(/\s+/).map(w => w.replace(/[^\p{L}]/gu, '')).filter(w => w.length >= 3),

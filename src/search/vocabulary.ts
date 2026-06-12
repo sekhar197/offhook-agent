@@ -27,7 +27,7 @@ export function singularize(word: string, vocabulary: SearchVocabulary): string 
 
 /**
  * Does a free-form query phrase resolve to a canonical category key?
- * Returns the canonical (e.g. `dessert`, `billing`) or null.
+ * Returns the canonical (e.g. `billing`, `scheduling`) or null.
  * Pure function over vocabulary.categorySynonyms — no hardcoding.
  */
 export function inferCanonicalCategory(

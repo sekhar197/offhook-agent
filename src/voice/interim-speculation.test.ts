@@ -19,13 +19,13 @@ describe('shouldStartSpeculation', () => {
 
   it('returns false when confidence below threshold', () => {
     expect(
-      shouldStartSpeculation('i want two biryanis please', { ...base, confidence: 0.7 }),
+      shouldStartSpeculation('i want two sessions please', { ...base, confidence: 0.7 }),
     ).toBe(false);
   });
 
   it('returns false when confidence is NaN', () => {
     expect(
-      shouldStartSpeculation('i want two biryanis please', { ...base, confidence: Number.NaN }),
+      shouldStartSpeculation('i want two sessions please', { ...base, confidence: Number.NaN }),
     ).toBe(false);
   });
 
@@ -34,14 +34,14 @@ describe('shouldStartSpeculation', () => {
   });
 
   it('respects custom minWords', () => {
-    expect(shouldStartSpeculation('two biryanis', { ...base, minWords: 2 })).toBe(true);
-    expect(shouldStartSpeculation('two biryanis', { ...base, minWords: 3 })).toBe(false);
+    expect(shouldStartSpeculation('two sessions', { ...base, minWords: 2 })).toBe(true);
+    expect(shouldStartSpeculation('two sessions', { ...base, minWords: 3 })).toBe(false);
   });
 
   it('returns false when interim is still growing', () => {
     // prev length 40, current length 10 → no, we block shrinking
     expect(
-      shouldStartSpeculation('i want two biryanis please', {
+      shouldStartSpeculation('i want two sessions please', {
         ...base,
         prevInterimLength: 100,
       }),
@@ -50,7 +50,7 @@ describe('shouldStartSpeculation', () => {
 
   it('returns false when interim has not been stable long enough', () => {
     expect(
-      shouldStartSpeculation('i want two biryanis please', {
+      shouldStartSpeculation('i want two sessions please', {
         ...base,
         msSinceLastInterim: 50,
       }),
@@ -58,12 +58,12 @@ describe('shouldStartSpeculation', () => {
   });
 
   it('returns true when all gates pass (default opts)', () => {
-    expect(shouldStartSpeculation('i want two biryanis please', base)).toBe(true);
+    expect(shouldStartSpeculation('i want two sessions please', base)).toBe(true);
   });
 
   it('honors custom confidence threshold', () => {
     expect(
-      shouldStartSpeculation('i want two biryanis please', {
+      shouldStartSpeculation('i want two sessions please', {
         ...base,
         confidence: 0.7,
         minConfidence: 0.6,
@@ -73,7 +73,7 @@ describe('shouldStartSpeculation', () => {
 
   it('honors custom stability window', () => {
     expect(
-      shouldStartSpeculation('i want two biryanis please', {
+      shouldStartSpeculation('i want two sessions please', {
         ...base,
         msSinceLastInterim: 50,
         minStableMs: 30,
@@ -90,26 +90,26 @@ describe('tokenOverlap', () => {
   });
 
   it('returns 1.0 when strings share all tokens on shorter side', () => {
-    expect(tokenOverlap('i want two biryanis', 'i want two biryanis')).toBe(1);
+    expect(tokenOverlap('i want two sessions', 'i want two sessions')).toBe(1);
   });
 
   it('scores superset as 1.0 (min-denominator)', () => {
     // final is strict superset of interim → interim fully contained
-    expect(tokenOverlap('two biryanis', 'i want two biryanis please')).toBe(1);
+    expect(tokenOverlap('two sessions', 'i want two sessions please')).toBe(1);
   });
 
   it('is case-insensitive', () => {
-    expect(tokenOverlap('Two Biryanis', 'two biryanis')).toBe(1);
+    expect(tokenOverlap('Two Sessions', 'two sessions')).toBe(1);
   });
 
   it('strips punctuation (but keeps apostrophes inside words) before tokenizing', () => {
     // commas/question marks are stripped; apostrophe is kept ("that's" stays one token).
-    expect(tokenOverlap("that's biryani, right?", "that's biryani right")).toBe(1);
+    expect(tokenOverlap("that's pilates, right?", "that's pilates right")).toBe(1);
   });
 
   it('returns partial overlap for divergent finals', () => {
     // interim = 4 tokens, final = 4 tokens, 2 shared → 2/4 = 0.5
-    const score = tokenOverlap('i want two biryanis', 'i need four samosas');
+    const score = tokenOverlap('i want two sessions', 'i need four facials');
     expect(score).toBeCloseTo(1 / 4, 5); // only "i" shared → 0.25
   });
 
@@ -129,23 +129,23 @@ describe('shouldKeepSpeculation', () => {
   });
 
   it('keeps on exact match', () => {
-    expect(shouldKeepSpeculation('i want two biryanis', 'i want two biryanis')).toBe(true);
+    expect(shouldKeepSpeculation('i want two sessions', 'i want two sessions')).toBe(true);
   });
 
   it('keeps when final is a superset (caller finished sentence)', () => {
-    expect(shouldKeepSpeculation('two biryanis', 'i want two biryanis please')).toBe(true);
+    expect(shouldKeepSpeculation('two sessions', 'i want two sessions please')).toBe(true);
   });
 
   it('keeps at default 0.8 threshold with minor divergence', () => {
     // 5 tokens vs 5 tokens, 4 shared → 4/5 = 0.8 exactly
-    expect(shouldKeepSpeculation('i want two large biryanis', 'i want two small biryanis')).toBe(
+    expect(shouldKeepSpeculation('i want two long sessions', 'i want two short sessions')).toBe(
       true,
     );
   });
 
   it('aborts when overlap below threshold', () => {
     // divergence: caller corrected themselves
-    expect(shouldKeepSpeculation('i want two biryanis', 'actually make that four samosas')).toBe(
+    expect(shouldKeepSpeculation('i want two sessions', 'actually make that four facials')).toBe(
       false,
     );
   });
@@ -153,12 +153,12 @@ describe('shouldKeepSpeculation', () => {
   it('honors a custom overlap threshold', () => {
     // 2 of 4 overlap → 0.5
     expect(
-      shouldKeepSpeculation('order pad thai please', 'order fried rice please', {
+      shouldKeepSpeculation('book hot stone please', 'book deep tissue please', {
         minOverlap: 0.4,
       }),
     ).toBe(true);
     expect(
-      shouldKeepSpeculation('order pad thai please', 'order fried rice please', {
+      shouldKeepSpeculation('book hot stone please', 'book deep tissue please', {
         minOverlap: 0.6,
       }),
     ).toBe(false);

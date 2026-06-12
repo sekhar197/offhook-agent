@@ -4,25 +4,25 @@ import { buildEntityIndex } from '../resolver/entity-index.js';
 import type { KnowledgeEntry } from '../types.js';
 
 const ENTRIES: KnowledgeEntry[] = [
-  { id: 'e1', name: 'Idli', category: 'Breakfast' },
-  { id: 'e2', name: 'Chicken Biryani', category: 'Main' },
-  { id: 'e3', name: 'Nizam Shrimp', category: 'Main' },
+  { id: 'e1', name: 'Reiki Healing', category: 'Therapy' },
+  { id: 'e2', name: 'Physiotherapy Session', category: 'Therapy' },
+  { id: 'e3', name: 'Pilates Reformer', category: 'Classes' },
 ];
 
 const INDEX = buildEntityIndex(ENTRIES, {
-  asrVariants: { italy: 'Idli' },
+  asrVariants: { rakey: 'Reiki Healing' },
 });
 
 describe('correctAsrTranscript', () => {
   it('annotates curated ASR mishearings in plain language', () => {
-    const out = correctAsrTranscript(INDEX, 'italy');
-    expect(out.annotation).toContain('Idli');
+    const out = correctAsrTranscript(INDEX, 'rakey');
+    expect(out.annotation).toContain('Reiki Healing');
     expect(out.annotation).toContain('mishearing');
     expect(out.corrections.length).toBeGreaterThan(0);
   });
 
   it('never fires for negation phrases', () => {
-    const out = correctAsrTranscript(INDEX, "I didn't say idli");
+    const out = correctAsrTranscript(INDEX, "I didn't say reiki");
     expect(out.annotation).toBeNull();
     expect(out.corrections).toEqual([]);
   });
@@ -35,33 +35,33 @@ describe('correctAsrTranscript', () => {
   });
 
   it('never rewrites the transcript itself — annotate only', () => {
-    const out = correctAsrTranscript(INDEX, 'italy');
-    expect(out.originalText).toBe('italy');
-    expect(out.correctedText).toBe('italy');
+    const out = correctAsrTranscript(INDEX, 'rakey');
+    expect(out.originalText).toBe('rakey');
+    expect(out.correctedText).toBe('rakey');
   });
 
   it('skips phonetic corrections when the entity is already verbatim in the transcript', () => {
-    // Caller clearly said "shrimp" — annotating it as a mishearing of
-    // "Nizam Shrimp" would confuse the LLM.
-    const out = correctAsrTranscript(INDEX, 'shrimp');
+    // Caller clearly said "reformer" — annotating it as a mishearing of
+    // "Pilates Reformer" would confuse the LLM.
+    const out = correctAsrTranscript(INDEX, 'reformer');
     expect(out.annotation).toBeNull();
   });
 
   it('catches curated mishearings inside longer utterances via per-word fallback', () => {
-    const out = correctAsrTranscript(INDEX, 'do you have any italy');
-    expect(out.annotation).toContain('Idli');
+    const out = correctAsrTranscript(INDEX, 'do you do any rakey');
+    expect(out.annotation).toContain('Reiki Healing');
   });
 
-  it('low-confidence fuzzy matches stay below the annotation gate (false-positive guard)', () => {
-    // "birryani" resolves via fuzzy at 0.5 — under the 0.65 gate for
-    // non-curated matches, so no annotation. The hybrid search layer
-    // still finds it; ASR annotation is reserved for high confidence.
-    const out = correctAsrTranscript(INDEX, 'do you have any birryani');
+  it('unknown/low-confidence terms stay below the annotation gate (false-positive guard)', () => {
+    // "fisio" resolves to nothing with high confidence — no annotation.
+    // The hybrid search layer can still rescue it; ASR annotation is
+    // reserved for high-confidence corrections only.
+    const out = correctAsrTranscript(INDEX, 'do you have any fisio');
     expect(out.annotation).toBeNull();
   });
 
   it('annotation text contains no technical terminology', () => {
-    const out = correctAsrTranscript(INDEX, 'italy');
+    const out = correctAsrTranscript(INDEX, 'rakey');
     const banned = ['ASR', 'phonetic', 'embedding', 'tool', 'system', 'API', 'database'];
     for (const term of banned) {
       expect(out.annotation ?? '').not.toContain(term);

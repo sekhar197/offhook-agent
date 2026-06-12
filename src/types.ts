@@ -50,11 +50,11 @@ export interface AttributeSignal {
  * in the deployment's config (see examples/), never in this codebase.
  */
 export interface SearchVocabulary {
-  /** canonical category -> synonyms (e.g. dessert -> [sweets, pastries]). */
+  /** canonical category -> synonyms (e.g. billing -> [invoices, payments]). */
   categorySynonyms: Record<string, string[]>;
   /** misheard/variant form -> canonical term (ASR/plural aliases). */
   aliases: Record<string, string>;
-  /** dietary/attribute intent boosts for the reranker. */
+  /** dietary/attribute intent boosts for the reranker (e.g. accessibility, urgency). */
   attributeSignals: AttributeSignal[];
   /** Query words that mean "show me what's featured" (default below). */
   highlightKeywords?: string[];

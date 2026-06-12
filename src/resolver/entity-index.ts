@@ -232,7 +232,7 @@ export function resolveEntityCandidates(
 
   // 5. Fuzzy matching fallback — if exact/phonetic lookups found nothing,
   // try Levenshtein edit-distance against token-index keys.
-  // Catches accented speech: "birianist" ≈ "biryani" (distance 3).
+  // Catches accented speech: "fisiotherapy" ≈ "physiotherapy" (distance 2).
   // Capped to MAX_FUZZY_KEYS entries to bound CPU cost on large bases.
   if (seen.size === 0 && tokens.length > 0) {
     const entriesList = [...index.tokens.entries()];

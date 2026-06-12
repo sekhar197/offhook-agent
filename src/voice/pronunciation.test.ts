@@ -6,27 +6,27 @@ describe('buildPhonemeMap', () => {
     expect(buildPhonemeMap([])).toEqual({});
   });
 
-  it('keeps only items with a pronunciation hint', () => {
+  it('keeps only entries with a pronunciation hint', () => {
     const map = buildPhonemeMap([
-      { name: 'Biryani', pronunciationHint: 'bir-YAH-nee' },
-      { name: 'Salad' },
-      { name: 'Dal', pronunciationHint: '' }, // empty → skipped
-      { name: 'Pho', pronunciationHint: 'fuh' },
+      { name: 'Qigong', pronunciationHint: 'chee-gong' },
+      { name: 'Facial' },
+      { name: 'Yoga', pronunciationHint: '' }, // empty → skipped
+      { name: 'Chi', pronunciationHint: 'chee' },
     ]);
-    expect(map).toEqual({ biryani: 'bir-YAH-nee', pho: 'fuh' });
+    expect(map).toEqual({ qigong: 'chee-gong', chi: 'chee' });
   });
 
   it('lowercases keys (matching is case-insensitive)', () => {
-    const map = buildPhonemeMap([{ name: 'BÁNH MÌ', pronunciationHint: 'bon mee' }]);
-    expect(Object.keys(map)[0]).toBe('bánh mì');
+    const map = buildPhonemeMap([{ name: 'JOSÉ', pronunciationHint: 'ho-zay' }]);
+    expect(Object.keys(map)[0]).toBe('josé');
   });
 
   it('first-writer-wins on duplicate names', () => {
     const map = buildPhonemeMap([
-      { name: 'Pho', pronunciationHint: 'fuh' },
-      { name: 'Pho', pronunciationHint: 'pho-different' },
+      { name: 'Chi', pronunciationHint: 'chee' },
+      { name: 'Chi', pronunciationHint: 'chi-different' },
     ]);
-    expect(map.pho).toBe('fuh');
+    expect(map.chi).toBe('chee');
   });
 
   it('ignores null/undefined hints', () => {
@@ -40,13 +40,13 @@ describe('buildPhonemeMap', () => {
 
 describe('applyPronunciationOverrides', () => {
   const map = {
-    biryani: 'bir-YAH-nee',
-    pho: 'fuh',
-    'bánh mì': 'bon mee',
+    qigong: 'chee-gong',
+    chi: 'chee',
+    'tai chi': 'tie chee',
   };
 
   it('is a no-op when map is empty', () => {
-    expect(applyPronunciationOverrides('Try the biryani.', {})).toBe('Try the biryani.');
+    expect(applyPronunciationOverrides('Try the qigong.', {})).toBe('Try the qigong.');
   });
 
   it('is a no-op when text is empty', () => {
@@ -54,50 +54,50 @@ describe('applyPronunciationOverrides', () => {
   });
 
   it('replaces a whole-word match', () => {
-    expect(applyPronunciationOverrides('Order the biryani today.', map)).toBe(
-      'Order the bir-YAH-nee today.',
+    expect(applyPronunciationOverrides('Book the qigong today.', map)).toBe(
+      'Book the chee-gong today.',
     );
   });
 
   it('is case-insensitive but preserves the replacement case as given', () => {
-    expect(applyPronunciationOverrides('BIRYANI or Biryani?', map)).toBe(
-      'bir-YAH-nee or bir-YAH-nee?',
+    expect(applyPronunciationOverrides('QIGONG or Qigong?', map)).toBe(
+      'chee-gong or chee-gong?',
     );
   });
 
   it('does not match inside other words (whole-word boundaries)', () => {
-    // "pho" must not match inside "phone"
-    expect(applyPronunciationOverrides('Answer the phone', map)).toBe('Answer the phone');
+    // "chi" must not match inside "chiropractor"
+    expect(applyPronunciationOverrides('See the chiropractor', map)).toBe('See the chiropractor');
   });
 
   it('replaces all occurrences in a single pass', () => {
-    expect(applyPronunciationOverrides('biryani and more biryani', map)).toBe(
-      'bir-YAH-nee and more bir-YAH-nee',
+    expect(applyPronunciationOverrides('qigong and more qigong', map)).toBe(
+      'chee-gong and more chee-gong',
     );
   });
 
   it('handles punctuation adjacency', () => {
-    expect(applyPronunciationOverrides("That's biryani, right?", map)).toBe(
-      "That's bir-YAH-nee, right?",
+    expect(applyPronunciationOverrides("That's qigong, right?", map)).toBe(
+      "That's chee-gong, right?",
     );
   });
 
-  it('prefers longer keys over shorter (pho vs pho ga)', () => {
-    const overlap = { pho: 'fuh', 'pho ga': 'fuh gah' };
-    expect(applyPronunciationOverrides('I want pho ga please', overlap)).toBe(
-      'I want fuh gah please',
+  it('prefers longer keys over shorter (chi vs tai chi)', () => {
+    const overlap = { chi: 'chee', 'tai chi': 'tie chee' };
+    expect(applyPronunciationOverrides('I want tai chi please', overlap)).toBe(
+      'I want tie chee please',
     );
   });
 
   it('leaves text alone when no keys match', () => {
-    expect(applyPronunciationOverrides('Just a cheeseburger', map)).toBe('Just a cheeseburger');
+    expect(applyPronunciationOverrides('Just a haircut', map)).toBe('Just a haircut');
   });
 
   it('does not crash on keys containing regex metacharacters', () => {
     // `\b` is ASCII-aware and may or may not fire next to paren chars;
     // the contract here is just "does not throw" when the knowledge base has
     // unusual names. A non-matching pass returns input unchanged.
-    const tricky = { 'soup (spicy)': 'spicy soup' };
-    expect(() => applyPronunciationOverrides('I want soup please', tricky)).not.toThrow();
+    const tricky = { 'massage (deep)': 'deep massage' };
+    expect(() => applyPronunciationOverrides('I want a massage please', tricky)).not.toThrow();
   });
 });

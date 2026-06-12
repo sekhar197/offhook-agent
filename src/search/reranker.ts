@@ -21,7 +21,7 @@ function tokenize(text: string): string[] {
 }
 
 export interface RerankOptions {
-  /** Caller is browsing a known canonical category (e.g. `dessert`).
+  /** Caller is browsing a known canonical category (e.g. `classes`).
    * Entries in that category get a category-intent boost. Sourced from
    * session memory — never hardcoded. */
   activeCategory?: string | null;
@@ -46,7 +46,7 @@ export function rerankResults(
   const minScore = results[results.length - 1].score;
   const scoreRange = Math.max(maxScore - minScore, maxScore * 0.1, 0.001);
 
-  // Detect attribute intent (e.g. dietary) from query via injected signals
+  // Detect attribute intent from query via injected signals
   const activeSignals = vocabulary.attributeSignals.filter(
     d => d.keywords.some(k => lowerQuery.includes(k)),
   );
@@ -79,7 +79,7 @@ export function rerankResults(
 
     // Category-intent boost: when the caller's intent (active or inferred)
     // resolves to a canonical category and the entry belongs to it, push it
-    // up. This is what keeps a "desserts" query from surfacing a main dish.
+    // up. This is what keeps a category query from surfacing an unrelated entry.
     const categoryIntentBoost =
       intentCanonical && entryMatchesCanonical(r.item, intentCanonical, vocabulary)
         ? scoreRange * 1.2

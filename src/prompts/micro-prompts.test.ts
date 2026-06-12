@@ -125,9 +125,9 @@ describe('buildMicroPrompt', () => {
 describe('formatCompactKnowledge', () => {
   it('groups by category and surfaces pronunciation hints', () => {
     const out = formatCompactKnowledge([
-      { id: 'a', name: 'Gyoza Platter', category: 'Food', pronunciationHint: 'ghee-OH-za' },
+      { id: 'a', name: 'Qigong Class', category: 'Classes', pronunciationHint: 'chee-gong' },
     ]);
-    expect(out).toContain('[Food]');
-    expect(out).toContain('(say: ghee-OH-za)');
+    expect(out).toContain('[Classes]');
+    expect(out).toContain('(say: chee-gong)');
   });
 });
