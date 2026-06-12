@@ -149,6 +149,18 @@ export {
   MAX_MESSAGE_CHARS,
 } from './tools/caller-safe.js';
 
+// LLM provider layer (OpenAI-compatible: hosted + local)
+export {
+  resolveLlm,
+  resolveApiKey,
+  LLM_PROVIDER_PRESETS,
+  LlmConfigError,
+  type LlmProviderName,
+  type ResolvedLlm,
+  type LlmConfigInput,
+} from './llm/provider.js';
+export { createLlmClient, chatStream, type LlmClient } from './llm/client.js';
+
 // Action executor
 export {
   executeAction,

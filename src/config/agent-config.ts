@@ -88,7 +88,26 @@ export const AgentConfigSchema = z.object({
   }).prefault({}),
 
   models: z.object({
-    llm: z.string().default('gpt-5.4-mini'),
+    /**
+     * LLM spec. Shorthand string = an OpenAI model name. Object form picks
+     * any OpenAI-compatible provider: hosted (openrouter, nvidia, deepseek,
+     * groq, together) or local (ollama; vllm/llama.cpp via 'custom' +
+     * baseUrl). Examples:
+     *   llm: gpt-5.4-mini
+     *   llm: { provider: openrouter, model: qwen/qwen3-32b }
+     *   llm: { provider: ollama, model: llama3.3 }
+     *   llm: { provider: nvidia, model: nvidia/llama-3.3-nemotron-super-49b-v1 }
+     *   llm: { provider: custom, model: my-model, baseUrl: "http://gpu-box:8000/v1" }
+     */
+    llm: z.union([
+      z.string(),
+      z.object({
+        provider: z.enum(['openai', 'openrouter', 'ollama', 'nvidia', 'deepseek', 'groq', 'together', 'custom']).default('openai'),
+        model: z.string().min(1),
+        baseUrl: z.string().url().optional(),
+        apiKeyEnv: z.string().optional(),
+      }),
+    ]).default('gpt-5.4-mini'),
     /** Hard output cap — long answers become TTS monologues. */
     maxTokens: z.number().int().max(200).default(200),
   }).prefault({}),
@@ -135,6 +154,22 @@ export function loadAgentConfig(path: string): AgentConfig {
     throw new ConfigError(`Cannot read config file at ${path}`);
   }
   return parseAgentConfig(text);
+}
+
+/** Normalize the models.llm field (string shorthand or object) into a
+ *  provider-resolution input. */
+export function llmConfigInput(config: AgentConfig): {
+  provider?: 'openai' | 'openrouter' | 'ollama' | 'nvidia' | 'deepseek' | 'groq' | 'together' | 'custom';
+  model: string;
+  baseUrl?: string;
+  apiKeyEnv?: string;
+  maxTokens: number;
+} {
+  const llm = config.models.llm;
+  if (typeof llm === 'string') {
+    return { provider: 'openai', model: llm, maxTokens: config.models.maxTokens };
+  }
+  return { ...llm, maxTokens: config.models.maxTokens };
 }
 
 /** Derive the prompt-facing identity slice from a full config. */
