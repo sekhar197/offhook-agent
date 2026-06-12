@@ -1,0 +1,33 @@
+{
+  "name": "offhook",
+  "version": "0.0.1",
+  "description": "Don't build a voice agent. Deploy one. A complete, production-hardened AI voice agent — BYOK, one command, phone-ready. (Name reservation — v0.1 in active development.)",
+  "license": "Apache-2.0",
+  "author": "Sekhar Makkapati <sekharmakkapati@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sekhar197/offhook.git"
+  },
+  "homepage": "https://github.com/sekhar197/offhook#readme",
+  "bugs": "https://github.com/sekhar197/offhook/issues",
+  "keywords": [
+    "voice-agent",
+    "voice-ai",
+    "telephony",
+    "sip",
+    "livekit",
+    "stt",
+    "tts",
+    "phone",
+    "receptionist"
+  ],
+  "bin": {
+    "offhook": "index.js"
+  },
+  "files": [
+    "index.js"
+  ],
+  "engines": {
+    "node": ">=20"
+  }
+}
