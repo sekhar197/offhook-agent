@@ -1,9 +1,10 @@
 {
   "name": "offhook",
-  "version": "0.0.1",
-  "description": "Don't build a voice agent. Deploy one. A complete, production-hardened AI voice agent — BYOK, one command, phone-ready. (Name reservation — v0.1 in active development.)",
+  "version": "0.1.0-dev",
+  "description": "Don't build a voice agent. Deploy one. A complete, production-hardened AI voice agent — BYOK, one command, phone-ready.",
   "license": "Apache-2.0",
   "author": "Sekhar Makkapati <sekharmakkapati@gmail.com>",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sekhar197/offhook.git"
@@ -19,15 +20,42 @@
     "stt",
     "tts",
     "phone",
-    "receptionist"
+    "receptionist",
+    "mcp"
   ],
   "bin": {
-    "offhook": "index.js"
+    "offhook": "bin/offhook.js"
   },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
-    "index.js"
+    "bin/",
+    "dist/"
   ],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "dev": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "fastembed": "^2.1.0",
+    "nanoid": "^5.1.11",
+    "openai": "^6.42.0",
+    "yaml": "^2.6.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.8"
+  },
   "engines": {
     "node": ">=20"
+  },
+  "overrides": {
+    "tar": "^7.4.3"
   }
 }
