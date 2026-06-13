@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>offhook — talk to your agent</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { font: 16px/1.5 system-ui, sans-serif; background: #0b0d10; color: #e8eaed;
+           display: grid; place-items: center; min-height: 100vh; margin: 0; }
+    .card { width: min(520px, 92vw); background: #14171c; border: 1px solid #232830;
+            border-radius: 16px; padding: 28px; }
+    h1 { font-size: 20px; margin: 0 0 4px; }
+    .sub { color: #9aa3ad; font-size: 13px; margin: 0 0 20px; }
+    button { font: inherit; font-weight: 600; border: 0; border-radius: 999px; padding: 14px 26px;
+             cursor: pointer; background: #e8633a; color: #fff; }
+    button:disabled { opacity: .5; cursor: default; }
+    button.end { background: #2a2f37; }
+    .status { margin: 18px 0 0; font-size: 14px; color: #9aa3ad; min-height: 20px; }
+    .log { margin-top: 16px; border-top: 1px solid #232830; padding-top: 12px;
+           max-height: 320px; overflow-y: auto; font-size: 14px; }
+    .turn { margin: 8px 0; }
+    .turn .who { color: #6f7782; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+    .turn.you .who { color: #e8633a; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Talk to your offhook agent</h1>
+    <p class="sub">Click, allow your mic, and speak. 100% your config & models.</p>
+    <button id="talk">Start call</button>
+    <button id="end" class="end" style="display:none">End call</button>
+    <div class="status" id="status"></div>
+    <div class="log" id="log"></div>
+  </div>
+
+  <script type="module">
+    import { Room, RoomEvent, Track } from 'https://cdn.jsdelivr.net/npm/livekit-client@2.19.2/+esm';
+
+    const $ = (id) => document.getElementById(id);
+    const setStatus = (s) => { $('status').textContent = s; };
+    const addTurn = (who, text) => {
+      const el = document.createElement('div');
+      el.className = 'turn ' + (who === 'You' ? 'you' : 'agent');
+      el.innerHTML = `<div class="who">${who}</div><div>${text}</div>`;
+      $('log').appendChild(el);
+      $('log').scrollTop = $('log').scrollHeight;
+    };
+
+    let room = null;
+
+    async function start() {
+      $('talk').disabled = true;
+      setStatus('Connecting…');
+      try {
+        const res = await fetch('/api/connect', { method: 'POST' });
+        const { url, token, error } = await res.json();
+        if (error) throw new Error(error);
+
+        room = new Room();
+        room.on(RoomEvent.TrackSubscribed, (track) => {
+          if (track.kind === Track.Kind.Audio) {
+            const el = track.attach();
+            el.autoplay = true;
+            document.body.appendChild(el);
+          }
+        });
+        room.on(RoomEvent.TranscriptionReceived, (segs) => {
+          for (const s of segs) {
+            if (s.final) addTurn(s.language ? 'Agent' : 'Agent', s.text);
+          }
+        });
+        room.on(RoomEvent.Disconnected, () => stop());
+
+        await room.connect(url, token);
+        await room.localParticipant.setMicrophoneEnabled(true);
+
+        setStatus('Connected — say hello.');
+        $('end').style.display = 'inline-block';
+      } catch (e) {
+        setStatus('Error: ' + e.message);
+        $('talk').disabled = false;
+      }
+    }
+
+    async function stop() {
+      if (room) { await room.disconnect(); room = null; }
+      setStatus('Call ended.');
+      $('talk').disabled = false;
+      $('end').style.display = 'none';
+    }
+
+    $('talk').addEventListener('click', start);
+    $('end').addEventListener('click', stop);
+  </script>
+</body>
+</html>

@@ -6,7 +6,7 @@ import { loadKnowledgeFolder } from '../knowledge/loader.js';
 
 // Keep the shipped examples honest: they must always parse and load.
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
-const EXAMPLES = ['business-receptionist', 'personal-secretary'];
+const EXAMPLES = ['business-receptionist', 'personal-secretary', 'self-hosted'];
 
 describe('shipped examples', () => {
   for (const example of EXAMPLES) {

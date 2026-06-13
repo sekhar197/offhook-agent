@@ -61,11 +61,16 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
       await chatCommand(configPath);
       break;
     }
+    case 'dev': {
+      // Browser voice session: token+web server + worker in one process.
+      const { devCommand } = await import('./dev.js');
+      devCommand();
+      break;
+    }
     case 'start':
-    case 'dev':
     case 'console': {
       // Hand off to the LiveKit worker. cli.runApp re-reads argv for the
-      // subcommand (start | dev | console), so we just launch it.
+      // subcommand (start | console), so we just launch it.
       const { runVoiceWorker } = await import('../voice/worker.js');
       runVoiceWorker();
       break;

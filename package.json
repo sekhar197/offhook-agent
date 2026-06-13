@@ -30,7 +30,8 @@
   "types": "dist/index.d.ts",
   "files": [
     "bin/",
-    "dist/"
+    "dist/",
+    "web/"
   ],
   "scripts": {
     "build": "tsc",

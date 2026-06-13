@@ -1,0 +1,47 @@
+# offhook self-hosted voice stack — 100% local, audio never leaves your machine.
+#
+# Containers (this file): LiveKit transport + local STT (Whisper) + local TTS
+# (Kokoro). On the HOST you run Ollama (the LLM) and `offhook dev` (the worker
+# + browser page). Nothing here talks to any cloud.
+#
+#   1. ollama serve            # host — your local LLM (e.g. qwen2.5:3b)
+#   2. docker compose -f docker-compose.selfhost.yml up   # this stack
+#   3. LIVEKIT_URL=ws://localhost:7880 LIVEKIT_API_KEY=devkey \
+#      LIVEKIT_API_SECRET=secret \
+#      offhook dev -c examples/self-hosted/agent.yaml      # host — talk in browser
+#
+# Compatibility note: real-time local STT is the immature link in the chain.
+# The Whisper server below exposes an OpenAI-compatible transcription endpoint;
+# if your offhook STT plugin needs a streaming variant it doesn't implement,
+# swap in a streaming-capable local STT or fall back to a cloud STT. See
+# docs/self-hosting.md.
+
+services:
+  livekit:
+    image: livekit/livekit-server:latest
+    command: --dev --bind 0.0.0.0
+    ports:
+      - "7880:7880"      # signaling (ws)
+      - "7881:7881"      # rtc/tcp
+      - "7882:7882/udp"  # rtc/udp
+    # --dev uses fixed devkey/secret — for LOCAL use only, never production.
+
+  whisper:
+    # OpenAI-compatible local STT (faster-whisper). CPU image; for Apple
+    # Silicon GPU use a Metal-enabled build.
+    image: ghcr.io/speaches-ai/speaches:latest-cpu
+    ports:
+      - "8000:8000"
+    environment:
+      - WHISPER__MODEL=Systran/faster-whisper-small
+    volumes:
+      - speaches-cache:/home/ubuntu/.cache
+
+  kokoro:
+    # OpenAI-compatible local TTS (Kokoro).
+    image: ghcr.io/remsky/kokoro-fastapi-cpu:latest
+    ports:
+      - "8880:8880"
+
+volumes:
+  speaches-cache:

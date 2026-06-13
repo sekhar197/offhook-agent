@@ -1,0 +1,48 @@
+# offhook self-hosted example — 100% local, no cloud, no API keys.
+# Pair with docker-compose.selfhost.yml (LiveKit + Whisper + Kokoro) and a
+# local Ollama. Audio never leaves your machine.
+agent:
+  id: acme-clinic
+  businessName: Acme Wellness Clinic
+  agentName: Robin
+  tone: warm
+  timezone: America/New_York
+
+business:
+  phone: "5551230000"
+  hours:
+    monday: from 8 AM to 6 PM
+    tuesday: from 8 AM to 6 PM
+    wednesday: from 8 AM to 6 PM
+    thursday: from 8 AM to 6 PM
+    friday: from 8 AM to 4 PM
+  policies:
+    parking: Street parking and a free lot on Pine Street.
+
+knowledge:
+  folder: ./knowledge
+
+tools:
+  enabled: [answer_from_knowledge, take_message, transfer_to_human, end_call]
+  transferPhone: "+15551230099"
+
+voice:
+  mode: cascaded
+  # Local STT — OpenAI-compatible Whisper server (docker-compose.selfhost.yml).
+  stt:
+    provider: openai-compatible
+    baseUrl: http://localhost:8000/v1
+  # Local TTS — OpenAI-compatible Kokoro server.
+  tts:
+    provider: openai-compatible
+    baseUrl: http://localhost:8880/v1
+    voice: af_sky
+  turnDetection: stt-endpoint
+  endpointingMaxDelayMs: 2000
+
+models:
+  # Local LLM via Ollama — qwen2.5:3b is fast + good at tool-calling for its
+  # size, the right tradeoff for real-time voice on a laptop.
+  llm:
+    provider: ollama
+    model: qwen2.5:3b
