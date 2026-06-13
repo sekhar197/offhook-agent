@@ -1,0 +1,133 @@
+/**
+ * Voice worker entry — the per-call agent hook.
+ *
+ * Loads agent.yaml + knowledge, builds the brain (search index, phoneme map,
+ * tool registry + capabilities), constructs the OffhookAgent + AgentSession,
+ * connects to the room, greets, and wires graceful shutdown. One worker
+ * process handles one call; the worker pool (worker.ts) scales concurrency.
+ *
+ * Config path comes from OFFHOOK_CONFIG (default ./agent.yaml). Per-turn
+ * prompt refresh (phase + ASR annotation) is a refinement noted inline.
+ */
+
+import { defineAgent, type JobContext, voice } from '@livekit/agents';
+import { resolve, dirname } from 'node:path';
+import { loadAgentConfig, toAgentIdentity, type AgentConfig } from '../config/agent-config.js';
+import { loadKnowledgeFolder } from '../knowledge/loader.js';
+import { hybridSearch } from '../search/hybrid-search.js';
+import { buildMicroPrompt } from '../prompts/micro-prompts.js';
+import { buildPhonemeMap } from './pronunciation.js';
+import { ToolRegistry, type ToolContext as OffhookToolContext } from '../tools/registry.js';
+import { BUILTIN_TOOLS } from '../tools/builtins.js';
+import { executeAction } from '../actions/executor.js';
+import { OffhookAgent } from './agent.js';
+import { buildSession } from './session.js';
+import { buildVoiceTools, type VoiceToolUserData } from './tools-adapter.js';
+import { EMPTY_VOCABULARY, type SearchVocabulary } from '../types.js';
+
+function configPath(): string {
+  return process.env.OFFHOOK_CONFIG || resolve(process.cwd(), 'agent.yaml');
+}
+
+/** Extract the caller's phone number from the SIP participant (identity or the
+ *  canonical attribute), used as a callback-number fallback. */
+function extractSipPhone(room: JobContext['room']): string | undefined {
+  for (const p of room.remoteParticipants.values()) {
+    const attr = p.attributes?.['sip.phoneNumber'];
+    if (attr) return attr;
+    const m = p.identity?.match(/sip_\+?(\d{7,})/);
+    if (m) return m[1];
+  }
+  return undefined;
+}
+
+export async function runEntry(ctx: JobContext): Promise<void> {
+  const path = configPath();
+  const config: AgentConfig = loadAgentConfig(path);
+  const identity = toAgentIdentity(config);
+  const knowledgeDir = resolve(dirname(path), config.knowledge.folder);
+  const entries = loadKnowledgeFolder(knowledgeDir);
+
+  const vocabulary: SearchVocabulary = {
+    ...EMPTY_VOCABULARY,
+    categorySynonyms: config.knowledge.vocabulary.categorySynonyms,
+    aliases: config.knowledge.vocabulary.aliases,
+    ...(config.knowledge.vocabulary.highlightKeywords
+      ? { highlightKeywords: config.knowledge.vocabulary.highlightKeywords }
+      : {}),
+  };
+  const phonemes = buildPhonemeMap(entries.map(e => ({ name: e.name, pronunciationHint: e.pronunciationHint })));
+
+  const registry = new ToolRegistry();
+  for (const t of BUILTIN_TOOLS) registry.register(t);
+
+  await ctx.connect();
+  const callId = ctx.job.id ?? `call_${ctx.room.name}`;
+  const correlationId = ctx.room.name ?? 'room';
+  const callerPhone = extractSipPhone(ctx.room);
+
+  const offhookCtx: OffhookToolContext = {
+    callId,
+    correlationId,
+    agentId: config.agent.id,
+    state: {},
+    searchKnowledge: async (query, excludeIds) =>
+      (await hybridSearch(query, entries, [], { vocabulary }))
+        .filter(r => !(excludeIds ?? []).includes(r.item.id))
+        .map(r => ({
+          id: r.item.id, name: r.item.name, category: r.item.category,
+          ...(r.item.description ? { description: r.item.description } : {}),
+        })),
+    executeAction: async (actionType, payload) => {
+      if (config.tools.webhookUrl) {
+        return executeAction({
+          actionType, payload, webhookUrl: config.tools.webhookUrl,
+          callId, correlationId, agentId: config.agent.id,
+        });
+      }
+      console.log(`[action → console] ${actionType}: ${JSON.stringify(payload)}`);
+      return { status: 'ok' };
+    },
+    transferToHuman: async (reason) => {
+      // SIP REFER transfer is wired in the telephony wave; until then the
+      // model still completes the call, falling back to reading the number.
+      console.log(`[transfer] reason: ${reason} → ${config.tools.transferPhone ?? '(no transferPhone)'}`);
+    },
+    endCall: async () => { ctx.shutdown('agent ended call'); },
+  };
+
+  const userData: VoiceToolUserData = { offhookCtx, registry };
+
+  // Initial instructions: the greeting-phase micro-prompt (persona + knowledge
+  // + directives). Refreshing per turn with live phase + ASR annotation is a
+  // refinement tracked for B6.
+  const instructions = buildMicroPrompt('greeting', {
+    identity,
+    entries,
+    ...(callerPhone ? { callerPhone } : {}),
+  });
+
+  const agent = new OffhookAgent({
+    instructions,
+    tools: buildVoiceTools(registry, config.tools.enabled),
+    phonemes,
+  });
+
+  const session = await buildSession(config, userData);
+
+  ctx.addShutdownCallback(async () => { await session.close?.(); });
+
+  await session.start({ agent, room: ctx.room });
+
+  // Greeting: let the model open per its greeting-phase instructions.
+  await session.generateReply({
+    instructions: 'Greet the caller now in one short sentence per your persona, including the AI disclosure if configured.',
+  });
+}
+
+export default defineAgent({
+  entry: runEntry,
+});
+
+// Re-export voice for the worker to reference the same module instance.
+export { voice };

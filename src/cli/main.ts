@@ -62,9 +62,14 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
       break;
     }
     case 'start':
-      console.log('\n  The voice pipeline lands with v0.1 (Milestone B).');
-      console.log('  Until then: `offhook chat` runs the same agent brain in text.\n');
+    case 'dev':
+    case 'console': {
+      // Hand off to the LiveKit worker. cli.runApp re-reads argv for the
+      // subcommand (start | dev | console), so we just launch it.
+      const { runVoiceWorker } = await import('../voice/worker.js');
+      runVoiceWorker();
       break;
+    }
     case 'help':
     case '--help':
     case '-h':
