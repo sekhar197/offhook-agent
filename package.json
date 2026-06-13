@@ -1,7 +1,7 @@
 {
   "name": "offhook",
   "version": "0.1.0-dev",
-  "description": "Don't build a voice agent. Deploy one. A complete, production-hardened AI voice agent — BYOK, one command, phone-ready.",
+  "description": "Don't build a voice agent. Deploy one. A complete, production-hardened AI voice agent \u2014 BYOK, one command, phone-ready.",
   "license": "Apache-2.0",
   "author": "Sekhar Makkapati <sekharmakkapati@gmail.com>",
   "type": "module",
@@ -39,7 +39,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "dev": "tsx src/index.ts",
-    "bench": "tsx bench/run-bench.ts"
+    "bench": "tsx bench/run-bench.ts",
+    "eval": "tsx src/evals/run.ts"
   },
   "dependencies": {
     "@clack/prompts": "^1.5.1",
