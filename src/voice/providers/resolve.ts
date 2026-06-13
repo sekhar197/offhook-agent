@@ -40,7 +40,9 @@ export interface ProviderPreset {
 const OPENAI = '@livekit/agents-plugin-openai';
 
 export const STT_PRESETS: Record<SttProviderName, ProviderPreset> = {
-  openai:               { plugin: OPENAI, apiKeyEnv: 'OPENAI_API_KEY', defaultModel: 'gpt-4o-transcribe', viaOpenAiPlugin: true },
+  // No defaultModel: the OpenAI realtime-transcription session rejects an
+  // explicit model param and uses its own default (gpt-realtime-whisper).
+  openai:               { plugin: OPENAI, apiKeyEnv: 'OPENAI_API_KEY', viaOpenAiPlugin: true },
   'openai-compatible':  { plugin: OPENAI, apiKeyEnv: 'OPENAI_API_KEY', keyOptional: true, requiresBaseUrl: true, viaOpenAiPlugin: true },
   groq:                 { plugin: OPENAI, apiKeyEnv: 'GROQ_API_KEY', baseUrl: 'https://api.groq.com/openai/v1', defaultModel: 'whisper-large-v3-turbo', viaOpenAiPlugin: true },
   deepgram:             { plugin: '@livekit/agents-plugin-deepgram', apiKeyEnv: 'DEEPGRAM_API_KEY', defaultModel: 'nova-3' },

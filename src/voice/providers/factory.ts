@@ -31,7 +31,7 @@ async function importPlugin(pkg: string, forWhat: string): Promise<Record<string
  * openai-compatible) construct via the OpenAI plugin with a baseURL swap;
  * others use their dedicated plugin.
  */
-export async function createStt(r: ResolvedStt, env = process.env): Promise<sttNs.STT> {
+export async function createStt(r: ResolvedStt, env = process.env, vad?: VAD): Promise<sttNs.STT> {
   const apiKey = resolveProviderKey(r, env);
   const mod = await importPlugin(r.plugin, `voice.stt provider '${r.provider}'`);
 
@@ -42,6 +42,9 @@ export async function createStt(r: ResolvedStt, env = process.env): Promise<sttN
       ...(r.baseUrl ? { baseURL: r.baseUrl } : {}),
       ...(r.model ? { model: r.model } : {}),
       ...(r.language ? { language: r.language } : {}),
+      // Realtime-transcription STT models (e.g. gpt-realtime-whisper) need a
+      // VAD to commit audio at end-of-speech.
+      ...(vad ? { vad } : {}),
     });
   }
 

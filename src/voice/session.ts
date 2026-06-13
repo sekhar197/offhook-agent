@@ -62,7 +62,7 @@ export async function buildSession(
 
   // Cascaded
   const [stt, tts, llm] = await Promise.all([
-    createStt(resolveStt(config.voice.stt), env),
+    createStt(resolveStt(config.voice.stt), env, vad),
     createTts(resolveTts(config.voice.tts), env),
     createVoiceLlm(resolveLlm(llmConfigInput(config)), env),
   ]);
