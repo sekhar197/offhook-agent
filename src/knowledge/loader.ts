@@ -32,13 +32,19 @@ const FileEntrySchema = z.object({
 export class KnowledgeError extends Error {}
 
 function slugify(text: string): string {
-  return text
+  // Unicode-aware: keep letters/numbers from ANY script (Devanagari, Telugu,
+  // CJK, \u2026) so non-Latin entry names produce stable, unique ids instead of
+  // collapsing to empty. Latin diacritics are stripped (caf\u00e9 \u2192 cafe); other
+  // scripts are preserved as-is.
+  const s = text
     .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\u0300-\u036f]/g, '') // strip Latin combining diacritics
+    .normalize('NFC')
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/[^\p{L}\p{N}\p{M}]+/gu, '-') // \p{M} keeps Indic matras attached
     .replace(/^-+|-+$/g, '')
     .slice(0, 64);
+  return s;
 }
 
 function titleFromFilename(file: string): string {

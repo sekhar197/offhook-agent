@@ -1,0 +1,41 @@
+# offhook multilingual example — Telugu (తెలుగు).
+# Telugu is lower-resource: use Whisper-large-v3 for STT and an LLM with strong
+# Telugu (e.g. a larger Llama/Qwen or an Indic-tuned model). See docs/languages.md.
+agent:
+  id: chiru-dental
+  businessName: చిరు డెంటల్ క్లినిక్
+  agentName: స్వాతి
+  tone: warm
+  primaryLanguage: te
+  timezone: Asia/Kolkata
+
+business:
+  phone: "9000000142"
+  hours:
+    monday: ఉదయం 9 గంటల నుండి సాయంత్రం 6 గంటల వరకు
+    friday: ఉదయం 9 గంటల నుండి మధ్యాహ్నం 3 గంటల వరకు
+  policies:
+    bima: మేము చాలా బీమాలను స్వీకరిస్తాము — మొదటి సందర్శనకు మీ కార్డు తీసుకురండి.
+
+knowledge:
+  folder: ./knowledge-te
+
+tools:
+  enabled: [answer_from_knowledge, take_message, transfer_to_human, end_call]
+  transferPhone: "+919000000100"
+
+voice:
+  stt:
+    provider: openai-compatible    # local Whisper — use whisper-large-v3 for Telugu
+    baseUrl: http://localhost:8080/v1
+    language: te
+  tts:
+    provider: openai
+    voice: alloy
+  turnDetection: stt-endpoint
+  endpointingMaxDelayMs: 2200
+
+models:
+  llm:
+    provider: ollama
+    model: qwen2.5:3b              # for production Telugu, prefer a larger/Indic-tuned model

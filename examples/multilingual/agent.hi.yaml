@@ -1,0 +1,41 @@
+# offhook multilingual example — Hindi (हिन्दी).
+# Use a multilingual STT (Whisper-large-v3 / Deepgram nova-3) and an LLM that
+# handles Hindi well. See docs/languages.md.
+agent:
+  id: muskan-dental
+  businessName: मुस्कान डेंटल क्लिनिक
+  agentName: प्रिया
+  tone: warm
+  primaryLanguage: hi
+  timezone: Asia/Kolkata
+
+business:
+  phone: "9810000142"
+  hours:
+    monday: सुबह 9 बजे से शाम 6 बजे तक
+    friday: सुबह 9 बजे से दोपहर 3 बजे तक
+  policies:
+    bima: हम ज़्यादातर बीमा स्वीकार करते हैं — पहली विज़िट पर अपना कार्ड साथ लाएँ।
+
+knowledge:
+  folder: ./knowledge-hi
+
+tools:
+  enabled: [answer_from_knowledge, take_message, transfer_to_human, end_call]
+  transferPhone: "+919810000100"
+
+voice:
+  stt:
+    provider: openai-compatible    # local Whisper — use a multilingual model
+    baseUrl: http://localhost:8080/v1
+    language: hi
+  tts:
+    provider: openai
+    voice: alloy
+  turnDetection: stt-endpoint
+  endpointingMaxDelayMs: 2200       # Hindi callers often pause a touch longer
+
+models:
+  llm:
+    provider: ollama
+    model: qwen2.5:3b

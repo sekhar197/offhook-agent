@@ -1,0 +1,42 @@
+# offhook multilingual example — Spanish (español).
+# Demonstrates the language hooks: agent.primaryLanguage + voice.stt.language
+# steer STT/LLM/TTS. Use a MULTILINGUAL STT model (Whisper-large-v3, Deepgram
+# nova-3) — base.en is English-only. See docs/languages.md.
+agent:
+  id: clinica-sonrisa
+  businessName: Clínica Dental Sonrisa
+  agentName: Lucía
+  tone: warm
+  primaryLanguage: es
+  timezone: America/Mexico_City
+
+business:
+  phone: "5555550142"
+  hours:
+    monday: de 9 de la mañana a 6 de la tarde
+    friday: de 9 de la mañana a 3 de la tarde
+  policies:
+    seguro: Aceptamos la mayoría de los seguros — traiga su tarjeta a la primera visita.
+
+knowledge:
+  folder: ./knowledge-es
+
+tools:
+  enabled: [answer_from_knowledge, take_message, transfer_to_human, end_call]
+  transferPhone: "+525555550100"
+
+voice:
+  stt:
+    provider: openai-compatible    # local Whisper — use a multilingual model
+    baseUrl: http://localhost:8080/v1
+    language: es
+  tts:
+    provider: openai               # multilingual voice; or a local/native one
+    voice: alloy
+  turnDetection: stt-endpoint
+  endpointingMaxDelayMs: 2000
+
+models:
+  llm:
+    provider: ollama
+    model: qwen2.5:3b              # decent multilingual; pick a stronger model for production
