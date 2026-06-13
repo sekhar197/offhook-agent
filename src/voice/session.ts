@@ -45,7 +45,7 @@ export async function buildSession(
 
   const turnHandling = {
     endpointing: { maxDelay: clampEndpointing(config.voice.endpointingMaxDelayMs) },
-    interruption: { enabled: true },
+    interruption: { enabled: config.voice.allowInterruptions },
   };
 
   if (config.voice.mode === 'realtime') {

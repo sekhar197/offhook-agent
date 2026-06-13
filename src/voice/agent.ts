@@ -34,6 +34,12 @@ export class OffhookAgent extends voice.Agent {
     text: ReadableStream<string>,
     modelSettings: voice.ModelSettings,
   ): Promise<ReadableStream<AudioFrame> | null> {
+    // No pronunciation overrides → skip the transform entirely and use the
+    // default TTS node (the transform would be a no-op). Keeps the audio path
+    // minimal for the common case.
+    if (Object.keys(this.phonemes).length === 0) {
+      return voice.Agent.default.ttsNode(this, text, modelSettings);
+    }
     const transform = makeTtsTextTransform(this.phonemes);
     const transformed = text.pipeThrough(
       new TransformStream<string, string>({

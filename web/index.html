@@ -57,7 +57,15 @@
         const { url, token, error } = await res.json();
         if (error) throw new Error(error);
 
-        room = new Room();
+        room = new Room({
+          // Browser-side acoustic echo cancellation so the agent's own voice
+          // through your speakers isn't captured as "user speech".
+          audioCaptureDefaults: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
+        });
         room.on(RoomEvent.TrackSubscribed, (track) => {
           if (track.kind === Track.Kind.Audio) {
             const el = track.attach();

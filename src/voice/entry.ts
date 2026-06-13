@@ -111,6 +111,9 @@ export async function runEntry(ctx: JobContext): Promise<void> {
     instructions,
     tools: buildVoiceTools(registry, config.tools.enabled),
     phonemes,
+    // Disable barge-in at the agent level too (not just the session) so echo
+    // of the agent's own audio can't abort its replies on speakerphone setups.
+    allowInterruptions: config.voice.allowInterruptions,
   });
 
   const session = await buildSession(config, userData);
@@ -119,10 +122,11 @@ export async function runEntry(ctx: JobContext): Promise<void> {
 
   await session.start({ agent, room: ctx.room });
 
-  // Greeting: let the model open per its greeting-phase instructions.
-  await session.generateReply({
-    instructions: 'Greet the caller now in one short sentence per your persona, including the AI disclosure if configured.',
-  });
+  // Greeting: a static spoken line via TTS (deterministic — does not depend on
+  // the LLM producing the opener). The model drives the conversation after.
+  const greeting = config.agent.greeting
+    || `Thanks for calling ${identity.businessName}. This is ${identity.agentName ?? 'the receptionist'}. How can I help you today?`;
+  await session.say(greeting);
 }
 
 export default defineAgent({

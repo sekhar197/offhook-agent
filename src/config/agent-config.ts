@@ -136,6 +136,10 @@ export const AgentConfigSchema = z.object({
     turnDetection: z.enum(['semantic', 'livekit', 'stt-endpoint']).default('stt-endpoint'),
     /** Endpointing maxDelay ms; clamped by ENDPOINTING_BOUNDS at runtime. */
     endpointingMaxDelayMs: z.number().int().min(1500).max(3000).default(2000),
+    /** Allow the caller to interrupt the agent mid-sentence (barge-in). Turn
+     *  OFF for speakerphone/echo-prone setups where the agent's own audio
+     *  would otherwise interrupt it. Default true. */
+    allowInterruptions: z.boolean().default(true),
     /** S2S model settings, used only when mode = realtime. */
     realtime: z.object({
       provider: z.enum(['openai', 'google']).default('openai'),
