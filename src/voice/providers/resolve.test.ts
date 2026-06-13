@@ -19,11 +19,13 @@ describe('resolveStt', () => {
     expect(r.viaOpenAiPlugin).toBe(false);
   });
 
-  it('defaults to openai (single-key mode)', () => {
+  it('defaults to openai (single-key mode) with no model param', () => {
     const r = resolveStt({});
     expect(r.provider).toBe('openai');
     expect(r.viaOpenAiPlugin).toBe(true);
-    expect(r.model).toBe('gpt-4o-transcribe');
+    // OpenAI realtime-transcription rejects an explicit model param and uses
+    // its own default — so we deliberately resolve no model here.
+    expect(r.model).toBeUndefined();
   });
 
   it('groq rides the OpenAI plugin via its compatible endpoint', () => {
