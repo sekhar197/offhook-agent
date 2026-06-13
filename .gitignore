@@ -22,3 +22,6 @@ coverage/
 .vscode/
 examples/*/agent.ollama.yaml
 examples/*/agent.local.yaml
+
+# local model caches
+.cache/

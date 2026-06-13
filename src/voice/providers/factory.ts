@@ -32,6 +32,17 @@ async function importPlugin(pkg: string, forWhat: string): Promise<Record<string
  * others use their dedicated plugin.
  */
 export async function createStt(r: ResolvedStt, env = process.env, vad?: VAD): Promise<sttNs.STT> {
+  // Local servers (openai-compatible) speak the BATCH transcription endpoint,
+  // not OpenAI's realtime WS — route them to offhook's local batch adapter
+  // (wrapped with VAD for streaming). Fully-local STT, no provider lock-in.
+  if (r.provider === 'openai-compatible') {
+    if (!vad) {
+      throw new VoiceProviderError('Local (openai-compatible) STT needs a VAD to chunk speech; none was provided.');
+    }
+    const { createLocalBatchStt } = await import('./local-batch-stt.js');
+    return createLocalBatchStt(r, vad, env);
+  }
+
   const apiKey = resolveProviderKey(r, env);
   const mod = await importPlugin(r.plugin, `voice.stt provider '${r.provider}'`);
 
