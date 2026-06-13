@@ -25,3 +25,6 @@ examples/*/agent.local.yaml
 
 # local model caches
 .cache/
+
+# generated eval scorecard (regenerate with a capable judge for launch)
+docs/scorecard.md

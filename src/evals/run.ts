@@ -43,6 +43,19 @@ async function main() {
   const llm = resolveLlm(llmConfigInput(config));
   const { client } = createLlmClient(llm);
 
+  // The JUDGE should be a capable model even when the agent is small — a weak
+  // judge can't produce reliable verdicts (it safe-defaults to FAIL). Point
+  // OFFHOOK_JUDGE_CONFIG at another agent.yaml to use its LLM for judging;
+  // otherwise the judge reuses the agent's model.
+  let judgeClient = client;
+  let judgeLlm = llm;
+  if (process.env.OFFHOOK_JUDGE_CONFIG) {
+    const judgeCfg = loadAgentConfig(process.env.OFFHOOK_JUDGE_CONFIG);
+    judgeLlm = resolveLlm(llmConfigInput(judgeCfg));
+    judgeClient = createLlmClient(judgeLlm).client;
+    console.log(`(judge model: ${judgeLlm.provider}/${judgeLlm.model})`);
+  }
+
   const registry = new ToolRegistry();
   for (const t of BUILTIN_TOOLS) registry.register(t);
 
@@ -67,7 +80,7 @@ async function main() {
       registry, enabledTools: config.tools.enabled, toolContext,
       promptContext: { identity, entries },
     });
-    const verdict = await judgeCall(call, client, llm);
+    const verdict = await judgeCall(call, judgeClient, judgeLlm);
     verdicts.push(verdict);
     console.log(`${verdict.passed}/${verdict.total} (${call.transcript.length} turns, ${call.endedBy})`);
   }
