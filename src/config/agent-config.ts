@@ -79,12 +79,69 @@ export const AgentConfigSchema = z.object({
   }).prefault({}),
 
   voice: z.object({
-    /** TTS voice id (provider-specific, e.g. a Cartesia voice). */
-    ttsVoiceId: z.string().optional(),
-    ttsModel: z.string().default('sonic-3'),
-    sttModel: z.string().default('nova-3'),
+    /**
+     * Pipeline mode. `cascaded` (default) = STT→LLM→TTS, where the entire
+     * brain (ASR correction, state-gated tools, caller-safety) lives — and
+     * tool-calling is reliable. `realtime` = a speech-to-speech model
+     * (OpenAI gpt-realtime / Gemini Live): lower latency, natural prosody,
+     * but bypasses the text-stage moat and is weaker at tool use. Default
+     * cascaded for a reason (see docs/roadmap.md).
+     */
+    mode: z.enum(['cascaded', 'realtime']).default('cascaded'),
+    /**
+     * STT provider. String shorthand = provider name (default model). Object
+     * form sets model/language/endpoint. `openai-compatible` + baseUrl runs a
+     * local server (faster-whisper). Examples:
+     *   stt: deepgram
+     *   stt: { provider: deepgram, model: nova-3 }
+     *   stt: { provider: openai-compatible, baseUrl: "http://whisper:8000/v1" }
+     */
+    stt: z.union([
+      z.enum(['openai', 'deepgram', 'assemblyai', 'azure', 'google', 'groq', 'openai-compatible']),
+      z.object({
+        provider: z.enum(['openai', 'deepgram', 'assemblyai', 'azure', 'google', 'groq', 'openai-compatible']).default('openai'),
+        model: z.string().optional(),
+        language: z.string().optional(),
+        baseUrl: z.string().url().optional(),
+        apiKeyEnv: z.string().optional(),
+      }),
+    ]).default('openai'),
+    /**
+     * TTS provider. String shorthand = provider name. Object form sets
+     * model/voice/endpoint. `openai-compatible` + baseUrl runs a local server
+     * (Piper/Kokoro). Examples:
+     *   tts: cartesia
+     *   tts: { provider: cartesia, model: sonic-3, voice: "<voice-id>" }
+     *   tts: { provider: openai-compatible, baseUrl: "http://kokoro:8880/v1" }
+     */
+    tts: z.union([
+      z.enum(['openai', 'cartesia', 'elevenlabs', 'rime', 'azure', 'google', 'openai-compatible']),
+      z.object({
+        provider: z.enum(['openai', 'cartesia', 'elevenlabs', 'rime', 'azure', 'google', 'openai-compatible']).default('openai'),
+        model: z.string().optional(),
+        voice: z.string().optional(),
+        baseUrl: z.string().url().optional(),
+        apiKeyEnv: z.string().optional(),
+      }),
+    ]).default('openai'),
+    /** Voice-activity detection. Silero (local) is the only option today. */
+    vad: z.object({
+      provider: z.enum(['silero']).default('silero'),
+    }).prefault({}),
+    /**
+     * Turn detection. `semantic` = Pipecat Smart Turn v3 (mono-PCM, telephony-
+     * safe); `livekit` = LiveKit's multilingual turn-detector; `stt-endpoint`
+     * = pause-timer (clamped by endpointingMaxDelayMs).
+     */
+    turnDetection: z.enum(['semantic', 'livekit', 'stt-endpoint']).default('stt-endpoint'),
     /** Endpointing maxDelay ms; clamped by ENDPOINTING_BOUNDS at runtime. */
     endpointingMaxDelayMs: z.number().int().min(1500).max(3000).default(2000),
+    /** S2S model settings, used only when mode = realtime. */
+    realtime: z.object({
+      provider: z.enum(['openai', 'google']).default('openai'),
+      model: z.string().optional(),
+      voice: z.string().optional(),
+    }).prefault({}),
   }).prefault({}),
 
   models: z.object({
@@ -170,6 +227,17 @@ export function llmConfigInput(config: AgentConfig): {
     return { provider: 'openai', model: llm, maxTokens: config.models.maxTokens };
   }
   return { ...llm, maxTokens: config.models.maxTokens };
+}
+
+/** The voice STT spec from config (string shorthand or object), ready for
+ *  `resolveStt`. */
+export function sttSpec(config: AgentConfig): AgentConfig['voice']['stt'] {
+  return config.voice.stt;
+}
+
+/** The voice TTS spec from config, ready for `resolveTts`. */
+export function ttsSpec(config: AgentConfig): AgentConfig['voice']['tts'] {
+  return config.voice.tts;
 }
 
 /** Derive the prompt-facing identity slice from a full config. */

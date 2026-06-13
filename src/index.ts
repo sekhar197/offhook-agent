@@ -171,5 +171,25 @@ export {
   type ActionErrorReason,
 } from './actions/executor.js';
 
+// Voice provider registries (generic STT/TTS/VAD/LLM/realtime over LiveKit)
+export {
+  resolveStt,
+  resolveTts,
+  resolveProviderKey,
+  createStt,
+  createTts,
+  createVad,
+  createVoiceLlm,
+  createRealtimeModel,
+  STT_PRESETS,
+  TTS_PRESETS,
+  VoiceProviderError,
+  type SttProviderName,
+  type TtsProviderName,
+  type ResolvedStt,
+  type ResolvedTts,
+  type RealtimeSpec,
+} from './voice/providers/index.js';
+
 // Tracing
 export { traceLog, type TraceLevel } from './trace.js';
