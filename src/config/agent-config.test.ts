@@ -45,6 +45,9 @@ describe('parseAgentConfig', () => {
     expect(cfg.tools.enabled).toContain('transfer_to_human');
     expect(cfg.voice.endpointingMaxDelayMs).toBe(2000);
     expect(cfg.models.maxTokens).toBe(200);
+    // Observability on by default → call records written to a jsonl file.
+    expect(cfg.observability.sink).toBe('jsonl');
+    expect(cfg.observability.path).toBe('./call-records.jsonl');
   });
 
   it('parses a full config', () => {

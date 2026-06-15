@@ -26,6 +26,10 @@ examples/*/agent.local.yaml
 # local model caches
 .cache/
 
+# call observability records (the default jsonl sink target)
+call-records.jsonl
+*.call-records.jsonl
+
 # generated eval scorecard (regenerate with a capable judge for launch)
 docs/scorecard.md
 docs/usecases.md

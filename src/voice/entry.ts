@@ -24,6 +24,7 @@ import { OffhookAgent } from './agent.js';
 import { buildSession } from './session.js';
 import { buildVoiceTools, type VoiceToolUserData } from './tools-adapter.js';
 import { EMPTY_VOCABULARY, type SearchVocabulary } from '../types.js';
+import { CallRecorder, sinkFromConfig, attachSessionRecorder } from '../observability/index.js';
 
 function configPath(): string {
   return process.env.OFFHOOK_CONFIG || resolve(process.cwd(), 'agent.yaml');
@@ -118,7 +119,20 @@ export async function runEntry(ctx: JobContext): Promise<void> {
 
   const session = await buildSession(config, userData);
 
-  ctx.addShutdownCallback(async () => { await session.close?.(); });
+  // Observability: one structured CallRecord per call (transcript, tools,
+  // outcome, per-turn latency) flushed to the configured sink. The adapter
+  // listens to session events; finish() is idempotent, so the shutdown
+  // callback is a safety net for when the `close` event doesn't fire.
+  const recorder = new CallRecorder(
+    { callId, correlationId, agentId: config.agent.id },
+    { sink: sinkFromConfig(config.observability) },
+  );
+  const recording = attachSessionRecorder(session as unknown as Parameters<typeof attachSessionRecorder>[0], recorder);
+
+  ctx.addShutdownCallback(async () => {
+    await recording.finish();
+    await session.close?.();
+  });
 
   await session.start({ agent, room: ctx.room });
 

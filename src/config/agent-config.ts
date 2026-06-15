@@ -172,6 +172,23 @@ export const AgentConfigSchema = z.object({
     /** Hard output cap — long answers become TTS monologues. */
     maxTokens: z.number().int().max(200).default(200),
   }).prefault({}),
+
+  /**
+   * Call observability. Every call emits a structured record (transcript,
+   * tools, outcome, per-turn latency) so an operator can review what happened
+   * — the difference between a black box and an operable deployment.
+   *   sink: jsonl  → append one JSON line per call to `path`
+   *   sink: webhook → POST each record to `url`
+   *   sink: console → one-line summary to stdout
+   *   sink: none    → disabled
+   */
+  observability: z.object({
+    sink: z.enum(['jsonl', 'webhook', 'console', 'none']).default('jsonl'),
+    /** File path for the jsonl sink. */
+    path: z.string().default('./call-records.jsonl'),
+    /** Endpoint for the webhook sink. */
+    url: z.string().url().optional(),
+  }).prefault({}),
 });
 
 export type AgentConfig = z.infer<typeof AgentConfigSchema>;
