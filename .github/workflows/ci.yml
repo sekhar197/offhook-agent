@@ -17,3 +17,14 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
+
+  # Verify the production image builds AND the compiled CLI runs inside it.
+  # This is the deploy unit — it must never be broken on main.
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the worker image
+        run: docker build -t offhook:ci .
+      - name: Smoke-test the built CLI in the image
+        run: docker run --rm offhook:ci node bin/offhook.js help
