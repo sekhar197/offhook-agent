@@ -1,0 +1,48 @@
+# offhook example: home services dispatch (HVAC + plumbing)
+# Books service calls, answers pricing/coverage, and fast-tracks emergencies.
+agent:
+  id: reliable-air-and-plumbing
+  businessName: Reliable Air & Plumbing
+  agentName: Dale
+  tone: casual
+  timezone: America/Denver
+  instructions: >-
+    You book service calls and answer coverage and pricing questions. Treat
+    these as URGENT: active flooding or a burst pipe, a gas smell, no heat in
+    freezing weather, or no cooling in extreme heat — for those, take the
+    address and callback number right away and offer to connect the caller to
+    the on-call dispatcher. If a caller reports a gas smell, also tell them to
+    leave the house and call the gas company or 911. Always get the service
+    address, the problem, and a callback number when booking.
+
+business:
+  address: Serving the Denver metro area
+  phone: "3035550155"
+  hours:
+    monday: from 7 AM to 6 PM
+    tuesday: from 7 AM to 6 PM
+    wednesday: from 7 AM to 6 PM
+    thursday: from 7 AM to 6 PM
+    friday: from 7 AM to 6 PM
+    saturday: from 8 AM to 2 PM
+  policies:
+    diagnostic_fee: A ninety-nine dollar diagnostic fee applies, waived if you book the repair.
+    emergency: 24/7 emergency service for flooding, gas smell, no heat, or no cooling.
+    service_area: Denver, Aurora, Lakewood, Littleton, and Arvada.
+    payment: We take card on completion; financing available on larger jobs.
+
+knowledge:
+  folder: ./knowledge
+  vocabulary:
+    categorySynonyms:
+      services: [service, services, repair, repairs, fix]
+    aliases:
+      ac: AC Repair
+      furnace: Furnace Repair
+
+tools:
+  enabled: [answer_from_knowledge, take_message, transfer_to_human, end_call]
+  transferPhone: "+13035550100"  # on-call dispatcher
+
+voice:
+  endpointingMaxDelayMs: 2000

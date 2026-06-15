@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_PERSONAS, RECEPTIONIST_PERSONAS, SECRETARY_PERSONAS, TOUGH_CALLERS,
+  RESTAURANT_PERSONAS, CLINIC_PERSONAS, HOME_SERVICES_PERSONAS,
   localizePersonas, type Persona,
 } from './personas.js';
 
 const ALL: Persona[] = [
   ...DEFAULT_PERSONAS, ...RECEPTIONIST_PERSONAS, ...SECRETARY_PERSONAS, ...TOUGH_CALLERS,
+  ...RESTAURANT_PERSONAS, ...CLINIC_PERSONAS, ...HOME_SERVICES_PERSONAS,
 ];
 
 describe('persona library', () => {

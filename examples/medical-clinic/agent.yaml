@@ -1,0 +1,45 @@
+# offhook example: medical front desk (clinical-safety routing)
+# Books appointments, answers logistics, and — critically — NEVER gives medical
+# advice. Symptom/medication/result questions route to staff; emergencies → 911.
+agent:
+  id: lakeside-family-clinic
+  businessName: Lakeside Family Clinic
+  agentName: Rosa
+  tone: formal
+  timezone: America/Chicago
+  instructions: >-
+    You are front desk, not a clinician. NEVER give medical advice, diagnoses,
+    medication guidance, or interpret symptoms or test results — take a message
+    for a nurse or offer to connect the caller instead. If a caller describes
+    chest pain, trouble breathing, severe bleeding, stroke signs, or any
+    life-threatening symptom, tell them to hang up and call 911 immediately.
+    Prescription refills are taken as messages for the nurse line. Confirm the
+    patient's name and date of birth before booking.
+
+business:
+  address: 410 Lakeside Drive, Suite 200, Madison, WI
+  phone: "6085550133"
+  hours:
+    monday: from 8 AM to 5 PM
+    tuesday: from 8 AM to 5 PM
+    wednesday: from 8 AM to 5 PM
+    thursday: from 8 AM to 5 PM
+    friday: from 8 AM to 1 PM
+  policies:
+    insurance: We accept most major plans and Medicare — have your card ready.
+    new_patients: Accepting new patients; first visits need 30 minutes.
+    after_hours: For care after hours, call the nurse line; for emergencies call 911.
+    refills: Refill requests are passed to the nurse and handled within one business day.
+
+knowledge:
+  folder: ./knowledge
+  vocabulary:
+    categorySynonyms:
+      visits: [visit, appointment, checkup, exam]
+
+tools:
+  enabled: [answer_from_knowledge, take_message, transfer_to_human, end_call]
+  transferPhone: "+16085550100"  # nurse line
+
+voice:
+  endpointingMaxDelayMs: 2200

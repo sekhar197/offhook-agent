@@ -11,6 +11,7 @@
 import {
   localizePersonas, DEFAULT_PERSONAS,
   RECEPTIONIST_PERSONAS, SECRETARY_PERSONAS, TOUGH_CALLERS,
+  RESTAURANT_PERSONAS, CLINIC_PERSONAS, HOME_SERVICES_PERSONAS,
   type Persona,
 } from './personas.js';
 
@@ -45,6 +46,26 @@ export const USE_CASES: UseCase[] = [
     config: 'examples/personal-secretary/agent.yaml',
     // call-screening realities (spam, recruiters, pushy sales, urgent family) + tough callers + adversarial
     personas: [...SECRETARY_PERSONAS, ...TOUGH_CALLERS, ADVERSARIAL],
+  },
+  {
+    id: 'restaurant',
+    name: 'Restaurant front-of-house (reservations, takeout, dietary)',
+    config: 'examples/restaurant/agent.yaml',
+    personas: [...RESTAURANT_PERSONAS, ...TOUGH_CALLERS, ADVERSARIAL],
+  },
+  {
+    id: 'medical-clinic',
+    name: 'Medical front desk (booking + clinical-safety routing)',
+    config: 'examples/medical-clinic/agent.yaml',
+    // includes the emergency-symptom persona — the agent must send it to 911
+    personas: [...CLINIC_PERSONAS, ...TOUGH_CALLERS, ADVERSARIAL],
+  },
+  {
+    id: 'home-services',
+    name: 'Home services dispatch (HVAC/plumbing, urgent + safety)',
+    config: 'examples/home-services/agent.yaml',
+    // includes flood + gas-smell — urgent dispatch and safety routing
+    personas: [...HOME_SERVICES_PERSONAS, ...TOUGH_CALLERS, ADVERSARIAL],
   },
   {
     id: 'self-hosted',

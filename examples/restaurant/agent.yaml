@@ -1,0 +1,46 @@
+# offhook example: restaurant front-of-house
+# Reservations (taken as messages), takeout questions, hours, dietary info.
+agent:
+  id: bella-vita-trattoria
+  businessName: Bella Vita Trattoria
+  agentName: Sofia
+  tone: warm
+  timezone: America/New_York
+  instructions: >-
+    You take reservations and to-go interest as messages with the party size,
+    date, time, name, and a callback number. You are not the kitchen — for
+    allergy-critical questions, take a message for a manager rather than
+    guessing. Parties of six or more are handled by a manager.
+
+business:
+  address: 88 Vine Street, Montclair, NJ
+  phone: "9735550177"
+  hours:
+    tuesday: from 5 PM to 9 PM
+    wednesday: from 5 PM to 9 PM
+    thursday: from 5 PM to 9 PM
+    friday: from 5 PM to 10 PM
+    saturday: from 4 PM to 10 PM
+    sunday: from 4 PM to 9 PM
+  policies:
+    reservations: We hold tables for 15 minutes past the reservation time.
+    large_parties: Parties of six or more are booked through a manager.
+    corkage: BYO wine welcome — twenty dollar corkage per bottle.
+    parking: Street parking and a municipal lot one block down on Bloomfield.
+
+knowledge:
+  folder: ./knowledge
+  vocabulary:
+    categorySynonyms:
+      menu: [menu, dishes, food, specials, plates]
+    aliases:
+      bruschetta: Bruschetta
+      gnocci: Potato Gnocchi
+
+tools:
+  enabled: [answer_from_knowledge, take_message, transfer_to_human, end_call]
+  transferPhone: "+19735550170"
+  # delivery: { channel: sms, to: "+1973...", from: "+1<your-twilio-number>" }
+
+voice:
+  endpointingMaxDelayMs: 2000
