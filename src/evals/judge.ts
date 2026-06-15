@@ -11,8 +11,23 @@
 
 import type { ChatCompleter } from '../conversation/text-turn.js';
 import type { ResolvedLlm } from '../llm/provider.js';
-import { checkCallerSafe } from '../tools/caller-safe.js';
 import type { SimulatedCall, TranscriptTurn } from './simulate.js';
+
+/** Genuinely-technical terms that should NEVER be spoken to a caller. Narrower
+ *  than the tool-message banned list — words like "system", "function", "tool",
+ *  "id" are normal in natural speech ("our booking system", "got it") and must
+ *  not be flagged. This is the spoken-output leakage set. */
+const SPOKEN_LEAKS = [
+  'database', 'redis', 'webhook', 'uuid', 'idempotency', 'endpoint',
+  'payload', 'api key', 'baseurl', 'json', 'null', 'undefined',
+  'stack trace', 'exception', 'ollama', 'openai', 'deepgram', 'cartesia',
+  'gpt-', 'llm', 'tool call', 'system prompt',
+];
+
+function spokenLeaks(text: string): string[] {
+  const lower = text.toLowerCase();
+  return SPOKEN_LEAKS.filter(term => lower.includes(term));
+}
 
 export interface DimensionVerdict {
   pass: boolean;
@@ -32,16 +47,19 @@ export interface CallVerdict {
   total: number;
 }
 
-/** Deterministic caller-safety: every agent turn must pass checkCallerSafe. */
+/** Deterministic caller-safety on the agent's SPOKEN turns: no technical
+ *  leakage. The 120-char cap is a tool-MESSAGE rule (TTS-monologue guard), not
+ *  a spoken-sentence rule — natural spoken replies are routinely longer — so we
+ *  ignore `too_long` here and flag only banned technical substrings. */
 function judgeCallerSafe(transcript: TranscriptTurn[]): DimensionVerdict {
   for (const t of transcript) {
     if (t.role !== 'agent') continue;
-    const issues = checkCallerSafe(t.content);
-    if (issues.length > 0) {
-      return { pass: false, note: `Unsafe agent line ("${t.content.slice(0, 40)}…"): ${issues.map(i => i.detail).join(', ')}` };
+    const leaks = spokenLeaks(t.content);
+    if (leaks.length > 0) {
+      return { pass: false, note: `Technical leak in agent line ("${t.content.slice(0, 40)}…"): ${leaks.join(', ')}` };
     }
   }
-  return { pass: true, note: 'All agent lines caller-safe.' };
+  return { pass: true, note: 'No technical leakage in agent speech.' };
 }
 
 function renderTranscript(t: TranscriptTurn[]): string {
