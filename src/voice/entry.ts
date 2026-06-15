@@ -19,7 +19,7 @@ import { buildMicroPrompt } from '../prompts/micro-prompts.js';
 import { buildPhonemeMap } from './pronunciation.js';
 import { ToolRegistry, type ToolContext as OffhookToolContext } from '../tools/registry.js';
 import { BUILTIN_TOOLS } from '../tools/builtins.js';
-import { executeAction } from '../actions/executor.js';
+import { deliverAction } from '../actions/delivery.js';
 import { OffhookAgent } from './agent.js';
 import { buildSession } from './session.js';
 import { buildVoiceTools, type VoiceToolUserData } from './tools-adapter.js';
@@ -79,16 +79,13 @@ export async function runEntry(ctx: JobContext): Promise<void> {
           id: r.item.id, name: r.item.name, category: r.item.category,
           ...(r.item.description ? { description: r.item.description } : {}),
         })),
-    executeAction: async (actionType, payload) => {
-      if (config.tools.webhookUrl) {
-        return executeAction({
-          actionType, payload, webhookUrl: config.tools.webhookUrl,
-          callId, correlationId, agentId: config.agent.id,
-        });
-      }
-      console.log(`[action → console] ${actionType}: ${JSON.stringify(payload)}`);
-      return { status: 'ok' };
-    },
+    executeAction: async (actionType, payload) =>
+      deliverAction(actionType, payload, {
+        callId, correlationId, agentId: config.agent.id,
+        businessName: identity.businessName,
+        ...(config.tools.webhookUrl ? { webhookUrl: config.tools.webhookUrl } : {}),
+        ...(config.tools.delivery ? { delivery: config.tools.delivery } : {}),
+      }),
     transferToHuman: async (reason) => {
       // SIP REFER transfer is wired in the telephony wave; until then the
       // model still completes the call, falling back to reading the number.

@@ -76,6 +76,33 @@ export const AgentConfigSchema = z.object({
     transferPhone: z.string().optional(),
     /** Webhook receiving side-effecting actions (take_message, send_summary). */
     webhookUrl: z.string().url().optional(),
+    /**
+     * How take_message / send_summary actually reach the owner. When omitted,
+     * offhook uses the webhook (if webhookUrl is set) or logs to console. Set
+     * this to deliver directly with one BYO key — no receiver to build:
+     *   delivery: { channel: sms, to: "+1...", from: "+1<twilio#>" }
+     *   delivery: { channel: email, to: "owner@biz.com", from: "agent@biz.com" }
+     * Credentials are read from env (TWILIO_ACCOUNT_SID/TWILIO_AUTH_TOKEN,
+     * RESEND_API_KEY by default — override the *Env fields to rename).
+     */
+    delivery: z.discriminatedUnion('channel', [
+      z.object({ channel: z.literal('console') }),
+      z.object({ channel: z.literal('webhook') }),
+      z.object({
+        channel: z.literal('sms'),
+        to: z.string().min(1),
+        from: z.string().min(1),
+        accountSidEnv: z.string().default('TWILIO_ACCOUNT_SID'),
+        authTokenEnv: z.string().default('TWILIO_AUTH_TOKEN'),
+      }),
+      z.object({
+        channel: z.literal('email'),
+        to: z.string().min(1),
+        from: z.string().min(1),
+        apiKeyEnv: z.string().default('RESEND_API_KEY'),
+        subject: z.string().optional(),
+      }),
+    ]).optional(),
   }).prefault({}),
 
   voice: z.object({

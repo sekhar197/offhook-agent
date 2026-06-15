@@ -58,6 +58,28 @@ describe('parseAgentConfig', () => {
     expect(cfg.voice.endpointingMaxDelayMs).toBe(2500);
   });
 
+  it('parses an sms delivery channel with env defaults', () => {
+    const cfg = parseAgentConfig(`${MINIMAL}
+tools:
+  delivery:
+    channel: sms
+    to: "+15557654321"
+    from: "+15550001111"
+`);
+    expect(cfg.tools.delivery).toMatchObject({
+      channel: 'sms', to: '+15557654321', from: '+15550001111',
+      accountSidEnv: 'TWILIO_ACCOUNT_SID', authTokenEnv: 'TWILIO_AUTH_TOKEN',
+    });
+  });
+
+  it('rejects an sms delivery channel missing required to/from', () => {
+    expect(() => parseAgentConfig(`${MINIMAL}
+tools:
+  delivery:
+    channel: sms
+`)).toThrow(ConfigError);
+  });
+
   it('rejects maxTokens above 200 (TTS monologue guard)', () => {
     expect(() => parseAgentConfig(FULL.replace('maxTokens: 150', 'maxTokens: 500')))
       .toThrow(ConfigError);

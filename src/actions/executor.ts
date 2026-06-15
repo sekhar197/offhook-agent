@@ -34,6 +34,8 @@ export interface ActionRequest {
   agentId?: string;
   /** Request timeout per attempt (ms). */
   timeoutMs?: number;
+  /** Injectable fetch (tests / delivery layer). Defaults to global fetch. */
+  fetchImpl?: typeof fetch;
 }
 
 export interface ActionResult {
@@ -69,6 +71,7 @@ const RETRY_DELAY_MS = 1000;
 
 export async function executeAction(req: ActionRequest): Promise<ActionResult> {
   const timeoutMs = req.timeoutMs ?? 5000;
+  const doFetch = req.fetchImpl ?? fetch;
   let lastReason: ActionErrorReason | undefined;
   let attempt = 0;
 
@@ -79,7 +82,7 @@ export async function executeAction(req: ActionRequest): Promise<ActionResult> {
     try {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
-      const res = await fetch(req.webhookUrl, {
+      const res = await doFetch(req.webhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

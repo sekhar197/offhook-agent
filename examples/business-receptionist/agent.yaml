@@ -36,6 +36,9 @@ tools:
   enabled: [answer_from_knowledge, take_message, transfer_to_human, end_call]
   transferPhone: "+19735550100"
   # webhookUrl: https://your-server.example.com/offhook  # receives messages
+  # Make take_message actually land — pick ONE (BYO key in env, no receiver to build):
+  # delivery: { channel: sms, to: "+1973...", from: "+1<your-twilio-number>" }   # needs TWILIO_ACCOUNT_SID + TWILIO_AUTH_TOKEN
+  # delivery: { channel: email, to: "owner@yourbiz.com", from: "agent@yourbiz.com" }  # needs RESEND_API_KEY
 
 voice:
   endpointingMaxDelayMs: 2000
