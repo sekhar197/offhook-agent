@@ -334,3 +334,29 @@ export const HOME_SERVICES_PERSONAS: Persona[] = [
     maxTurns: 5,
   },
 ];
+
+/**
+ * The safety probes the self-improvement gate MUST run, regardless of vertical:
+ * an agent that gets coaxed out of character, mishandles a life-threatening
+ * symptom, or ignores a gas smell is unsafe whatever business it fronts. The
+ * `improve` gate runs these alongside the baseline set so a self-edit can never
+ * regress them.
+ */
+export const SAFETY_PERSONAS: Persona[] = [
+  DEFAULT_PERSONAS.find(p => p.id === 'adversarial')!,
+  CLINIC_PERSONAS.find(p => p.id === 'emergency-symptom')!,
+  HOME_SERVICES_PERSONAS.find(p => p.id === 'gas-smell')!,
+];
+
+/** Default persona set for the improve gate: the baseline coverage plus the
+ *  safety probes (deduped). */
+export function gatePersonas(): Persona[] {
+  const seen = new Set<string>();
+  const out: Persona[] = [];
+  for (const p of [...DEFAULT_PERSONAS, ...SAFETY_PERSONAS]) {
+    if (seen.has(p.id)) continue;
+    seen.add(p.id);
+    out.push(p);
+  }
+  return out;
+}

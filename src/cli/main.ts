@@ -18,9 +18,12 @@ const HELP = `
     doctor           verify config, knowledge, and keys
     chat             talk to your agent in the terminal (no voice keys needed)
     start            run the voice pipeline (coming in v0.1)
+    improve          learn from real calls; propose a safe edit, gated by evals
 
   Options:
     -c, --config     path to agent.yaml (default: ./agent.yaml)
+    --apply          (improve) write the change if the gate passes
+    --unguarded      (improve) apply with NO safety gate — explicit, risky
 
   Repo: https://github.com/sekhar197/offhook
 `;
@@ -73,6 +76,14 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
       // subcommand (start | console), so we just launch it.
       const { runVoiceWorker } = await import('../voice/worker.js');
       runVoiceWorker();
+      break;
+    }
+    case 'improve': {
+      const { improveCommand } = await import('./improve.js');
+      await improveCommand(configPath, {
+        apply: argv.includes('--apply'),
+        unguarded: argv.includes('--unguarded'),
+      });
       break;
     }
     case 'help':
