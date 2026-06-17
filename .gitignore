@@ -16,10 +16,11 @@ build/
 logs/
 coverage/
 
-# OS / editor
+# OS / editor / tooling
 .DS_Store
 .idea/
 .vscode/
+.claude/
 examples/*/agent.ollama.yaml
 examples/*/agent.local.yaml
 
@@ -33,3 +34,6 @@ call-records.jsonl
 # generated eval scorecard (regenerate with a capable judge for launch)
 docs/scorecard.md
 docs/usecases.md
+
+# self-improvement run artifacts (scorecard + audit trail)
+improve/

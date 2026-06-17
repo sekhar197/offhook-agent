@@ -19,6 +19,7 @@ const HELP = `
     chat             talk to your agent in the terminal (no voice keys needed)
     start            run the voice pipeline (coming in v0.1)
     improve          learn from real calls; propose a safe edit, gated by evals
+    dashboard        local web UI: call logs, transcripts, scorecard, improve
 
   Options:
     -c, --config     path to agent.yaml (default: ./agent.yaml)
@@ -84,6 +85,11 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
         apply: argv.includes('--apply'),
         unguarded: argv.includes('--unguarded'),
       });
+      break;
+    }
+    case 'dashboard': {
+      const { dashboardCommand } = await import('./dashboard.js');
+      dashboardCommand(configPath);
       break;
     }
     case 'help':
