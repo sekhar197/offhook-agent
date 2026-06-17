@@ -95,11 +95,16 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
     case 'help':
     case '--help':
     case '-h':
-    case undefined:
-      console.log(HELP);
+    case undefined: {
+      const { printBanner } = await import('./banner.js');
+      printBanner();
       break;
-    default:
-      console.log(`\n  Unknown command: ${command}\n${HELP}`);
+    }
+    default: {
+      const { printBanner } = await import('./banner.js');
+      console.log(`\n  Unknown command: ${command}`);
+      printBanner();
       process.exitCode = 1;
+    }
   }
 }

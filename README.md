@@ -17,6 +17,20 @@ flowchart LR
 
 *Autonomous — but it can never ship a change that breaks its own safety evals.*
 
+<!-- TODO(launch): replace this block with an asciinema/GIF of `offhook help` + a session — see docs/local-testing.md -->
+
+```text
+   ██████╗ ███████╗███████╗██╗  ██╗ ██████╗  ██████╗ ██╗  ██╗
+  ██╔═══██╗██╔════╝██╔════╝██║  ██║██╔═══██╗██╔═══██╗██║ ██╔╝
+  ██║   ██║█████╗  █████╗  ███████║██║   ██║██║   ██║█████╔╝
+  ██║   ██║██╔══╝  ██╔══╝  ██╔══██║██║   ██║██║   ██║██╔═██╗
+  ╚██████╔╝██║     ██║     ██║  ██║╚██████╔╝╚██████╔╝██║  ██╗
+   ╚═════╝ ╚═╝     ╚═╝     ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝
+
+  the open, safety-first voice agent
+  it tests itself · it improves itself · it won't break its own safety
+```
+
 ## Why this is different (and what already exists — credit where due)
 
 Self-improving agents ([Hermes](https://github.com/NousResearch/hermes-agent)), voice-eval platforms (Coval, Hamming, Cekura), and eval-gated prompt optimization (DSPy, TextGrad) all exist. offhook is **not** claiming to invent self-improvement. Its specific, uncontested contribution is the **combination**:
@@ -52,7 +66,10 @@ node bin/offhook.js chat      # talk to your agent (real prompts, search, tools)
 npm run verify:safety         # adversarial caller vs your agent — does it hold the line?
 npm run eval                  # the full simulated-caller scorecard
 node bin/offhook.js improve   # learn from call records; propose a safe, gated edit
+node bin/offhook.js dashboard # local web UI: call logs, transcripts, scorecard, improve
 ```
+
+**Full local walkthrough** (including seeding call records to try `improve`, and the local-model path): [docs/local-testing.md](docs/local-testing.md).
 
 **Voice & phone.** A LiveKit account + provider keys turn on the browser-mic and SIP paths (`docker compose up` → talk in your browser; point a number at it to answer real calls). See [docs/deploy.md](docs/deploy.md) and [docs/telephony.md](docs/telephony.md) — honest about what's wired and what isn't.
 
