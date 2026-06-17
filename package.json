@@ -1,6 +1,6 @@
 {
   "name": "offhook",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The open, safety-first voice agent: it tests itself with adversarial callers and improves itself from real calls \u2014 gated so it can't break its own safety. Self-hostable, BYOK, any model.",
   "license": "Apache-2.0",
   "author": "Sekhar Makkapati <sekharmakkapati@gmail.com>",

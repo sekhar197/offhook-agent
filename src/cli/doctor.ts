@@ -91,14 +91,21 @@ export async function doctorCommand(configPath: string): Promise<void> {
     }
   }
 
-  // 5. Voice keys (informational until Milestone B voice pipeline)
-  const dg = !!process.env.DEEPGRAM_API_KEY;
-  const ct = !!process.env.CARTESIA_API_KEY;
+  // 5. Voice readiness — based on the CONFIGURED speech providers (default is
+  //    single-key OpenAI: your OpenAI key does STT + LLM + TTS). Deepgram /
+  //    Cartesia are an optional upgrade, never a requirement.
+  const STT_KEY: Record<string, string | null> = { openai: 'OPENAI_API_KEY', deepgram: 'DEEPGRAM_API_KEY', assemblyai: 'ASSEMBLYAI_API_KEY', azure: 'AZURE_SPEECH_KEY', google: 'GOOGLE_API_KEY', groq: 'GROQ_API_KEY', 'openai-compatible': null };
+  const TTS_KEY: Record<string, string | null> = { openai: 'OPENAI_API_KEY', cartesia: 'CARTESIA_API_KEY', elevenlabs: 'ELEVENLABS_API_KEY', rime: 'RIME_API_KEY', azure: 'AZURE_SPEECH_KEY', google: 'GOOGLE_API_KEY', 'openai-compatible': null };
+  const providerOf = (spec: unknown): string => (typeof spec === 'string' ? spec : (spec as { provider?: string })?.provider ?? 'openai');
+  const sttP = providerOf(config.voice.stt);
+  const ttsP = providerOf(config.voice.tts);
+  const missing = [STT_KEY[sttP], TTS_KEY[ttsP]].filter((k): k is string => !!k && !process.env[k]);
+  const uniqMissing = [...new Set(missing)];
   checks.push({
-    label: 'voice keys', ok: true,
-    detail: dg && ct
-      ? 'Deepgram + Cartesia set'
-      : `text mode ready; for voice set ${[!dg && 'DEEPGRAM_API_KEY', !ct && 'CARTESIA_API_KEY'].filter(Boolean).join(' + ')}`,
+    label: 'voice', ok: true,
+    detail: uniqMissing.length === 0
+      ? `ready — ${sttP} STT + ${ttsP} TTS (LiveKit creds still needed to place a call)`
+      : `text mode ready; for voice set ${uniqMissing.join(' + ')}  (STT: ${sttP}, TTS: ${ttsP})`,
   });
 
   // 6. Webhook + transfer wiring

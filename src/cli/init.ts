@@ -102,19 +102,9 @@ export async function initCommand(targetDir: string): Promise<void> {
     llmYaml = `  llm:\n    provider: ollama\n    model: ${model}`;
   }
 
-  const voiceKeys = await confirm({
-    message: 'Add voice keys now (Deepgram + Cartesia)? You can chat in text without them.',
-    initialValue: false,
-  });
-  bail(voiceKeys);
-  if (voiceKeys) {
-    const dg = await password({ message: `DEEPGRAM_API_KEY (${KEY_LINKS.DEEPGRAM_API_KEY})` });
-    bail(dg);
-    envLines.push(`DEEPGRAM_API_KEY=${dg}`);
-    const ct = await password({ message: `CARTESIA_API_KEY (${KEY_LINKS.CARTESIA_API_KEY})` });
-    bail(ct);
-    envLines.push(`CARTESIA_API_KEY=${ct}`);
-  }
+  // No separate "voice keys" step: speech defaults to OpenAI, so a single
+  // OpenAI key already powers STT + LLM + TTS. Deepgram/Cartesia are an
+  // optional production upgrade, documented (commented) in the generated config.
 
   // ---- write files --------------------------------------------------
   const id = (businessName as string).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -142,6 +132,12 @@ tools:
   enabled: [answer_from_knowledge, take_message, transfer_to_human, end_call]
   # transferPhone: "+15550001111"
   # webhookUrl: https://your-server.example.com/offhook
+
+# voice: speech defaults to OpenAI — one OPENAI_API_KEY powers STT + LLM + TTS.
+#   Production-quality upgrade (optional):
+#     stt: { provider: deepgram, model: nova-3 }                       # DEEPGRAM_API_KEY
+#     tts: { provider: cartesia, model: sonic-3, voice: "<voice-id>" } # CARTESIA_API_KEY
+#   Fully local (no API keys): { provider: openai-compatible, baseUrl: "http://localhost:8080/v1" }
 
 models:
 ${llmYaml}
