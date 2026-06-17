@@ -4,12 +4,18 @@
 
 offhook is a production-hardened, self-hostable AI voice agent that answers phone calls. Bring your own keys, any model (hosted or fully local), one config file. What makes it different isn't that it talks — lots of things talk. It's that **offhook tests itself with adversarial callers, and can improve itself from real calls — gated so a self-edit can never regress the behaviors that matter** (handing a chest-pain caller to 911, never giving medical advice, never leaking internals).
 
+<!-- TODO(launch): replace with the 90s demo GIF/asciinema — see docs/launch/demo-storyboard.md -->
+
+```mermaid
+flowchart LR
+  A([Your real calls]) --> B[Find what's failing]
+  B --> C[Propose a config fix]
+  C --> D{Re-run the FULL eval<br/>incl. safety personas:<br/>911 · no-medical-advice · gas-leak}
+  D -->|safety holds| E([✅ Apply + keep a backup])
+  D -->|safety regressed| F([⛔ Blocked — nothing changes])
 ```
-offhook improve
-  → reads your real calls → finds what's failing → proposes a config fix
-  → re-runs the full eval INCLUDING the safety personas
-  → ships the change ONLY if safety still holds.   Otherwise: blocked.
-```
+
+*Autonomous — but it can never ship a change that breaks its own safety evals.*
 
 ## Why this is different (and what already exists — credit where due)
 
