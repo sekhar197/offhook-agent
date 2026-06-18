@@ -20,6 +20,7 @@ const HELP = `
     start            run the voice pipeline (coming in v0.1)
     improve          learn from real calls; propose a safe edit, gated by evals
     dashboard        local web UI: call logs, transcripts, scorecard, improve
+    deploy           generate a deploy wrapper (--target docker|fly|railway|render|k8s)
 
   Options:
     -c, --config     path to agent.yaml (default: ./agent.yaml)
@@ -90,6 +91,13 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
     case 'dashboard': {
       const { dashboardCommand } = await import('./dashboard.js');
       dashboardCommand(configPath);
+      break;
+    }
+    case 'deploy': {
+      const ti = argv.indexOf('--target');
+      const target = ti >= 0 ? argv[ti + 1] : undefined;
+      const { deployCommand } = await import('./deploy.js');
+      deployCommand(configPath, target);
       break;
     }
     case 'help':

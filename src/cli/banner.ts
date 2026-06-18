@@ -41,6 +41,7 @@ ${wordmark()}
     ${em('eval')}       the full simulated-caller scorecard  (npm run eval)
     ${em('improve')}    learn from real calls — applied only if it passes the safety gate
     ${em('dashboard')}  local web UI: call logs, transcripts, scorecard, improve
+    ${em('deploy')}     generate a deploy wrapper for any platform (fly/railway/render/k8s/docker)
     ${em('start')}      answer real phone calls (needs LiveKit + provider keys)
     ${em('doctor')}     verify config, knowledge, and keys
 
