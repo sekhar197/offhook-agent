@@ -39,5 +39,9 @@ improve/
 # packed npm tarballs
 *.tgz
 
+# mutation-testing output (Stryker)
+reports/
+.stryker-tmp/
+
 # local telephony state (provisioned number/trunk/dispatch IDs)
 .offhook/

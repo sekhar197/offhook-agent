@@ -3,7 +3,7 @@ import { mkdtempSync, writeFileSync, readFileSync, existsSync, readdirSync, rmSy
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { parseAgentConfig } from './agent-config.js';
-import { renderConfigEdits, applyConfigEdits, isEditablePath, ConfigEditError } from './edit.js';
+import { renderConfigEdits, applyConfigEdits, isEditablePath, editableValues, ConfigEditError } from './edit.js';
 
 const YAML = `# my agent — keep this comment
 agent:
@@ -21,6 +21,23 @@ describe('isEditablePath', () => {
     expect(isEditablePath('knowledge.vocabulary.aliases.cleening')).toBe(true);
     expect(isEditablePath('models.llm')).toBe(false);               // the moat
     expect(isEditablePath('models.maxTokens')).toBe(false);
+  });
+
+  it('a prefix matches exactly or with a dot — never a same-stem sibling', () => {
+    expect(isEditablePath('business.hours')).toBe(true);            // exact prefix
+    expect(isEditablePath('business.hoursX')).toBe(false);          // same-stem sibling, NOT under the prefix
+    expect(isEditablePath('business.policiesExtra')).toBe(false);
+    expect(isEditablePath('knowledge.vocabulary.aliasesX')).toBe(false);
+  });
+});
+
+describe('editableValues', () => {
+  it('returns the current values of the allowlisted fields only', () => {
+    const cfg = parseAgentConfig(YAML);
+    const vals = editableValues(cfg);
+    expect(vals['agent.tone']).toBe('warm');
+    expect(vals['voice.endpointingMaxDelayMs']).toBe(2000);
+    expect('models.llm' in vals).toBe(false); // the brain is never surfaced
   });
 });
 
@@ -43,6 +60,12 @@ describe('renderConfigEdits', () => {
   it('the schema is the backstop — an out-of-bounds allowlisted edit is rejected', () => {
     // endpointingMaxDelayMs is editable, but the zod schema enforces 1500–3000.
     expect(() => renderConfigEdits(YAML, [{ path: 'voice.endpointingMaxDelayMs', value: 800 }])).toThrow();
+  });
+
+  it('a null value deletes the field (deleteIn branch), not sets it to "null"', () => {
+    const out = renderConfigEdits(YAML, [{ path: 'agent.tone', value: null }]);
+    expect(out).not.toContain('warm');
+    expect(out).not.toMatch(/tone:\s*null/);
   });
 });
 

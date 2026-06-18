@@ -74,11 +74,18 @@ each tier lands.
       (`src/security/secret-leak.test.ts`). *Note: call-record transcripts capture
       what the caller said by design; a PII-redaction middleware is roadmap, not
       built — see Honest limitations.*
-- [ ] **Mutation testing (Stryker)** — on the gate, caller-safe linter,
-      idempotency, and config allowlist, to prove the tests would catch a
-      regression (not just execute the code).
-- [ ] **Property/fuzz (fast-check)** — search invariants, caller-safe, config-edit
-      allowlist, idempotency-key uniqueness.
+- [x] **Mutation testing (Stryker)** — `npm run test:mutation`, scoped to the
+      safety/correctness crown jewels. Aggregate **71%**; caller-safe linter
+      **91%**, config-edit allowlist **73%**, idempotency/executor **70%**, gate
+      decision logic fully killed except cosmetic reason-string formatting.
+      (ASR-correction is excluded — it's heuristic quality code whose
+      safety-relevant guards are covered by the corpus; its scoring thresholds
+      produce equivalent-mutant noise, not signal.) Found and fixed real holes:
+      a `>`→`>=` length boundary and the gate's missing-dimension fail-safe.
+- [x] **Property/fuzz (fast-check)** — caller-safe invariants (banned term always
+      caught, length boundary, never throws) and the config-edit allowlist (no
+      non-allowlisted path ever writes) across thousands of generated inputs
+      (`*.property.test.ts`).
 - [ ] **Stress / concurrency / chaos** — parallel call-record writes, idempotency
       under burst, graceful degradation under injected latency/drops, large
       knowledge base. *Measured ceilings will be documented here — no silent caps.*

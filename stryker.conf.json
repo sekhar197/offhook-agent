@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "_comment": "Mutation testing scoped to the safety/correctness crown jewels — proves the tests would CATCH a regression, not just execute the code. ASR-correction is deliberately NOT here: it's heuristic QUALITY code whose safety-relevant guards (never fire on negation/greeting/injection) are covered by src/security/corpus.test.ts + asr-correction.test.ts, while its scoring thresholds produce many equivalent mutants that add noise, not signal. Run with `npm run test:mutation`; not in the fast PR lane.",
+  "testRunner": "vitest",
+  "mutate": [
+    "src/tools/caller-safe.ts",
+    "src/improve/gate.ts",
+    "src/actions/executor.ts",
+    "src/config/edit.ts"
+  ],
+  "reporters": ["clear-text", "progress"],
+  "coverageAnalysis": "perTest",
+  "concurrency": 4,
+  "thresholds": { "high": 85, "low": 65, "break": 60 }
+}

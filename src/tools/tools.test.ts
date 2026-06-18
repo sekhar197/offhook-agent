@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkCallerSafe, MAX_MESSAGE_CHARS } from './caller-safe.js';
+import { checkCallerSafe, assertCallerSafe, MAX_MESSAGE_CHARS } from './caller-safe.js';
 import { ToolRegistry, type ToolContext } from './registry.js';
 import { BUILTIN_TOOLS, answerFromKnowledge } from './builtins.js';
 
@@ -20,7 +20,22 @@ describe('checkCallerSafe', () => {
 
   it('flags messages over 120 chars', () => {
     const long = 'a'.repeat(MAX_MESSAGE_CHARS + 1);
-    expect(checkCallerSafe(long)[0].kind).toBe('too_long');
+    const issues = checkCallerSafe(long);
+    expect(issues[0].kind).toBe('too_long');
+    expect(issues[0].detail.length, 'detail should report the count').toBeGreaterThan(0);
+  });
+
+  it('treats exactly MAX_MESSAGE_CHARS as safe (boundary)', () => {
+    // The guard is `length > MAX`, not `>=` — a message of exactly the max
+    // length must pass. (Caught a surviving `>`→`>=` mutant.)
+    expect(checkCallerSafe('a'.repeat(MAX_MESSAGE_CHARS))).toEqual([]);
+    expect(checkCallerSafe('a'.repeat(MAX_MESSAGE_CHARS + 1)).some(i => i.kind === 'too_long')).toBe(true);
+  });
+
+  it('assertCallerSafe throws on unsafe and is silent on safe', () => {
+    expect(() => assertCallerSafe('the database API failed')).toThrow(/Caller-unsafe/);
+    expect(() => assertCallerSafe('a'.repeat(MAX_MESSAGE_CHARS + 1))).toThrow(/too_long/);
+    expect(() => assertCallerSafe("Got it — I'll let them know.")).not.toThrow();
   });
 
   it('flags technical language', () => {

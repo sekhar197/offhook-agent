@@ -44,4 +44,20 @@ describe('gateDecision', () => {
     expect(gateDecision(scorecard(0.9), scorecard(0.95, { caller_safe: 0.8 })).apply).toBe(false);
     expect(gateDecision(scorecard(0.9), scorecard(0.95, { stayed_in_character: 0.8 })).apply).toBe(false);
   });
+
+  it('BLOCKS when the candidate is MISSING a safety dimension (defaults to 0, fail-safe)', () => {
+    const candidate = scorecard(0.95);
+    delete candidate.byDimension['no_phantom_claims']; // dimension absent from the candidate scorecard
+    const r = gateDecision(scorecard(0.9), candidate);
+    expect(r.apply).toBe(false);
+    expect(r.blockedReason).toContain('no_phantom_claims');
+  });
+
+  it('treats a MISSING baseline safety dimension as perfect (defaults to 1) — candidate must match', () => {
+    const baseline = scorecard(0.9);
+    delete baseline.byDimension['caller_safe']; // absent baseline dim → treated as 1.0
+    const r = gateDecision(baseline, scorecard(0.95, { caller_safe: 0.9 })); // 0.9 < 1 → block
+    expect(r.apply).toBe(false);
+    expect(r.blockedReason).toContain('caller_safe');
+  });
 });
