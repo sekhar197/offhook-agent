@@ -74,16 +74,58 @@ async function panelScorecard() {
     <div class="card"><div class="muted" style="margin-bottom:8px">Failures</div>${fails ? `<ul>${fails}</ul>` : '<div class="muted">None — all checks passed.</div>'}</div>`;
 }
 
+const CFG_INPUT_STYLE = 'width:100%;background:var(--panel-2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:6px';
+const CFG_FIELDS = [
+  ['agent.agentName', 'Agent name', 'text'],
+  ['agent.greeting', 'Greeting', 'text'],
+  ['agent.tone', 'Tone', 'select'],
+  ['agent.instructions', 'Instructions', 'area'],
+  ['tools.transferPhone', 'Transfer phone', 'text'],
+  ['voice.endpointingMaxDelayMs', 'Endpointing max (ms)', 'number'],
+  ['voice.allowInterruptions', 'Allow barge-in', 'bool'],
+];
+
 async function panelConfig() {
   const c = await api('/api/config');
-  view.innerHTML = `<h1>Config</h1><div class="card"><div class="kv">
-    <div class="k">Agent</div><div>${esc(c.agent.agentName || '—')} at ${esc(c.agent.businessName)} <span class="muted">(${esc(c.agent.tone)})</span></div>
-    <div class="k">Tools</div><div>${esc(c.tools.enabled.join(', '))}</div>
-    <div class="k">Delivery</div><div>${esc(c.tools.delivery)}</div>
-    <div class="k">Pronunciation aliases</div><div>${c.aliasCount}</div>
-    <div class="k">Observability</div><div>${esc(c.observability.sink)} → ${esc(c.observability.path)}</div>
-    <div class="k">Voice mode</div><div>${esc(c.voiceMode)}</div>
-  </div></div>`;
+  const ed = c.editable || {};
+  const val = (p) => { const v = ed[p]; return v == null ? '' : (typeof v === 'string' ? v : JSON.stringify(v)); };
+  const inputFor = ([p, label, type]) => {
+    let input;
+    if (type === 'select') input = `<select data-path="${p}" style="${CFG_INPUT_STYLE}">${['warm', 'formal', 'casual'].map(t => `<option ${ed[p] === t ? 'selected' : ''}>${t}</option>`).join('')}</select>`;
+    else if (type === 'bool') input = `<input type="checkbox" data-path="${p}" ${ed[p] ? 'checked' : ''}>`;
+    else if (type === 'area') input = `<textarea data-path="${p}" rows="3" style="${CFG_INPUT_STYLE}">${esc(val(p))}</textarea>`;
+    else input = `<input type="${type}" data-path="${p}" value="${esc(val(p))}" style="${CFG_INPUT_STYLE}">`;
+    return `<div class="k">${label}</div><div>${input}</div>`;
+  };
+  view.innerHTML = `<h1>Config</h1>
+    <div class="card"><div class="kv">${CFG_FIELDS.map(inputFor).join('')}</div>
+      <div style="margin-top:14px"><button class="primary" id="cfg-save">Save</button> <span id="cfg-status" class="muted"></span></div>
+    </div>
+    <div class="card muted" style="font-size:12px">Edits are validated against the schema and a timestamped backup is written before any change. The model + the brain's prompt are not editable here.</div>`;
+  document.getElementById('cfg-save').onclick = saveConfig;
+}
+
+async function saveConfig() {
+  const status = document.getElementById('cfg-status');
+  const edits = [];
+  for (const el of view.querySelectorAll('[data-path]')) {
+    const path = el.getAttribute('data-path');
+    let value;
+    if (el.type === 'checkbox') value = el.checked;
+    else {
+      const raw = el.value;
+      if (raw === '') continue; // skip empties — don't write blank optional fields
+      try { value = JSON.parse(raw); } catch { value = raw; }
+    }
+    edits.push({ path, value });
+  }
+  status.textContent = 'saving…'; status.className = 'muted';
+  try {
+    const r = await fetch('/api/config', { method: 'PUT', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ edits }) });
+    const j = await r.json();
+    status.textContent = j.ok ? `✓ saved · backup ${j.backupPath}` : `✗ ${j.error}`;
+    status.className = j.ok ? 'pass' : 'block';
+  } catch (e) { status.textContent = `✗ ${e.message}`; status.className = 'block'; }
 }
 
 async function panelKeys() {

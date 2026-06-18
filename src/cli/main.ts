@@ -100,6 +100,13 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
       deployCommand(configPath, target);
       break;
     }
+    case 'config': {
+      const { configCommand } = await import('./config.js');
+      // args after 'config', minus the -c/--config flag pair
+      const rest = argv.slice(1).filter((a, i, arr) => a !== '-c' && a !== '--config' && arr[i - 1] !== '-c' && arr[i - 1] !== '--config');
+      configCommand(configPath, rest);
+      break;
+    }
     case 'help':
     case '--help':
     case '-h':

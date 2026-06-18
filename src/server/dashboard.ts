@@ -26,6 +26,7 @@ import { createLlmClient } from '../llm/client.js';
 import { readCallSummaries, getCallRecord, readCallRecords } from '../observability/call-store.js';
 import { gatePersonas } from '../evals/personas.js';
 import { runImprovePipeline } from '../improve/pipeline.js';
+import { editableValues, applyConfigEdits, type ConfigEdit } from '../config/edit.js';
 
 export interface DashboardOptions {
   configPath: string;
@@ -48,6 +49,7 @@ export function getConfigSummary(configPath: string) {
     aliasCount: Object.keys(c.knowledge.vocabulary.aliases).length,
     observability: { sink: c.observability.sink, path: c.observability.path },
     voiceMode: c.voice.mode,
+    editable: editableValues(c), // current values of the allowlisted fields, for the editor
   };
 }
 
@@ -152,6 +154,15 @@ export function startDashboardServer(opts: DashboardOptions): { close: () => voi
         if (extractToken(req) !== token) return json(res, 401, { error: 'unauthorized' });
 
         if (req.method === 'POST' && path === '/api/improve') { await handleImprove(req, res, opts, improveDir); return; }
+        if (req.method === 'PUT' && path === '/api/config') {
+          try {
+            const body = JSON.parse((await readBody(req)) || '{}') as { edits?: ConfigEdit[] };
+            const result = applyConfigEdits(opts.configPath, body.edits ?? []);
+            return json(res, 200, { ok: true, backupPath: result.backupPath });
+          } catch (e) {
+            return json(res, 400, { ok: false, error: e instanceof Error ? e.message.split('\n')[0] : String(e) });
+          }
+        }
         if (req.method === 'GET' && path === '/api/calls') {
           const limit = Number(url.searchParams.get('limit') ?? '50');
           const offset = Number(url.searchParams.get('offset') ?? '0');
