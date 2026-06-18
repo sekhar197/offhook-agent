@@ -5,7 +5,7 @@ page is deliberately blunt about what is and isn't verified. No silent caps: if 
 claim is only proven by a unit test with a fake, it says so; if a path has never
 run on real audio in *this* repo, it says that too.
 
-**Last updated:** 2026-06-18 · **Suite:** 338 tests, all passing, ~2.3s, fully
+**Last updated:** 2026-06-18 · **Suite:** 345 tests, all passing, ~1.6s, fully
 account-free (`npm test`).
 
 ---
@@ -27,6 +27,7 @@ These run with **no API keys** — fakes are injected at every I/O boundary (fak
 | **Observability** | Call records (transcript, tools, outcome, latency), malformed-line tolerance | `src/observability/*.test.ts` |
 | **Deploy generators** | fly / railway / render / k8s / docker artifacts (snapshot-tested) from one image | `src/deploy/generators.test.ts` |
 | **Dashboard API** | Routes, token guard, no-key-value-leak | `src/server/dashboard.test.ts` |
+| **Adversarial corpus** | 50+ leak/injection/exfil probes through the caller-safe linter; secrets never reach the dashboard surface | `src/security/*.test.ts` |
 
 ## 🔑 Wired, but needs live accounts to verify (not run in CI)
 
@@ -63,11 +64,16 @@ See [runbook-livecall.md](runbook-livecall.md) for the live verification steps a
 Tracking the hardening pass that backs the "production-grade" claim. Updated as
 each tier lands.
 
-- [ ] **Adversarial corpus** — 50+ jailbreak / prompt-injection / exfil payloads
-      through the caller-safe linter (account-free), plus dedicated injection /
-      exfil / PII-bait personas in the safety gate.
-- [ ] **PII-leak tests** — assert phone numbers / emails aren't emitted raw where
-      they shouldn't be; document where redaction is and isn't done.
+- [x] **Adversarial corpus** — 50+ leak / prompt-injection / exfil probes through
+      the caller-safe linter, account-free (`src/security/corpus.test.ts`), plus a
+      bite-test (weakening the guard makes it fail). Dedicated `prompt-injection` /
+      `system-exfil` / `pii-fishing` personas now run in the safety gate
+      (`src/evals/personas.ts` → `SAFETY_PERSONAS`).
+- [x] **Secret-leak tests** — sentinel secrets for every provider swept through
+      the dashboard's config + key-status projections; none ever appear in output
+      (`src/security/secret-leak.test.ts`). *Note: call-record transcripts capture
+      what the caller said by design; a PII-redaction middleware is roadmap, not
+      built — see Honest limitations.*
 - [ ] **Mutation testing (Stryker)** — on the gate, caller-safe linter,
       idempotency, and config allowlist, to prove the tests would catch a
       regression (not just execute the code).

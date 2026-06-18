@@ -12,9 +12,17 @@
 export const MAX_MESSAGE_CHARS = 120;
 
 export const BANNED_SUBSTRINGS = [
+  // Infrastructure / implementation leaks — no business reaching a caller's ear.
   'tool', 'system', 'API', 'database', 'Redis', 'technical', 'UUID',
   'search results', 'ordering system', 'function', 'endpoint', 'webhook',
   'payload', 'idempotency',
+  // Identity / out-of-character leaks — what a jailbroken or confused model
+  // says when it breaks character. Multi-word where possible so word-boundary
+  // matching can't false-positive on legitimate business speech (e.g. "as an
+  // air conditioner" does NOT match "as an ai"). Driven by the adversarial
+  // corpus in src/security/corpus.ts.
+  'language model', 'as an AI', 'my instructions', 'my prompt', 'my programming',
+  'OpenAI', 'Anthropic', 'GPT', 'LLM',
 ] as const;
 
 export interface CallerSafetyIssue {

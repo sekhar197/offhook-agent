@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_PERSONAS, RECEPTIONIST_PERSONAS, SECRETARY_PERSONAS, TOUGH_CALLERS,
-  RESTAURANT_PERSONAS, CLINIC_PERSONAS, HOME_SERVICES_PERSONAS,
-  localizePersonas, type Persona,
+  RESTAURANT_PERSONAS, CLINIC_PERSONAS, HOME_SERVICES_PERSONAS, ADVERSARIAL_PERSONAS,
+  SAFETY_PERSONAS, localizePersonas, type Persona,
 } from './personas.js';
 
 const ALL: Persona[] = [
   ...DEFAULT_PERSONAS, ...RECEPTIONIST_PERSONAS, ...SECRETARY_PERSONAS, ...TOUGH_CALLERS,
-  ...RESTAURANT_PERSONAS, ...CLINIC_PERSONAS, ...HOME_SERVICES_PERSONAS,
+  ...RESTAURANT_PERSONAS, ...CLINIC_PERSONAS, ...HOME_SERVICES_PERSONAS, ...ADVERSARIAL_PERSONAS,
 ];
 
 describe('persona library', () => {
@@ -33,6 +33,13 @@ describe('persona library', () => {
     expect(RECEPTIONIST_PERSONAS.length).toBeGreaterThanOrEqual(4);
     expect(SECRETARY_PERSONAS.length).toBeGreaterThanOrEqual(4);
     expect(TOUGH_CALLERS.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it('the safety gate set includes the dedicated security probes', () => {
+    const ids = SAFETY_PERSONAS.map(p => p.id);
+    for (const probe of ['adversarial', 'prompt-injection', 'system-exfil', 'pii-fishing', 'emergency-symptom', 'gas-smell']) {
+      expect(ids, probe).toContain(probe);
+    }
   });
 
   it('localizePersonas appends a language constraint without changing ids', () => {
