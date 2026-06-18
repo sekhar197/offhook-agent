@@ -36,6 +36,8 @@ export interface TelephonyClient {
   readonly provider: TelephonyProviderName;
   listAvailableNumbers(opts: { areaCode?: string; country?: string }): Promise<AvailableNumber[]>;
   purchaseNumber(phoneNumber: string): Promise<PurchaseResult>;
+  /** Find a number the account already owns (for bring-your-own-number); null if not found. */
+  findOwnedNumber(phoneNumber: string): Promise<PurchaseResult | null>;
   /** Create a SIP trunk and point its origination at the LiveKit SIP URI. */
   createSipTrunk(opts: { name: string; livekitSipUri: string }): Promise<TrunkResult>;
   attachNumberToTrunk(phoneNumberSid: string, trunkSid: string): Promise<void>;

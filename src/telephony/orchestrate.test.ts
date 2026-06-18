@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import type { TelephonyClient } from './types.js';
 import type { SipApi } from './livekit.js';
 import { loadTelephonyState, writeTelephonyState } from './state.js';
-import { provisionNumber, connectNumber, releaseNumber } from './orchestrate.js';
+import { provisionNumber, connectNumber, releaseNumber, useExistingNumber } from './orchestrate.js';
 
 function fakeClient(over: Partial<TelephonyClient> = {}): { client: TelephonyClient; calls: string[] } {
   const calls: string[] = [];
@@ -13,6 +13,7 @@ function fakeClient(over: Partial<TelephonyClient> = {}): { client: TelephonyCli
     provider: 'twilio',
     async listAvailableNumbers() { calls.push('list'); return [{ phoneNumber: '+15551234567' }]; },
     async purchaseNumber(n) { calls.push(`buy:${n}`); return { phoneNumberSid: 'PN1' }; },
+    async findOwnedNumber(n) { calls.push(`find:${n}`); return n === '+15559998888' ? { phoneNumberSid: 'PNexisting' } : null; },
     async createSipTrunk() { calls.push('trunk'); return { trunkSid: 'TR1' }; },
     async attachNumberToTrunk(p, t) { calls.push(`attach:${p}:${t}`); },
     async releaseNumber(p) { calls.push(`release:${p}`); },
@@ -55,6 +56,26 @@ describe('provisionNumber', () => {
     const { client } = fakeClient({ async listAvailableNumbers() { return []; } });
     try {
       await expect(provisionNumber({ client, livekitSipUri: 'sip:lk', agentId: 'x', statePath: path })).rejects.toThrow(/No numbers/);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+});
+
+describe('useExistingNumber (bring your own)', () => {
+  it('uses an owned number: finds it, trunks, attaches, saves — no purchase', async () => {
+    const { dir, path } = tmpState();
+    const { client, calls } = fakeClient();
+    try {
+      const state = await useExistingNumber({ client, livekitSipUri: 'sip:lk', agentId: 'clinic', number: '+15559998888', statePath: path, now: () => 1 });
+      expect(calls).toEqual(['find:+15559998888', 'trunk', 'attach:PNexisting:TR1']); // no 'buy'
+      expect(state).toMatchObject({ phoneNumber: '+15559998888', phoneNumberSid: 'PNexisting', trunkSid: 'TR1' });
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it('errors if the account does not own the number', async () => {
+    const { dir, path } = tmpState();
+    const { client } = fakeClient();
+    try {
+      await expect(useExistingNumber({ client, livekitSipUri: 'sip:lk', agentId: 'x', number: '+15550000000', statePath: path })).rejects.toThrow(/don't own/);
     } finally { rmSync(dir, { recursive: true, force: true }); }
   });
 });

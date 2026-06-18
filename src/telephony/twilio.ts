@@ -53,6 +53,12 @@ export function createTwilioClient(opts: TwilioOpts = {}): TelephonyClient {
       return { phoneNumberSid: String(j.sid) };
     },
 
+    async findOwnedNumber(phoneNumber) {
+      const j = await call(`${acct}/IncomingPhoneNumbers.json?PhoneNumber=${encodeURIComponent(phoneNumber)}`, 'GET');
+      const owned = (j.incoming_phone_numbers as Array<{ sid: string }>) ?? [];
+      return owned[0] ? { phoneNumberSid: String(owned[0].sid) } : null;
+    },
+
     async createSipTrunk({ name, livekitSipUri }) {
       const trunk = await call(`${trunking}/Trunks`, 'POST', { FriendlyName: name });
       const trunkSid = String(trunk.sid);

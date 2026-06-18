@@ -25,15 +25,21 @@ offhook provisions and connects the number for you. Set your credentials —
 `LIVEKIT_SIP_URI` (your LiveKit SIP endpoint) — then:
 
 ```bash
-offhook phone provision --area-code 973   # buys a number + Twilio SIP trunk → LiveKit
-offhook phone connect                     # creates the LiveKit inbound trunk + dispatch rule
-offhook start                             # the worker answers it
-offhook phone status                      # what's provisioned    ·    offhook phone release  # tear down
+# Buy a NEW number (choose your provider — no lock-in):
+offhook phone provision --area-code 973 --provider twilio   # or --provider telnyx
+# …OR bring an EXISTING number you already own on that provider:
+offhook phone use +19735550142 --provider twilio
+
+offhook phone connect          # creates the LiveKit inbound trunk + dispatch rule
+offhook start                  # the worker answers it
+offhook phone status           # what's provisioned   ·   offhook phone release  # tear down
 ```
 
-The same three steps are buttons in the dashboard's **Phone** panel
-(`offhook dashboard`). Telnyx is a fast-follow (same commands, different
-provider). Provisioned IDs live in a gitignored `.offhook/telephony.json`.
+The same options are in the dashboard's **Phone** panel (`offhook dashboard`):
+pick the provider, provision a new number *or* connect an existing one. Twilio
+is fully exercised in tests; the Telnyx client is implemented to Telnyx's v2 API
+and should be validated on a live account. Provisioned IDs live in a gitignored
+`.offhook/telephony.json`.
 
 ## Setup — manual
 

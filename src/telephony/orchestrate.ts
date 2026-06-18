@@ -33,6 +33,29 @@ export async function provisionNumber(opts: {
   );
 }
 
+/** Bring your own number: use a number the account already owns instead of
+ *  buying one — stand up the SIP trunk pointed at LiveKit and attach it. */
+export async function useExistingNumber(opts: {
+  client: TelephonyClient;
+  livekitSipUri: string;
+  agentId: string;
+  number: string;
+  statePath?: string;
+  now?: () => number;
+}): Promise<TelephonyState> {
+  const owned = await opts.client.findOwnedNumber(opts.number);
+  if (!owned) {
+    throw new TelephonyError(`You don't own ${opts.number} on ${opts.client.provider}. Add it to your ${opts.client.provider} account first, or run \`offhook phone provision\` to buy a new one.`);
+  }
+  const { trunkSid, credentialListSid } = await opts.client.createSipTrunk({ name: `offhook-${opts.agentId}`, livekitSipUri: opts.livekitSipUri });
+  await opts.client.attachNumberToTrunk(owned.phoneNumberSid, trunkSid);
+
+  return mergeTelephonyState(
+    { provider: opts.client.provider, phoneNumber: opts.number, phoneNumberSid: owned.phoneNumberSid, trunkSid, ...(credentialListSid ? { credentialListSid } : {}) },
+    opts.statePath, opts.now,
+  );
+}
+
 /** Go live: create the LiveKit inbound trunk + dispatch rule binding the
  *  provisioned number to the worker. */
 export async function connectNumber(opts: {

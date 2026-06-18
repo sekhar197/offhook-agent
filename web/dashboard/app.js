@@ -154,11 +154,19 @@ async function panelPhone() {
       <div class="k">Status</div><div>${statusHtml}</div>
     </div></div>
     <div class="card">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+        <span class="muted">Provider</span>
+        <select id="ph-provider" style="${CFG_INPUT_STYLE};width:120px"><option>twilio</option><option>telnyx</option></select>
+      </div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <input id="ph-area" placeholder="area code (optional)" style="${CFG_INPUT_STYLE};width:160px">
-        <button class="primary" id="ph-provision">Provision a number</button>
+        <input id="ph-area" placeholder="area code (optional)" style="${CFG_INPUT_STYLE};width:150px">
+        <button class="primary" id="ph-provision">Provision new</button>
         <button class="ghost" id="ph-connect">Connect (go live)</button>
         <button class="ghost" id="ph-release">Release</button>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px">
+        <input id="ph-existing" placeholder="bring existing +1…" style="${CFG_INPUT_STYLE};width:200px">
+        <button class="ghost" id="ph-use">Use existing number</button>
       </div>
       <div id="ph-status" class="muted" style="margin-top:10px"></div>
     </div>
@@ -174,7 +182,9 @@ async function panelPhone() {
       if (j.ok) setTimeout(panelPhone, 700);
     } catch (e) { st.textContent = `✗ ${e.message}`; st.className = 'block'; }
   };
-  document.getElementById('ph-provision').onclick = () => act('/api/phone/provision', { areaCode: document.getElementById('ph-area').value || undefined });
+  const provider = () => document.getElementById('ph-provider').value;
+  document.getElementById('ph-provision').onclick = () => act('/api/phone/provision', { provider: provider(), areaCode: document.getElementById('ph-area').value || undefined });
+  document.getElementById('ph-use').onclick = () => act('/api/phone/use', { provider: provider(), number: document.getElementById('ph-existing').value });
   document.getElementById('ph-connect').onclick = () => act('/api/phone/connect');
   document.getElementById('ph-release').onclick = () => { if (confirm('Release the number + trunks? This is irreversible.')) act('/api/phone/release'); };
 }

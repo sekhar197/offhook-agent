@@ -27,10 +27,10 @@ import { readCallSummaries, getCallRecord, readCallRecords } from '../observabil
 import { gatePersonas } from '../evals/personas.js';
 import { runImprovePipeline } from '../improve/pipeline.js';
 import { editableValues, applyConfigEdits, type ConfigEdit } from '../config/edit.js';
-import { createTwilioClient } from '../telephony/twilio.js';
+import { telephonyClient, isTelephonyProvider } from '../telephony/provider.js';
 import { liveKitSipFromEnv } from '../telephony/livekit.js';
 import { loadTelephonyState } from '../telephony/state.js';
-import { provisionNumber, connectNumber, releaseNumber } from '../telephony/orchestrate.js';
+import { provisionNumber, useExistingNumber, connectNumber, releaseNumber } from '../telephony/orchestrate.js';
 
 export interface DashboardOptions {
   configPath: string;
@@ -178,13 +178,17 @@ export function startDashboardServer(opts: DashboardOptions): { close: () => voi
           return rec ? json(res, 200, rec) : json(res, 404, { error: 'not found' });
         }
         if (req.method === 'GET' && path === '/api/phone/status') return json(res, 200, loadTelephonyState() ?? { provider: null });
-        if (req.method === 'POST' && path === '/api/phone/provision') {
+        if (req.method === 'POST' && (path === '/api/phone/provision' || path === '/api/phone/use')) {
           try {
-            const body = JSON.parse((await readBody(req)) || '{}') as { areaCode?: string };
+            const body = JSON.parse((await readBody(req)) || '{}') as { areaCode?: string; provider?: string; number?: string };
             const livekitSipUri = process.env.LIVEKIT_SIP_URI;
             if (!livekitSipUri) return json(res, 400, { ok: false, error: 'Set LIVEKIT_SIP_URI (your LiveKit SIP endpoint).' });
-            const config = loadAgentConfig(opts.configPath);
-            const state = await provisionNumber({ client: createTwilioClient(), livekitSipUri, agentId: config.agent.id, ...(body.areaCode ? { areaCode: body.areaCode } : {}) });
+            const provider = isTelephonyProvider(body.provider) ? body.provider : 'twilio';
+            const client = telephonyClient(provider);
+            const agentId = loadAgentConfig(opts.configPath).agent.id;
+            const state = path === '/api/phone/use'
+              ? await useExistingNumber({ client, livekitSipUri, agentId, number: String(body.number ?? '') })
+              : await provisionNumber({ client, livekitSipUri, agentId, ...(body.areaCode ? { areaCode: body.areaCode } : {}) });
             return json(res, 200, { ok: true, state });
           } catch (e) { return json(res, 400, { ok: false, error: e instanceof Error ? e.message : String(e) }); }
         }
@@ -197,7 +201,8 @@ export function startDashboardServer(opts: DashboardOptions): { close: () => voi
         }
         if (req.method === 'POST' && path === '/api/phone/release') {
           try {
-            await releaseNumber({ client: createTwilioClient(), sip: liveKitSipFromEnv() });
+            const provider = loadTelephonyState()?.provider ?? 'twilio';
+            await releaseNumber({ client: telephonyClient(provider), sip: liveKitSipFromEnv() });
             return json(res, 200, { ok: true });
           } catch (e) { return json(res, 400, { ok: false, error: e instanceof Error ? e.message : String(e) }); }
         }
