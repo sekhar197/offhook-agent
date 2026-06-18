@@ -87,9 +87,30 @@ export async function runEntry(ctx: JobContext): Promise<void> {
         ...(config.tools.delivery ? { delivery: config.tools.delivery } : {}),
       }),
     transferToHuman: async (reason) => {
-      // SIP REFER transfer is wired in the telephony wave; until then the
-      // model still completes the call, falling back to reading the number.
-      console.log(`[transfer] reason: ${reason} → ${config.tools.transferPhone ?? '(no transferPhone)'}`);
+      const phone = config.tools.transferPhone;
+      if (!phone) {
+        console.log(`[transfer] requested (${reason}) — no transferPhone configured`);
+        return;
+      }
+      // Find the caller's SIP leg; browser/test sessions have none.
+      let identity: string | undefined;
+      for (const p of ctx.room.remoteParticipants.values()) {
+        if (p.attributes?.['sip.phoneNumber'] || p.identity?.startsWith('sip_')) { identity = p.identity; break; }
+      }
+      if (!identity) {
+        console.log(`[transfer] no SIP leg (non-phone session) — agent reads ${phone} instead`);
+        return;
+      }
+      try {
+        const { liveKitTransferFromEnv, transferCaller } = await import('../telephony/transfer.js');
+        const { loadTelephonyState } = await import('../telephony/state.js');
+        const provider = loadTelephonyState()?.provider ?? 'twilio';
+        await transferCaller({ sip: liveKitTransferFromEnv(), roomName: ctx.room.name ?? correlationId, participantIdentity: identity, transferPhone: phone, provider });
+        console.log(`[transfer] REFER → ${phone}`);
+      } catch (e) {
+        // Never dead-air: fall back to the read-the-number behavior.
+        console.log(`[transfer] REFER failed (${e instanceof Error ? e.message : String(e)}) — agent falls back to reading ${phone}`);
+      }
     },
     endCall: async () => { ctx.shutdown('agent ended call'); },
   };
