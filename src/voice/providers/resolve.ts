@@ -40,8 +40,9 @@ export interface ProviderPreset {
 const OPENAI = '@livekit/agents-plugin-openai';
 
 export const STT_PRESETS: Record<SttProviderName, ProviderPreset> = {
-  // No defaultModel: the OpenAI realtime-transcription session rejects an
-  // explicit model param and uses its own default (gpt-realtime-whisper).
+  // No defaultModel: createStt forces the BATCH path (useRealtime:false → the
+  // plugin uses whisper-1), because the realtime-transcription session is broken
+  // in the plugin (rejects its own model param). See factory.ts createStt.
   openai:               { plugin: OPENAI, apiKeyEnv: 'OPENAI_API_KEY', viaOpenAiPlugin: true },
   'openai-compatible':  { plugin: OPENAI, apiKeyEnv: 'OPENAI_API_KEY', keyOptional: true, requiresBaseUrl: true, viaOpenAiPlugin: true },
   groq:                 { plugin: OPENAI, apiKeyEnv: 'GROQ_API_KEY', baseUrl: 'https://api.groq.com/openai/v1', defaultModel: 'whisper-large-v3-turbo', viaOpenAiPlugin: true },

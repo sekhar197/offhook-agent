@@ -53,9 +53,15 @@ export async function createStt(r: ResolvedStt, env = process.env, vad?: VAD): P
       ...(r.baseUrl ? { baseURL: r.baseUrl } : {}),
       ...(r.model ? { model: r.model } : {}),
       ...(r.language ? { language: r.language } : {}),
-      // Realtime-transcription STT models (e.g. gpt-realtime-whisper) need a
-      // VAD to commit audio at end-of-speech.
-      ...(vad ? { vad } : {}),
+      // Use the BATCH transcription path (whisper-1 for OpenAI,
+      // whisper-large-v3-turbo for Groq), NOT the plugin's default realtime
+      // session. The realtime-transcription session ('gpt-realtime-whisper')
+      // sends a `model` param that OpenAI's transcription endpoint rejects
+      // ("You must not provide a model parameter for transcription sessions"),
+      // which kills the call on the first utterance. Batch + the session VAD
+      // (passed to AgentSession) is the reliable single-OpenAI-key path that
+      // actually works on a real phone call. Verified on live narrowband audio.
+      useRealtime: false,
     });
   }
 
