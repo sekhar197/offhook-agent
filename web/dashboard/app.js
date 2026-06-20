@@ -35,7 +35,14 @@ function renderNav(active) {
 
 // ---- panels -----------------------------------------------------------------
 
-function metric(label, val, cls) { return `<div class="metric"><div class="label">${label}</div><div class="val ${cls || ''}">${val}</div></div>`; }
+function metric(label, val, cls, icon) {
+  return `<div class="metric">${icon ? `<div class="ico">${icon}</div>` : ''}<div class="label">${label}</div><div class="val ${cls || ''}">${val}</div></div>`;
+}
+const MI = {
+  check: I('<path d="M5 12l4 4L19 7"/>'),
+  clock: I('<circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 1.5"/>'),
+  tool: I('<path d="M14.5 6.5a3.5 3.5 0 0 1-4.6 4.6L5 16l3 3 4.9-4.9a3.5 3.5 0 0 1 4.6-4.6l-2.3 2.3-2-2z"/>'),
+};
 
 async function panelCalls() {
   const calls = await api('/api/calls?limit=100');
@@ -45,22 +52,29 @@ async function panelCalls() {
   const meanLat = lats.length ? Math.round(lats.reduce((a, b) => a + b, 0) / lats.length) : null;
   const tools = calls.reduce((a, c) => a + (c.toolCallCount || 0), 0);
   const metrics = `<div class="metrics">
-    ${metric('Calls', calls.length)}
-    ${metric('Completed', `${Math.round((completed / calls.length) * 100)}%`, 'ok')}
-    ${metric('Mean latency', meanLat != null ? meanLat + 'ms' : '—')}
-    ${metric('Tool calls', tools)}
+    ${metric('Calls', calls.length, '', ICONS.calls)}
+    ${metric('Completed', `${Math.round((completed / calls.length) * 100)}%`, 'ok', MI.check)}
+    ${metric('Mean latency', meanLat != null ? meanLat + ' ms' : '—', '', MI.clock)}
+    ${metric('Tool calls', tools, '', MI.tool)}
   </div>`;
+  const maxLat = Math.max(...lats, 1);
+  const bars = calls.slice().reverse().map(c => {
+    const h = Math.max(Math.round(((c.meanTurnMs || 0) / maxLat) * 100), 5);
+    return `<div class="b" style="height:${h}%" title="${c.meanTurnMs || 0} ms"></div>`;
+  }).join('');
+  const chart = lats.length ? `<div class="card"><div class="ctitle">Response latency · recent calls</div><div class="chart">${bars}</div></div>` : '';
   const rows = calls.map(c => `
     <tr class="row" onclick="location.hash='#/call/${encodeURIComponent(c.callId)}'">
       <td class="mono">${esc(new Date(c.startedAt).toLocaleString())}</td>
       <td><span class="badge ${esc(c.outcome)}">${esc(c.outcome)}</span></td>
+      <td class="mono">${c.durationMs ? Math.round(c.durationMs / 1000) + 's' : '—'}</td>
       <td class="mono">${c.turnCount}</td>
       <td class="mono">${c.toolCallCount}</td>
       <td class="mono">${c.meanTurnMs != null ? c.meanTurnMs + ' ms' : '—'}</td>
     </tr>`).join('');
-  view.innerHTML = `<h1>Calls</h1>${metrics}
+  view.innerHTML = `<h1>Calls</h1>${metrics}${chart}
     <div class="card"><table>
-      <thead><tr><th>When</th><th>Outcome</th><th>Turns</th><th>Tools</th><th>Mean latency</th></tr></thead>
+      <thead><tr><th>When</th><th>Outcome</th><th>Duration</th><th>Turns</th><th>Tools</th><th>Latency</th></tr></thead>
       <tbody>${rows}</tbody></table></div>`;
 }
 
