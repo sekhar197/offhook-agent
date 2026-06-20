@@ -37,7 +37,12 @@ offhook start                     # the worker answers it. call it.
 
 That's the whole path: **install → init → chat → connect a number → answer real calls.** Single-key OpenAI mode means one signup gets you a talking agent; Deepgram/Cartesia/local models are one line away when you want them.
 
-**Which keys do I need, and where do I get them?** Copy **[`.env.example`](.env.example)** to `.env` — it lists every key in tiers (one LLM key to chat → add LiveKit to use the browser → add a carrier to answer a phone), each with a where-to-get-it link. offhook auto-loads `.env` (it's gitignored — keys never leave your machine), and `offhook doctor` tells you exactly what's still missing. The dashboard's keys panel shows SET/MISSING too, but never stores secrets — that's deliberate.
+**Which keys do I need, and where do I get them?** Run **`offhook keys`** — a tiered map so you never face six signups at once:
+
+- **Tier 0 — zero keys, fully local.** Ollama + local Whisper + local TTS, nothing leaves your box. `docker compose -f docker-compose.selfhost.yml up`. No accounts to *try* it.
+- **Tier 1 — one LLM key** to chat. **Tier 2 — add LiveKit (free)** for browser voice. **Tier 3 — add a carrier** (Twilio/Telnyx) to answer a real phone.
+
+Each line in `offhook keys` shows where to get it and whether it's already set. Copy **[`.env.example`](.env.example)** to `.env` (offhook auto-loads it — gitignored, keys never leave your machine); `offhook doctor` tells you what a given config still needs. The dashboard shows SET/MISSING too, but never stores secrets — deliberate.
 
 ## Why offhook (and not the engine underneath it)
 

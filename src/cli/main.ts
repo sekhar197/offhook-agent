@@ -17,6 +17,7 @@ const HELP = `
     init             set up a new agent in the current folder (interactive)
     doctor           verify config, knowledge, and keys
     chat             talk to your agent in the terminal (no voice keys needed)
+    keys             what keys you need + where to get them (Tier 0 = zero-key local)
     start            run the voice pipeline (coming in v0.1)
     improve          learn from real calls; propose a safe edit, gated by evals
     dashboard        local web UI: call logs, transcripts, scorecard, improve
@@ -66,6 +67,11 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
     case 'chat': {
       const { chatCommand } = await import('./chat.js');
       await chatCommand(configPath);
+      break;
+    }
+    case 'keys': {
+      const { keysCommand } = await import('./keys.js');
+      keysCommand();
       break;
     }
     case 'dev': {
