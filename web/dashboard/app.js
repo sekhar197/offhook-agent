@@ -5,6 +5,15 @@ const token = new URLSearchParams(location.search).get('t') || '';
 const view = document.getElementById('view');
 const nav = document.getElementById('nav');
 
+const I = (p) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const ICONS = {
+  calls: I('<path d="M5 4h4l2 5-3 2a11 11 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>'),
+  phone: I('<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>'),
+  scorecard: I('<path d="M5 20V11M12 20V4M19 20v-6"/>'),
+  config: I('<path d="M4 7h9M19 7h1M4 17h1M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>'),
+  keys: I('<circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M17 6l2 2M14 9l1.5 1.5"/>'),
+  improve: I('<path d="M4 17l6-6 4 4 6-7"/><path d="M16 8h4v4"/>'),
+};
 const NAV = [
   ['calls', 'Calls'], ['phone', 'Phone'], ['scorecard', 'Scorecard'],
   ['config', 'Config'], ['keys', 'Keys'], ['improve', 'Improve'],
@@ -21,23 +30,35 @@ async function api(path, opts = {}) {
 
 function renderNav(active) {
   nav.innerHTML = NAV.map(([id, label]) =>
-    `<button class="${id === active ? 'active' : ''}" onclick="location.hash='#/${id}'">${label}</button>`).join('');
+    `<button class="${id === active ? 'active' : ''}" onclick="location.hash='#/${id}'">${ICONS[id] || ''}<span>${label}</span></button>`).join('');
 }
 
 // ---- panels -----------------------------------------------------------------
 
+function metric(label, val, cls) { return `<div class="metric"><div class="label">${label}</div><div class="val ${cls || ''}">${val}</div></div>`; }
+
 async function panelCalls() {
   const calls = await api('/api/calls?limit=100');
   if (!calls.length) { view.innerHTML = `<h1>Calls</h1><div class="empty">No calls yet. Run <code>offhook start</code> and answer a call.</div>`; return; }
+  const completed = calls.filter(c => c.outcome === 'completed').length;
+  const lats = calls.map(c => c.meanTurnMs).filter(v => v != null);
+  const meanLat = lats.length ? Math.round(lats.reduce((a, b) => a + b, 0) / lats.length) : null;
+  const tools = calls.reduce((a, c) => a + (c.toolCallCount || 0), 0);
+  const metrics = `<div class="metrics">
+    ${metric('Calls', calls.length)}
+    ${metric('Completed', `${Math.round((completed / calls.length) * 100)}%`, 'ok')}
+    ${metric('Mean latency', meanLat != null ? meanLat + 'ms' : '—')}
+    ${metric('Tool calls', tools)}
+  </div>`;
   const rows = calls.map(c => `
     <tr class="row" onclick="location.hash='#/call/${encodeURIComponent(c.callId)}'">
-      <td>${esc(new Date(c.startedAt).toLocaleString())}</td>
+      <td class="mono">${esc(new Date(c.startedAt).toLocaleString())}</td>
       <td><span class="badge ${esc(c.outcome)}">${esc(c.outcome)}</span></td>
-      <td>${c.turnCount}</td>
-      <td>${c.toolCallCount}</td>
-      <td>${c.meanTurnMs != null ? c.meanTurnMs + ' ms' : '—'}</td>
+      <td class="mono">${c.turnCount}</td>
+      <td class="mono">${c.toolCallCount}</td>
+      <td class="mono">${c.meanTurnMs != null ? c.meanTurnMs + ' ms' : '—'}</td>
     </tr>`).join('');
-  view.innerHTML = `<h1>Calls <span class="muted">(${calls.length})</span></h1>
+  view.innerHTML = `<h1>Calls</h1>${metrics}
     <div class="card"><table>
       <thead><tr><th>When</th><th>Outcome</th><th>Turns</th><th>Tools</th><th>Mean latency</th></tr></thead>
       <tbody>${rows}</tbody></table></div>`;
