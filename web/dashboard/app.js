@@ -59,12 +59,19 @@ async function panelCalls() {
     const base = (c.meanTurnMs || 800) / maxLat;
     const jitter = 0.4 + 0.6 * Math.abs(Math.sin(i * 0.7) * Math.cos(i * 0.29));
     const amp = Math.max(0.1, Math.min(1, base * jitter));
-    return `<div class="s" style="height:${Math.round(amp * 100)}%"></div>`;
+    return `<div class="s" style="height:${Math.round(amp * 100)}%;animation-delay:${(i * -0.045).toFixed(2)}s"></div>`;
   }).join('');
+  const mini = (c) => {
+    const base = (c.meanTurnMs || 800) / maxLat;
+    const seed = (c.callId || '').charCodeAt(0) || 7;
+    return '<span class="mwave">' + Array.from({ length: 16 }, (_, i) =>
+      `<i style="height:${Math.round(Math.max(0.2, Math.min(1, base * (0.4 + 0.6 * Math.abs(Math.sin(i * 1.3 + seed))))) * 22)}px"></i>`).join('') + '</span>';
+  };
   const rows = calls.map(c => `
     <tr class="row" onclick="location.hash='#/call/${encodeURIComponent(c.callId)}'">
       <td class="mono">${esc(new Date(c.startedAt).toLocaleString())}</td>
       <td><span class="badge ${esc(c.outcome)}">${esc(c.outcome)}</span></td>
+      <td>${mini(c)}</td>
       <td class="mono">${c.durationMs ? Math.round(c.durationMs / 1000) + 's' : '—'}</td>
       <td class="mono">${c.turnCount}</td>
       <td class="mono">${c.toolCallCount}</td>
@@ -86,7 +93,7 @@ async function panelCalls() {
     <div class="card hov">
       <div class="ctitle">Recent calls <span>${calls.length}</span></div>
       <table>
-        <thead><tr><th>When</th><th>Outcome</th><th>Duration</th><th>Turns</th><th>Tools</th><th>Latency</th></tr></thead>
+        <thead><tr><th>When</th><th>Outcome</th><th>Signal</th><th>Duration</th><th>Turns</th><th>Tools</th><th>Latency</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>`;
