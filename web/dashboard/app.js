@@ -36,7 +36,7 @@ function renderNav(active) {
 // ---- panels -----------------------------------------------------------------
 
 function metric(label, val, cls, icon) {
-  return `<div class="metric">${icon ? `<div class="ico">${icon}</div>` : ''}<div class="label">${label}</div><div class="val ${cls || ''}">${val}</div></div>`;
+  return `<div class="metric"><div class="ico">${icon || ''}</div><div><div class="label">${label}</div><div class="val ${cls || ''}">${val}</div></div></div>`;
 }
 const MI = {
   check: I('<path d="M5 12l4 4L19 7"/>'),
@@ -46,23 +46,16 @@ const MI = {
 
 async function panelCalls() {
   const calls = await api('/api/calls?limit=100');
-  if (!calls.length) { view.innerHTML = `<h1>Calls</h1><div class="empty">No calls yet. Run <code>offhook start</code> and answer a call.</div>`; return; }
+  if (!calls.length) { view.innerHTML = `<h1>Overview</h1><div class="empty">No calls yet. Run <code>offhook start</code> and answer a call.</div>`; return; }
   const completed = calls.filter(c => c.outcome === 'completed').length;
   const lats = calls.map(c => c.meanTurnMs).filter(v => v != null);
   const meanLat = lats.length ? Math.round(lats.reduce((a, b) => a + b, 0) / lats.length) : null;
   const tools = calls.reduce((a, c) => a + (c.toolCallCount || 0), 0);
-  const metrics = `<div class="metrics">
-    ${metric('Calls', calls.length, '', ICONS.calls)}
-    ${metric('Completed', `${Math.round((completed / calls.length) * 100)}%`, 'ok', MI.check)}
-    ${metric('Mean latency', meanLat != null ? meanLat + ' ms' : '—', '', MI.clock)}
-    ${metric('Tool calls', tools, '', MI.tool)}
-  </div>`;
   const maxLat = Math.max(...lats, 1);
   const bars = calls.slice().reverse().map(c => {
-    const h = Math.max(Math.round(((c.meanTurnMs || 0) / maxLat) * 100), 5);
+    const h = Math.max(Math.round(((c.meanTurnMs || 0) / maxLat) * 100), 6);
     return `<div class="b" style="height:${h}%" title="${c.meanTurnMs || 0} ms"></div>`;
   }).join('');
-  const chart = lats.length ? `<div class="card"><div class="ctitle">Response latency · recent calls</div><div class="chart">${bars}</div></div>` : '';
   const rows = calls.map(c => `
     <tr class="row" onclick="location.hash='#/call/${encodeURIComponent(c.callId)}'">
       <td class="mono">${esc(new Date(c.startedAt).toLocaleString())}</td>
@@ -72,10 +65,26 @@ async function panelCalls() {
       <td class="mono">${c.toolCallCount}</td>
       <td class="mono">${c.meanTurnMs != null ? c.meanTurnMs + ' ms' : '—'}</td>
     </tr>`).join('');
-  view.innerHTML = `<h1>Calls</h1>${metrics}${chart}
-    <div class="card"><table>
-      <thead><tr><th>When</th><th>Outcome</th><th>Duration</th><th>Turns</th><th>Tools</th><th>Latency</th></tr></thead>
-      <tbody>${rows}</tbody></table></div>`;
+  view.innerHTML = `<h1>Overview</h1>
+    <div class="bento-top">
+      <div class="card chartcard hov">
+        <div class="ctitle">Response latency · recent calls <span>avg ${meanLat != null ? meanLat + ' ms' : '—'}</span></div>
+        <div class="chart">${bars}</div>
+      </div>
+      <div class="metrics2">
+        ${metric('Calls', calls.length, '', ICONS.calls)}
+        ${metric('Completed', `${Math.round((completed / calls.length) * 100)}%`, 'ok', MI.check)}
+        ${metric('Mean latency', meanLat != null ? meanLat + ' ms' : '—', '', MI.clock)}
+        ${metric('Tool calls', tools, '', MI.tool)}
+      </div>
+    </div>
+    <div class="card hov">
+      <div class="ctitle">Recent calls <span>${calls.length}</span></div>
+      <table>
+        <thead><tr><th>When</th><th>Outcome</th><th>Duration</th><th>Turns</th><th>Tools</th><th>Latency</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
 }
 
 async function panelCall(id) {
