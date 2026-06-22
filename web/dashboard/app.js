@@ -67,9 +67,9 @@ async function panelCalls() {
     </tr>`).join('');
   view.innerHTML = `<h1>Overview</h1>
     <div class="bento-top">
-      <div class="card chartcard hov">
-        <div class="ctitle">Response latency · recent calls <span>avg ${meanLat != null ? meanLat + ' ms' : '—'}</span></div>
-        <div class="chart">${bars}</div>
+      <div class="card chartcard hov glowborder spot">
+        <div class="ctitle" style="position:relative;z-index:2">Response latency · recent calls <span>avg ${meanLat != null ? meanLat + ' ms' : '—'}</span></div>
+        <div class="chart" style="position:relative;z-index:2">${bars}</div>
       </div>
       <div class="metrics2">
         ${metric('Calls', calls.length, '', ICONS.calls)}
