@@ -95,6 +95,12 @@
       box-shadow:inset 0 1px 0 rgba(255,255,255,.6), inset 0 0 16px rgba(255,255,255,.1), 0 0 26px -4px var(--glow);
       transition:transform .15s, filter .15s; transform-origin:bottom; }
     .chart .b:hover{ filter:brightness(1.16); transform:scaleY(1.05); }
+    /* voice console: audio waveform + oscilloscope axis */
+    .wave{ display:flex; align-items:center; gap:3px; height:calc(100% - 34px); min-height:172px; position:relative; z-index:2; }
+    .wave::before{ content:''; position:absolute; left:0; right:0; top:50%; height:1px; background:linear-gradient(90deg, transparent, rgba(var(--cyan-rgb),.4), transparent); }
+    .wave .s{ flex:1; min-width:0; border-radius:4px; background:linear-gradient(180deg, var(--cyan), var(--vio)); box-shadow:0 0 11px -2px var(--glow); min-height:4px; transition:filter .15s, transform .15s; transform-origin:center; }
+    .wave .s:hover{ filter:brightness(1.25); transform:scaleY(1.07); }
+    .onair{ color:var(--vio); }
 
     table{ width:100%; border-collapse:collapse; }
     th{ text-align:left; color:var(--faint); font-family:var(--mono); font-weight:500; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; padding:0 12px 12px; }
@@ -137,9 +143,9 @@
     <span class="brand"><span class="mark"></span><b>offhook</b></span>
     <nav id="nav"></nav>
     <span class="spacer"></span>
-    <span class="pill"><span class="live"></span> live · on this machine</span>
+    <span class="pill"><span class="live"></span> on air · this machine</span>
   </header>
   <main id="view"><div class="empty">Loading…</div></main>
-  <script src="./app.js?v=4"></script>
+  <script src="./app.js?v=5"></script>
 </body>
 </html>

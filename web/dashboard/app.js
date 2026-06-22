@@ -52,9 +52,14 @@ async function panelCalls() {
   const meanLat = lats.length ? Math.round(lats.reduce((a, b) => a + b, 0) / lats.length) : null;
   const tools = calls.reduce((a, c) => a + (c.toolCallCount || 0), 0);
   const maxLat = Math.max(...lats, 1);
-  const bars = calls.slice().reverse().map(c => {
-    const h = Math.max(Math.round(((c.meanTurnMs || 0) / maxLat) * 100), 6);
-    return `<div class="b" style="height:${h}%" title="${c.meanTurnMs || 0} ms"></div>`;
+  const ordered = calls.slice().reverse();
+  const N = 60;
+  const wave = Array.from({ length: N }, (_, i) => {
+    const c = ordered[Math.floor(i / N * ordered.length)] || ordered[ordered.length - 1];
+    const base = (c.meanTurnMs || 800) / maxLat;
+    const jitter = 0.4 + 0.6 * Math.abs(Math.sin(i * 0.7) * Math.cos(i * 0.29));
+    const amp = Math.max(0.1, Math.min(1, base * jitter));
+    return `<div class="s" style="height:${Math.round(amp * 100)}%"></div>`;
   }).join('');
   const rows = calls.map(c => `
     <tr class="row" onclick="location.hash='#/call/${encodeURIComponent(c.callId)}'">
@@ -68,8 +73,8 @@ async function panelCalls() {
   view.innerHTML = `<h1>Overview</h1>
     <div class="bento-top">
       <div class="card chartcard hov glowborder spot">
-        <div class="ctitle" style="position:relative;z-index:2">Response latency · recent calls <span>avg ${meanLat != null ? meanLat + ' ms' : '—'}</span></div>
-        <div class="chart" style="position:relative;z-index:2">${bars}</div>
+        <div class="ctitle" style="position:relative;z-index:2"><span><span class="onair">◉</span> live signal · response latency</span><span>avg ${meanLat != null ? meanLat + ' ms' : '—'}</span></div>
+        <div class="wave">${wave}</div>
       </div>
       <div class="metrics2">
         ${metric('Calls', calls.length, '', ICONS.calls)}
