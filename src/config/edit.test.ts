@@ -71,7 +71,7 @@ describe('renderConfigEdits', () => {
 
 describe('applyConfigEdits', () => {
   it('backs up then writes a valid edit', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'offhook-edit-'));
+    const dir = mkdtempSync(join(tmpdir(), 'offhook-agent-edit-'));
     const path = join(dir, 'agent.yaml');
     try {
       writeFileSync(path, YAML);
@@ -83,7 +83,7 @@ describe('applyConfigEdits', () => {
   });
 
   it('an invalid edit writes nothing AND creates no backup', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'offhook-edit-'));
+    const dir = mkdtempSync(join(tmpdir(), 'offhook-agent-edit-'));
     const path = join(dir, 'agent.yaml');
     try {
       writeFileSync(path, YAML);

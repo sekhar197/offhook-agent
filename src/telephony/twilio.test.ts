@@ -39,7 +39,7 @@ describe('createTwilioClient', () => {
 
   it('creates a SIP trunk and points origination at the LiveKit SIP URI', async () => {
     const { impl, calls } = fakeTransport((url) => url.endsWith('/Trunks') ? { json: { sid: 'TR9' } } : { json: {} });
-    const r = await createTwilioClient({ env: ENV, fetchImpl: impl }).createSipTrunk({ name: 'offhook-my-agent', livekitSipUri: 'sip:abc.sip.livekit.cloud' });
+    const r = await createTwilioClient({ env: ENV, fetchImpl: impl }).createSipTrunk({ name: 'offhook-agent-my-agent', livekitSipUri: 'sip:abc.sip.livekit.cloud' });
     expect(r.trunkSid).toBe('TR9');
     const orig = calls.find(c => c.url.includes('/Trunks/TR9/OriginationUrls'));
     expect(orig).toBeDefined();

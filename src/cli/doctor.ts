@@ -1,5 +1,5 @@
 /**
- * `offhook doctor` — preflight checks with actionable output.
+ * `offhook-agent doctor` — preflight checks with actionable output.
  *
  * Reports exactly what's missing and how to fix it; exits non-zero when
  * the agent can't run. The checks mirror the real startup path.
@@ -132,7 +132,7 @@ export async function doctorCommand(configPath: string): Promise<void> {
     });
     checks.push({
       label: 'phone (sip)', ok: true,
-      detail: process.env.LIVEKIT_SIP_URI ? 'LIVEKIT_SIP_URI set — phone enabled' : 'no LIVEKIT_SIP_URI — set it only to answer a real number (offhook phone …)',
+      detail: process.env.LIVEKIT_SIP_URI ? 'LIVEKIT_SIP_URI set — phone enabled' : 'no LIVEKIT_SIP_URI — set it only to answer a real number (offhook-agent phone …)',
     });
     // Speech-provider plugins are lazy-loaded at call time; a missing one fails
     // mid-call, not at startup. Surface it here instead.
@@ -154,7 +154,7 @@ export async function doctorCommand(configPath: string): Promise<void> {
 
   print(checks);
   if (fatal) process.exit(1);
-  console.log('\nAll good. Try: offhook chat\n');
+  console.log('\nAll good. Try: offhook-agent chat\n');
 }
 
 function print(checks: Check[]): void {

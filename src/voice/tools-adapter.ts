@@ -1,9 +1,9 @@
 /**
- * Tool adapter — expose offhook's ToolRegistry as LiveKit tools.
+ * Tool adapter — expose offhook-agent's ToolRegistry as LiveKit tools.
  *
  * The voice pipeline uses LiveKit's native streaming LLM node (for barge-in,
  * interruption, metrics, and realtime-mode uniformity), but every tool still
- * executes through offhook's `ToolRegistry.execute` — so caller-safety
+ * executes through offhook-agent's `ToolRegistry.execute` — so caller-safety
  * enforcement, the max-3-results rule, and idempotent action semantics are
  * identical to the text path. One brain, two transports.
  *
@@ -18,12 +18,12 @@ import type { ToolRegistry, ToolContext as OffhookToolContext, ToolDefinition } 
 import { DEFAULT_PHASE_TOOLS, type ConversationPhase } from '../state/state-machine.js';
 
 export interface VoiceToolUserData {
-  /** The offhook per-call tool context (capabilities + scratch state). */
+  /** The offhook-agent per-call tool context (capabilities + scratch state). */
   offhookCtx: OffhookToolContext;
   registry: ToolRegistry;
 }
 
-/** Convert one offhook tool into a LiveKit function tool that delegates to the
+/** Convert one offhook-agent tool into a LiveKit function tool that delegates to the
  *  registry (preserving caller-safety + executors). */
 function adaptTool(def: ToolDefinition, registry: ToolRegistry) {
   return llmNs.tool({

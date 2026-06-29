@@ -104,6 +104,29 @@ describe('ToolRegistry', () => {
   });
 });
 
+describe('transfer_to_human (no false connection claims)', () => {
+  const tool = BUILTIN_TOOLS.find(t => t.name === 'transfer_to_human')!;
+
+  it('claims a connection only when the transfer was actually placed', async () => {
+    const r = await tool.execute({ reason: 'caller asked for a person' }, makeCtx({ transferToHuman: async () => ({ transferred: true }) }));
+    expect(r.success).toBe(true);
+    expect(r.message).toContain('Connecting you');
+  });
+
+  it('does NOT claim a connection when the transfer failed (REFER rejected / no SIP leg)', async () => {
+    const r = await tool.execute({ reason: 'caller asked for a person' }, makeCtx({ transferToHuman: async () => ({ transferred: false }) }));
+    expect(r.success).toBe(false);
+    expect(r.message.toLowerCase()).not.toContain('connecting you');
+    expect(r.message.toLowerCase()).toContain('message'); // offers to take a message instead
+    expect(r.message.length).toBeLessThanOrEqual(MAX_MESSAGE_CHARS);
+  });
+
+  it('treats a void-returning host (sims) as success — back-compat', async () => {
+    const r = await tool.execute({ reason: 'x' }, makeCtx({ transferToHuman: async () => {} }));
+    expect(r.success).toBe(true);
+  });
+});
+
 describe('answer_from_knowledge', () => {
   it('returns at most 3 entries to the LLM', async () => {
     const ctx = makeCtx({

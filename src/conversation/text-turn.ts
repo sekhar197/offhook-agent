@@ -3,7 +3,7 @@
  *
  * Drives one caller turn through the real agent brain — micro-prompt,
  * phase-filtered tools, tool execution loop — against any configured LLM,
- * with text in/out instead of audio. Used by `offhook chat` (the test
+ * with text in/out instead of audio. Used by `offhook-agent chat` (the test
  * agent) and by golden scenario tests; the voice pipeline wraps the same
  * brain with STT/TTS in Milestone B.
  */

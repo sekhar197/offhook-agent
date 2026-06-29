@@ -1,4 +1,4 @@
-# offhook example: restaurant front-of-house
+# offhook-agent example: restaurant front-of-house
 # Reservations (taken as messages), takeout questions, hours, dietary info.
 agent:
   id: bella-vita-trattoria

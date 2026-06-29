@@ -1,6 +1,6 @@
 /**
- * Local telephony state — offhook has no database, so the provisioned infra IDs
- * (number, trunk, LiveKit trunk/dispatch) live in a gitignored .offhook/
+ * Local telephony state — offhook-agent has no database, so the provisioned infra IDs
+ * (number, trunk, LiveKit trunk/dispatch) live in a gitignored .offhook-agent/
  * telephony.json next to the agent. Kept separate from agent.yaml on purpose:
  * these are infra facts, not agent behavior, and must not pollute the file the
  * self-improve loop edits.
@@ -9,7 +9,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { TelephonyState } from './types.js';
 
-export const DEFAULT_STATE_PATH = '.offhook/telephony.json';
+export const DEFAULT_STATE_PATH = '.offhook-agent/telephony.json';
 
 export function loadTelephonyState(path: string = DEFAULT_STATE_PATH): TelephonyState | null {
   if (!existsSync(path)) return null;

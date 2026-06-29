@@ -5,7 +5,7 @@
  * Model selection:
  *  - Default: each config uses its own models.llm (the honest per-use-case test).
  *  - Override all to one capable model for comparable scores:
- *      OFFHOOK_EVAL_PROVIDER=openai OFFHOOK_EVAL_MODEL=gpt-5.4-mini
+ *      OFFHOOK_AGENT_EVAL_PROVIDER=openai OFFHOOK_AGENT_EVAL_MODEL=gpt-5.4-mini
  *  - A capable judge matters; it follows the same override.
  */
 
@@ -27,11 +27,11 @@ import { USE_CASES, type UseCase } from './usecases.js';
 
 /** A single capable model for the agent+judge, if overridden via env. */
 function overrideClient(): LlmClient | null {
-  const provider = process.env.OFFHOOK_EVAL_PROVIDER as LlmProviderName | undefined;
-  const model = process.env.OFFHOOK_EVAL_MODEL;
+  const provider = process.env.OFFHOOK_AGENT_EVAL_PROVIDER as LlmProviderName | undefined;
+  const model = process.env.OFFHOOK_AGENT_EVAL_MODEL;
   if (!provider || !model) return null;
   const llm = resolveLlm({ provider, model, maxTokens: 200,
-    ...(process.env.OFFHOOK_EVAL_BASEURL ? { baseUrl: process.env.OFFHOOK_EVAL_BASEURL } : {}) });
+    ...(process.env.OFFHOOK_AGENT_EVAL_BASEURL ? { baseUrl: process.env.OFFHOOK_AGENT_EVAL_BASEURL } : {}) });
   return createLlmClient(llm);
 }
 
@@ -90,13 +90,13 @@ ${rows}
 
 > Multilingual cases run callers that speak the target language. \`caller_safe\`
 > is deterministic; the rest are an adversarial LLM judge. Regenerate with a
-> capable model (OFFHOOK_EVAL_PROVIDER/MODEL) for comparable, publishable scores.
+> capable model (OFFHOOK_AGENT_EVAL_PROVIDER/MODEL) for comparable, publishable scores.
 `;
 }
 
 async function main() {
   const override = overrideClient();
-  const only = process.env.OFFHOOK_EVAL_ONLY?.split(',');
+  const only = process.env.OFFHOOK_AGENT_EVAL_ONLY?.split(',');
   const cases = only ? USE_CASES.filter(u => only.includes(u.id)) : USE_CASES;
 
   console.log(`Testing ${cases.length} use cases${override ? ` on ${override.llm.provider}/${override.llm.model}` : ' (each on its own model)'}...\n`);

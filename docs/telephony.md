@@ -1,14 +1,14 @@
 # Telephony — answering a real phone number
 
-offhook answers real phone calls through **LiveKit SIP**. A phone number from a
+offhook-agent answers real phone calls through **LiveKit SIP**. A phone number from a
 trunking provider (Twilio, Telnyx, …) points at your LiveKit server's SIP
-endpoint; LiveKit bridges the call into a room; the offhook worker joins and
+endpoint; LiveKit bridges the call into a room; the offhook-agent worker joins and
 runs the agent. The caller hears your agent; no code on the call path changes
 between browser and phone — the brain is identical.
 
 ```
 Caller dials → Twilio/Telnyx SIP trunk → LiveKit SIP → LiveKit Room
-  → offhook worker (STT → LLM → TTS) → back out to the caller
+  → offhook-agent worker (STT → LLM → TTS) → back out to the caller
 ```
 
 ## What you need
@@ -20,32 +20,32 @@ Caller dials → Twilio/Telnyx SIP trunk → LiveKit SIP → LiveKit Room
 
 ## Setup — automated (recommended)
 
-offhook provisions and connects the number for you. Set your credentials —
+offhook-agent provisions and connects the number for you. Set your credentials —
 `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `LIVEKIT_URL/API_KEY/API_SECRET`, and
 `LIVEKIT_SIP_URI` (your LiveKit SIP endpoint) — then:
 
 ```bash
 # Buy a NEW number (choose your provider — no lock-in):
-offhook phone provision --area-code 973 --provider twilio   # or --provider telnyx
+offhook-agent phone provision --area-code 973 --provider twilio   # or --provider telnyx
 # …OR bring an EXISTING number you already own on that provider:
-offhook phone use +19735550142 --provider twilio
+offhook-agent phone use +19735550142 --provider twilio
 
-offhook phone connect          # creates the LiveKit inbound trunk + dispatch rule
-offhook start                  # the worker answers it
-offhook phone status           # what's provisioned   ·   offhook phone release  # tear down
+offhook-agent phone connect          # creates the LiveKit inbound trunk + dispatch rule
+offhook-agent start                  # the worker answers it
+offhook-agent phone status           # what's provisioned   ·   offhook-agent phone release  # tear down
 ```
 
-The same options are in the dashboard's **Phone** panel (`offhook dashboard`):
+The same options are in the dashboard's **Phone** panel (`offhook-agent dashboard`):
 pick the provider, provision a new number *or* connect an existing one. Twilio
 is fully exercised in tests; the Telnyx client is implemented to Telnyx's v2 API
 and should be validated on a live account. Provisioned IDs live in a gitignored
-`.offhook/telephony.json`.
+`.offhook-agent/telephony.json`.
 
 ## Setup — manual
 
 If you'd rather wire it by hand: create a provider SIP trunk pointed at your
 LiveKit SIP URI, then a LiveKit inbound trunk + dispatch rule (the `lk sip`
-commands) routing to the worker's agent name. offhook reads the caller's number
+commands) routing to the worker's agent name. offhook-agent reads the caller's number
 from the SIP participant (`sip.phoneNumber` attribute, with an identity-pattern
    (`sip.phoneNumber` attribute, with an identity-pattern fallback) and offers
    it back as the callback number when taking a message — so the caller doesn't
@@ -77,14 +77,14 @@ on every commit; this proves the *audio pipeline* on real telephony.
   REFER fails (carrier quirk, missing leg, non-phone session) it falls back to
   the agent reading the number aloud — never dead air. REFER behaviour varies by
   carrier; validate on a real call.
-- **Narrowband audio.** Phone calls are 8 kHz mono. offhook defaults to
+- **Narrowband audio.** Phone calls are 8 kHz mono. offhook-agent defaults to
   turn-taking that holds up on that, but validate on a real call — studio-audio
   assumptions don't transfer.
 
 ## You are the operator of record
 
-offhook is software; **you** run the phone line. That means call-recording
+offhook-agent is software; **you** run the phone line. That means call-recording
 consent (two-party-consent states), AI-disclosure laws (some jurisdictions
-require a bot to identify itself — offhook does by default), and TCPA for any
+require a bot to identify itself — offhook-agent does by default), and TCPA for any
 outbound use are **your responsibility**. This is not legal advice. See
 `docs/legal-considerations.md` if present, and disclose by default.

@@ -3,7 +3,7 @@
  *
  * The webhook executor (executor.ts) is the universal, extensible contract,
  * but standing up a receiver just to get a text is friction that blocks real
- * adoption. So offhook ships built-in delivery channels that work with one
+ * adoption. So offhook-agent ships built-in delivery channels that work with one
  * BYO key and zero extra dependencies (plain HTTP):
  *
  *   console  — log the message (dev default)

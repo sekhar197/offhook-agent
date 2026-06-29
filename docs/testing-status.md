@@ -1,12 +1,14 @@
 # Testing status — what's proven, what needs your accounts, what hasn't run yet
 
-offhook is built for an audience that reads the source and runs the code. So this
+offhook-agent is built for an audience that reads the source and runs the code. So this
 page is deliberately blunt about what is and isn't verified. No silent caps: if a
 claim is only proven by a unit test with a fake, it says so; if a path has never
 run on real audio in *this* repo, it says that too.
 
-**Last updated:** 2026-06-18 · **Suite:** 369 tests, all passing, ~1.6s, fully
-account-free (`npm test`).
+**Last updated:** 2026-06-27 · **Suite:** 386 tests, all passing, ~2s, fully
+account-free (`npm test`). (Count is the clean `npx vitest run` figure — the
+gitignored `.stryker-tmp/` sandbox, if present from a mutation run, duplicates
+test files and inflates the count; ignore it.)
 
 ---
 
@@ -39,15 +41,15 @@ credentials, so CI exercises it with fakes only.
 | Path | Needs | Status in this repo |
 |---|---|---|
 | **LLM turn loop on a real model** | `OPENAI_API_KEY` (or Ollama/local) | Run via `npm run eval` / `npm run verify:safety`; not part of `npm test` |
-| **Browser-mic voice round-trip** (`offhook dev`) | `LIVEKIT_*` + an LLM key | Wired; verify on your LiveKit |
-| **Real phone call** (`offhook start`) | `LIVEKIT_*`, `LIVEKIT_SIP_URI`, `TWILIO_*` or `TELNYX_*` | Wired; see [runbook-livecall.md](runbook-livecall.md) |
+| **Browser-mic voice round-trip** (`offhook-agent dev`) | `LIVEKIT_*` + an LLM key | Wired; verify on your LiveKit |
+| **Real phone call** (`offhook-agent start`) | `LIVEKIT_*`, `LIVEKIT_SIP_URI`, `TWILIO_*` or `TELNYX_*` | Wired; see [runbook-livecall.md](runbook-livecall.md) |
 | **SMS / email delivery actually landing** | `TWILIO_*` / `RESEND_API_KEY` | Payloads tested; live send is yours to confirm |
 | **Telnyx** (any path) | `TELNYX_API_KEY` | Implemented to the v2 API; **validate on a live account** — open item |
 
 ## ⚠️ Never run on real audio in *this* repo
 
 The architecture and turn loop are production-proven in the closed-source parent
-(Nirvah), but the extracted offhook code has **not** been exercised end-to-end on
+(Nirvah), but the extracted offhook-agent code has **not** been exercised end-to-end on
 real audio here. Specifically unverified in this repo:
 
 - The full STT → LLM → TTS cascade over LiveKit on live audio.
@@ -60,7 +62,7 @@ real audio here. Specifically unverified in this repo:
 
 See [runbook-livecall.md](runbook-livecall.md) for the live verification steps and
 [real-call-report.md](real-call-report.md) to record results. The harness is
-written and waiting: `offhook doctor` now preflights LiveKit creds, the SIP URI,
+written and waiting: `offhook-agent doctor` now preflights LiveKit creds, the SIP URI,
 and speech-plugin presence (so a real call doesn't fail mid-stream on a missing
 plugin), and `npm run e2e` (`test/e2e/headless-livekit.ts`) dispatches the worker
 into a real room — its audio-frame assertion is the documented live step.
@@ -81,9 +83,11 @@ each tier lands.
       what the caller said by design; a PII-redaction middleware is roadmap, not
       built — see Honest limitations.*
 - [x] **Mutation testing (Stryker)** — `npm run test:mutation`, scoped to the
-      safety/correctness crown jewels. Aggregate **71%**; caller-safe linter
-      **91%**, config-edit allowlist **73%**, idempotency/executor **70%**, gate
-      decision logic fully killed except cosmetic reason-string formatting.
+      safety/correctness crown jewels. Aggregate **~71%**; caller-safe linter
+      **90.63%**, config-edit allowlist **73.33%**, idempotency/executor **~70%**,
+      gate decision logic — the safety comparison (`c < b`), the missing-dimension
+      fail-safe, and the overall-regression check are all killed; surviving mutants
+      on the gate are cosmetic (reason-string formatting, optional `onProgress`).
       (ASR-correction is excluded — it's heuristic quality code whose
       safety-relevant guards are covered by the corpus; its scoring thresholds
       produce equivalent-mutant noise, not signal.) Found and fixed real holes:

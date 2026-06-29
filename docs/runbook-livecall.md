@@ -33,7 +33,7 @@ Optional production-quality voice (otherwise single-key OpenAI STT/TTS is used):
 ## Step 0 — preflight
 
 ```bash
-offhook doctor      # config, knowledge, LLM reachability, voice-provider keys,
+offhook-agent doctor      # config, knowledge, LLM reachability, voice-provider keys,
                     # plugin presence, LiveKit reachability, SIP URI
 ```
 
@@ -43,20 +43,20 @@ Fix anything it flags before spending money on a number.
 
 **Twilio:**
 ```bash
-offhook phone provision --area-code 973 --provider twilio   # or: phone use +1...  --provider twilio
-offhook phone connect
-offhook start        # leave this running; it answers the number
+offhook-agent phone provision --area-code 973 --provider twilio   # or: phone use +1...  --provider twilio
+offhook-agent phone connect
+offhook-agent start        # leave this running; it answers the number
 ```
 
 **Telnyx** (⚠️ the open validation item — first live exercise of the Telnyx client):
 ```bash
-offhook phone provision --area-code 973 --provider telnyx    # or: phone use +1... --provider telnyx
-offhook phone connect
-offhook start
+offhook-agent phone provision --area-code 973 --provider telnyx    # or: phone use +1... --provider telnyx
+offhook-agent phone connect
+offhook-agent start
 ```
 
-`offhook phone status` shows what's provisioned; state lives in the gitignored
-`.offhook/telephony.json`.
+`offhook-agent phone status` shows what's provisioned; state lives in the gitignored
+`.offhook-agent/telephony.json`.
 
 ## Step 2 — dial it from a real cell phone, run the checklist
 
@@ -72,7 +72,7 @@ offhook start
 
 ```bash
 tail -1 call-records.jsonl | jq      # confirm the record (transcript, tools, latency)
-offhook phone release                # release the number + trunks when done
+offhook-agent phone release                # release the number + trunks when done
 ```
 
 Write up the result in [real-call-report.md](real-call-report.md) — including
@@ -83,7 +83,7 @@ anything that *didn't* hold, so the next release knows.
 - **VAD/STT on 8 kHz mono** behaves differently than on wideband — endpointing may
   fire early/late. Tune `voice.endpointingMaxDelayMs` (1500–3000ms) on a real line.
 - **SIP REFER** support varies by carrier; if it fails the agent reads the number.
-- A **missing LiveKit plugin** throws at `offhook start`, not at `doctor` time
+- A **missing LiveKit plugin** throws at `offhook-agent start`, not at `doctor` time
   unless preflight catches it — install the STT/TTS plugin you configured.
 - **Realtime mode** (`voice.mode: realtime`) bypasses the ASR-correction and
   caller-safety text layer — only flip it on after you've validated cascaded.

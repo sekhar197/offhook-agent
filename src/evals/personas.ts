@@ -3,7 +3,7 @@
  *
  * Each persona is an LLM-driven caller with a goal and a behavior style. The
  * simulator plays the persona against the real agent brain; the judge then
- * scores how the agent handled it. This is offhook's open-source answer to
+ * scores how the agent handled it. This is offhook-agent's open-source answer to
  * the 2026 simulation-first eval approach — shipped in the repo, not behind a
  * paid SaaS.
  *

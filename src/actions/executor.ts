@@ -86,8 +86,8 @@ export async function executeAction(req: ActionRequest): Promise<ActionResult> {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Offhook-Idempotency-Key': idempotencyKey,
-          'X-Offhook-Action': req.actionType,
+          'X-Offhook-Agent-Idempotency-Key': idempotencyKey,
+          'X-Offhook-Agent-Action': req.actionType,
         },
         body: JSON.stringify({
           action: req.actionType,

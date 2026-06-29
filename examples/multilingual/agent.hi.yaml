@@ -1,4 +1,4 @@
-# offhook multilingual example — Hindi (हिन्दी).
+# offhook-agent multilingual example — Hindi (हिन्दी).
 # Use a multilingual STT (Whisper-large-v3 / Deepgram nova-3) and an LLM that
 # handles Hindi well. See docs/languages.md.
 agent:

@@ -25,17 +25,17 @@ CapCut/iMovie. Target 80–95 seconds. End with a still card.
 **0:00–0:10 — install + init.**
 Show, fast (cut the waiting):
 ```
-npm install -g offhook
-offhook init        # name, model, paste one key
-offhook chat        # → a real, tool-using exchange in the terminal
+npm install -g offhook-agent
+offhook-agent init        # name, model, paste one key
+offhook-agent chat        # → a real, tool-using exchange in the terminal
 ```
 Caption: *"Open-source phone agent. One key, one config file. Talking in the terminal already — no voice setup yet."*
 
 **0:10–0:25 — put a phone number on it.**
 ```
-offhook phone use +1973••••••• --provider twilio   # or provision a fresh one
-offhook phone connect
-offhook start        # the worker answers it
+offhook-agent phone use +1973••••••• --provider twilio   # or provision a fresh one
+offhook-agent phone connect
+offhook-agent start        # the worker answers it
 ```
 Caption: *"Bring your own number — Twilio or Telnyx — or buy one. Connect it to LiveKit. Done."*
 
@@ -52,7 +52,7 @@ Caption: *"That's a real call. Minutes from `npm install`, on your infra, your p
 Show a `call-records.jsonl` line / transcript snippet where the agent fumbled
 (invented a price, hesitated on an emergency). Caption: *"Real calls. Real misses. Normally you'd hand-read transcripts and guess at a prompt fix."*
 
-**0:45–0:57 — `offhook improve` proposes a fix.**
+**0:45–0:57 — `offhook-agent improve` proposes a fix.**
 Run it. Show `ingesting… proposing…`, then the **proposed patch** — rationale +
 the `instructions` diff. Caption: *"It reads the calls, finds the pattern, and proposes an edit to the config — never the code."*
 
@@ -71,9 +71,9 @@ Caption: *"A 'better' edit that would weaken a safety behavior? Blocked. Autonom
 Run the good variant: `Gate: ✅ PASS … Applied (gated). backup: agent.yaml.bak.…` Caption: *"A safe improvement passes, applies itself, keeps a backup. Provably safe."*
 
 **1:25–1:32 — end card (still).**
-> **offhook** — a production-grade voice agent. Your infra. Your provider. Ready in minutes.
+> **offhook-agent** — a production-grade voice agent. Your infra. Your provider. Ready in minutes.
 > It answers real calls · it tests itself · it improves itself · it can't break its own safety.
-> `github.com/sekhar197/offhook` · built by Sekhar Makkapati · sekharmakkapati.com
+> `github.com/sekhar197/offhook-agent` · built by Sekhar Makkapati · sekharmakkapati.com
 
 ---
 
@@ -93,11 +93,11 @@ recording, stage it rather than gamble live:
    you'll check") that fixes the failure without touching safety. Gate passes.
 
 Record both, cut them together. If a live run is too slow/noisy on camera, scope
-it with `OFFHOOK_EVAL_ONLY` or a small persona subset, or screen-record the
+it with `OFFHOOK_AGENT_EVAL_ONLY` or a small persona subset, or screen-record the
 deterministic test as the "proof" intercut.
 
 **Act 1 note:** if a live phone call is awkward to film, the browser-mic path
-(`offhook dev`) is a clean substitute for the "it answers" beat — same brain,
+(`offhook-agent dev`) is a clean substitute for the "it answers" beat — same brain,
 easier to capture on one screen. Redact the real number on screen either way.
 
 ## Where it goes

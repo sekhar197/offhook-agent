@@ -3,7 +3,7 @@
  *
  * Serves the one-page mic client and a `/api/connect` endpoint that:
  *   1. creates a fresh room,
- *   2. dispatches the offhook agent worker to it (AgentDispatchClient),
+ *   2. dispatches the offhook-agent agent worker to it (AgentDispatchClient),
  *   3. mints a browser join token,
  * and returns { url, token, room }. The browser then joins with livekit-client,
  * publishes its mic, and plays the agent's audio.
@@ -30,7 +30,7 @@ function webRoot(): string {
 }
 
 async function mintConnection(opts: TokenServerOptions) {
-  const room = `offhook-dev-${Math.random().toString(36).slice(2, 10)}`;
+  const room = `offhook-agent-dev-${Math.random().toString(36).slice(2, 10)}`;
 
   // Dispatch the agent worker into this room.
   const dispatch = new AgentDispatchClient(opts.livekitUrl, opts.apiKey, opts.apiSecret);
@@ -68,7 +68,7 @@ export function startTokenServer(opts: TokenServerOptions): { close: () => void 
   });
 
   server.listen(opts.port, () => {
-    console.log(`\n  offhook browser demo → http://localhost:${opts.port}`);
+    console.log(`\n  offhook-agent browser demo → http://localhost:${opts.port}`);
     console.log(`  (dispatches the "${opts.agentName}" worker into a fresh room per session)\n`);
   });
 

@@ -40,7 +40,7 @@ const appName = (config: AgentConfig): string => config.agent.id;
 function docker(config: AgentConfig, env: string[], image: string): DeployPlan {
   const eFlags = env.map(v => `    -e ${v} \\`).join('\n');
   const contents = `#!/usr/bin/env bash
-# offhook — run the worker 24/7 anywhere Docker runs.
+# offhook-agent — run the worker 24/7 anywhere Docker runs.
 set -euo pipefail
 
 docker build -t ${image} .
@@ -59,7 +59,7 @@ ${eFlags}
 }
 
 function fly(config: AgentConfig, env: string[]): DeployPlan {
-  const contents = `# offhook on Fly.io — \`fly deploy\` (worker, no public ports).
+  const contents = `# offhook-agent on Fly.io — \`fly deploy\` (worker, no public ports).
 app = "${appName(config)}"
 primary_region = "iad"
 
@@ -67,7 +67,7 @@ primary_region = "iad"
   dockerfile = "Dockerfile"
 
 [env]
-  OFFHOOK_CONFIG = "/app/agent.yaml"
+  OFFHOOK_AGENT_CONFIG = "/app/agent.yaml"
 
 [[vm]]
   size = "shared-cpu-1x"
@@ -88,19 +88,19 @@ function railway(config: AgentConfig, env: string[]): DeployPlan {
   const contents = `${JSON.stringify({
     $schema: 'https://railway.app/railway.schema.json',
     build: { builder: 'DOCKERFILE', dockerfilePath: 'Dockerfile' },
-    deploy: { startCommand: 'node bin/offhook.js start', restartPolicyType: 'ON_FAILURE', restartPolicyMaxRetries: 10 },
+    deploy: { startCommand: 'node bin/offhook-agent.js start', restartPolicyType: 'ON_FAILURE', restartPolicyMaxRetries: 10 },
   }, null, 2)}\n`;
   return {
     target: 'railway',
     files: [{ filename: 'railway.json', contents }],
-    notes: [`Add these variables in the Railway service (Variables tab): ${env.join(', ')}, OFFHOOK_CONFIG=/app/agent.yaml.`, 'Deploy a "worker" service (no public networking needed).'],
+    notes: [`Add these variables in the Railway service (Variables tab): ${env.join(', ')}, OFFHOOK_AGENT_CONFIG=/app/agent.yaml.`, 'Deploy a "worker" service (no public networking needed).'],
   };
 }
 
 function render(config: AgentConfig, env: string[]): DeployPlan {
-  const envYaml = ['      - key: OFFHOOK_CONFIG', '        value: /app/agent.yaml',
+  const envYaml = ['      - key: OFFHOOK_AGENT_CONFIG', '        value: /app/agent.yaml',
     ...env.flatMap(v => [`      - key: ${v}`, '        sync: false'])].join('\n');
-  const contents = `# offhook on Render — Blueprint (background worker, no inbound).
+  const contents = `# offhook-agent on Render — Blueprint (background worker, no inbound).
 services:
   - type: worker
     name: ${appName(config)}
@@ -137,7 +137,7 @@ spec:
         - name: ${name}
           image: ${image}
           env:
-            - name: OFFHOOK_CONFIG
+            - name: OFFHOOK_AGENT_CONFIG
               value: /app/agent.yaml
           envFrom:
             - secretRef: { name: ${name}-secrets }

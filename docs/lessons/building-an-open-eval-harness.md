@@ -1,6 +1,6 @@
 # Building an open-source eval harness for a voice agent
 
-> One of offhook's `docs/lessons` — production scar tissue, written so the next
+> One of offhook-agent's `docs/lessons` — production scar tissue, written so the next
 > person doesn't relearn it the hard way.
 
 A voice agent that's never been measured is a demo, not a product. But "measure

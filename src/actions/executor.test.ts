@@ -17,8 +17,8 @@ beforeAll(async () => {
     req.on('end', () => {
       hits += 1;
       received.push({
-        key: req.headers['x-offhook-idempotency-key'] as string | undefined,
-        action: req.headers['x-offhook-action'] as string | undefined,
+        key: req.headers['x-offhook-agent-idempotency-key'] as string | undefined,
+        action: req.headers['x-offhook-agent-action'] as string | undefined,
         body: JSON.parse(raw),
       });
       if (behavior === 'fail500') {

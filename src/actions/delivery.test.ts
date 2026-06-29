@@ -97,13 +97,13 @@ describe('deliverAction — webhook + console', () => {
   it('routes webhook channel through the idempotent executor', async () => {
     const fetchImpl = vi.fn(async () => new Response('{}', { status: 200 }));
     const result = await deliverAction('message.take', MSG, ctx({
-      webhookUrl: 'https://hooks.example/offhook',
+      webhookUrl: 'https://hooks.example/offhook-agent',
       fetchImpl: fetchImpl as unknown as typeof fetch,
     }));
     expect(result.status).toBe('ok');
     const [, init] = fetchImpl.mock.calls[0]!;
     const headers = (init as RequestInit).headers as Record<string, string>;
-    expect(headers['X-Offhook-Idempotency-Key']).toBe('c1_room_1'); // executor's contract
+    expect(headers['X-Offhook-Agent-Idempotency-Key']).toBe('c1_room_1'); // executor's contract
   });
 
   it('console channel returns ok without any network', async () => {

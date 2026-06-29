@@ -1,6 +1,6 @@
 # Evals & benchmarking
 
-A voice agent's quality claims need receipts. offhook ships a four-tier
+A voice agent's quality claims need receipts. offhook-agent ships a four-tier
 eval framework; each tier answers a different question.
 
 ## Tier 1 — unit tests (per-commit CI, no API keys)
@@ -60,7 +60,7 @@ Two distinct measurements — don't conflate them:
 
 ## Model choice and latency
 
-offhook is model-agnostic (any OpenAI-compatible endpoint — hosted or
+offhook-agent is model-agnostic (any OpenAI-compatible endpoint — hosted or
 local; see the `models.llm` section of agent.yaml). Latency guidance:
 
 - Fast hosted inference (Groq, NVIDIA NIM) or a small local model on a GPU

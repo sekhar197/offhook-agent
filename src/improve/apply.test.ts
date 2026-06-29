@@ -32,7 +32,7 @@ describe('renderCandidateConfig', () => {
 
 describe('backupConfig + applyConfig', () => {
   it('backs up the original before applying the candidate', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'offhook-apply-'));
+    const dir = mkdtempSync(join(tmpdir(), 'offhook-agent-apply-'));
     const path = join(dir, 'agent.yaml');
     try {
       writeFileSync(path, YAML);

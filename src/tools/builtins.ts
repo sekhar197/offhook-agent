@@ -117,7 +117,13 @@ export const transferToHuman: ToolDefinition = {
     if (!ctx.transferToHuman) {
       return { success: false, message: "I can't transfer right now, but I can take a message." };
     }
-    await ctx.transferToHuman(String(args.reason ?? ''));
+    const result = await ctx.transferToHuman(String(args.reason ?? ''));
+    // Only claim a connection if the transfer was actually placed. A failed/
+    // unavailable transfer (REFER rejected, no SIP leg) must NOT be reported as
+    // success — that would be a false claim to the caller.
+    if (result && result.transferred === false) {
+      return { success: false, message: "I'm not able to connect you directly right now, but I can take a message and pass it along." };
+    }
     return { success: true, message: 'Connecting you now — one moment.' };
   },
 };

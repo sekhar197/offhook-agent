@@ -1,5 +1,5 @@
 /**
- * Adversarial security corpus — the account-free half of offhook's safety story.
+ * Adversarial security corpus — the account-free half of offhook-agent's safety story.
  *
  * The eval personas (src/evals/personas.ts) prove the *agent* resists adversarial
  * callers, but they need a live LLM. This corpus proves the *deterministic

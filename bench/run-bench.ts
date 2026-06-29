@@ -1,5 +1,5 @@
 /**
- * offhook benchmark harness — latency, accuracy, and stress numbers for the
+ * offhook-agent benchmark harness — latency, accuracy, and stress numbers for the
  * deterministic core. Run: `npm run bench` (writes docs/benchmarks.md).
  *
  * Scope: BM25 + category fallback + rerank + resolver + prompt build. The
@@ -285,7 +285,7 @@ function rowTable(rows: Row[]): string {
 }
 
 async function main() {
-  console.log('Running offhook core benchmarks (deterministic, no network)...\n');
+  console.log('Running offhook-agent core benchmarks (deterministic, no network)...\n');
 
   const search = await benchSearchLatency();
   const resolver = await benchResolver();

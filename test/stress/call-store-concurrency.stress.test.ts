@@ -25,7 +25,7 @@ function record(i: number): CallRecord {
 
 describe('call-store — concurrent writes + corruption tolerance', () => {
   it('every concurrently-appended record reads back intact', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'offhook-store-'));
+    const dir = mkdtempSync(join(tmpdir(), 'offhook-agent-store-'));
     const path = join(dir, 'call-records.jsonl');
     try {
       const sink = jsonlFileSink(path);
@@ -40,7 +40,7 @@ describe('call-store — concurrent writes + corruption tolerance', () => {
   });
 
   it('a corrupted log (half-written + garbage lines) still yields all good records', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'offhook-store-'));
+    const dir = mkdtempSync(join(tmpdir(), 'offhook-agent-store-'));
     const path = join(dir, 'call-records.jsonl');
     try {
       appendFileSync(path, JSON.stringify(record(1)) + '\n');

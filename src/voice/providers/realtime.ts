@@ -1,7 +1,7 @@
 /**
  * Realtime (speech-to-speech) model factory — used only when
  * `voice.mode: realtime`. OpenAI gpt-realtime and Google Gemini Live take
- * audio in and emit audio out; tools still route through offhook's registry,
+ * audio in and emit audio out; tools still route through offhook-agent's registry,
  * but the text-stage moat (ASR correction, caller-safety) is bypassed — which
  * is why cascaded is the default (see docs/roadmap.md).
  */

@@ -1,5 +1,5 @@
 /**
- * `offhook phone <provision | use | connect | status | release>` — go from zero
+ * `offhook-agent phone <provision | use | connect | status | release>` — go from zero
  * to a real number answering, in a couple of commands. Provider is your choice
  * (--provider twilio|telnyx; default twilio):
  *   provision [--area-code N]   buy a NEW number + provider SIP trunk → LiveKit
@@ -29,7 +29,7 @@ function flag(args: string[], name: string): string | undefined {
 export async function phoneCommand(configPath: string, args: string[]): Promise<void> {
   const sub = args[0];
   const agentId = loadAgentConfig(configPath).agent.id;
-  const agentName = process.env.OFFHOOK_AGENT_NAME || 'offhook';
+  const agentName = process.env.OFFHOOK_AGENT_NAME || 'offhook-agent';
 
   const providerArg = flag(args, '--provider') ?? 'twilio';
   if (!isTelephonyProvider(providerArg)) {
@@ -50,7 +50,7 @@ export async function phoneCommand(configPath: string, args: string[]): Promise<
       let state;
       if (sub === 'use') {
         const number = args.slice(1).find(a => /^\+?\d/.test(a));
-        if (!number) { console.log('Usage: offhook phone use <+E164> [--provider twilio|telnyx]'); process.exitCode = 1; return; }
+        if (!number) { console.log('Usage: offhook-agent phone use <+E164> [--provider twilio|telnyx]'); process.exitCode = 1; return; }
         console.log(`Connecting your existing number ${number} via ${providerArg}…`);
         state = await useExistingNumber({ client, livekitSipUri, agentId, number });
       } else {
@@ -58,7 +58,7 @@ export async function phoneCommand(configPath: string, args: string[]): Promise<
         console.log(`Provisioning a number${areaCode ? ` in area code ${areaCode}` : ''} via ${providerArg}…`);
         state = await provisionNumber({ client, livekitSipUri, agentId, ...(areaCode ? { areaCode } : {}) });
       }
-      console.log(`✓ ${state.phoneNumber} ready (${providerArg}). Next: offhook phone connect`);
+      console.log(`✓ ${state.phoneNumber} ready (${providerArg}). Next: offhook-agent phone connect`);
     } catch (e) { fail(e); }
     return;
   }
@@ -66,14 +66,14 @@ export async function phoneCommand(configPath: string, args: string[]): Promise<
   if (sub === 'connect') {
     try {
       const state = await connectNumber({ sip: liveKitSipFromEnv(), agentId, agentName });
-      console.log(`✓ ${state.phoneNumber} now answers via offhook (agent "${agentName}"). Start the worker: offhook start`);
+      console.log(`✓ ${state.phoneNumber} now answers via offhook-agent (agent "${agentName}"). Start the worker: offhook-agent start`);
     } catch (e) { fail(e); }
     return;
   }
 
   if (sub === 'status') {
     const s = loadTelephonyState();
-    console.log(s ? JSON.stringify(s, null, 2) : 'No telephony set up yet. Run: offhook phone provision  (or  use <+E164>)');
+    console.log(s ? JSON.stringify(s, null, 2) : 'No telephony set up yet. Run: offhook-agent phone provision  (or  use <+E164>)');
     return;
   }
 
@@ -87,6 +87,6 @@ export async function phoneCommand(configPath: string, args: string[]): Promise<
     return;
   }
 
-  console.log('Usage: offhook phone <provision [--area-code N] | use <+E164> | connect | status | release> [--provider twilio|telnyx]');
+  console.log('Usage: offhook-agent phone <provision [--area-code N] | use <+E164> | connect | status | release> [--provider twilio|telnyx]');
   process.exitCode = 1;
 }

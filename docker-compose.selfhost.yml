@@ -1,18 +1,18 @@
-# offhook self-hosted voice stack — 100% local, audio never leaves your machine.
+# offhook-agent self-hosted voice stack — 100% local, audio never leaves your machine.
 #
 # Containers (this file): LiveKit transport + local STT (Whisper) + local TTS
-# (Kokoro). On the HOST you run Ollama (the LLM) and `offhook dev` (the worker
+# (Kokoro). On the HOST you run Ollama (the LLM) and `offhook-agent dev` (the worker
 # + browser page). Nothing here talks to any cloud.
 #
 #   1. ollama serve            # host — your local LLM (e.g. qwen2.5:3b)
 #   2. docker compose -f docker-compose.selfhost.yml up   # this stack
 #   3. LIVEKIT_URL=ws://localhost:7880 LIVEKIT_API_KEY=devkey \
 #      LIVEKIT_API_SECRET=secret \
-#      offhook dev -c examples/self-hosted/agent.yaml      # host — talk in browser
+#      offhook-agent dev -c examples/self-hosted/agent.yaml      # host — talk in browser
 #
 # Compatibility note: real-time local STT is the immature link in the chain.
 # The Whisper server below exposes an OpenAI-compatible transcription endpoint;
-# if your offhook STT plugin needs a streaming variant it doesn't implement,
+# if your offhook-agent STT plugin needs a streaming variant it doesn't implement,
 # swap in a streaming-capable local STT or fall back to a cloud STT. See
 # docs/self-hosting.md.
 

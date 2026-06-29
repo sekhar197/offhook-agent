@@ -7,7 +7,7 @@
  *
  * One CallRecord per call: identity, timing, outcome, every turn, every tool
  * call, and any errors — flushed to a configurable sink when the call ends.
- * This is what makes an offhook deployment operable: an owner can review a
+ * This is what makes an offhook-agent deployment operable: an owner can review a
  * call, latency can be measured, failures are visible instead of lost in logs.
  */
 import { appendFile, mkdir } from 'node:fs/promises';
@@ -66,6 +66,8 @@ export interface CallRecord {
   errors: CallErrorRecord[];
   /** Aggregate per-turn latency over turns that reported a latencyMs. */
   latency?: { meanTurnMs: number; p95TurnMs: number; maxTurnMs: number; sampled: number };
+  /** Agent-generated call summary, if the agent ran a summary tool. */
+  summary?: string;
 }
 
 /** A sink consumes a finished CallRecord. Async so it can write/POST. */
@@ -103,6 +105,7 @@ export class CallRecorder {
   private readonly turns: TurnRecord[] = [];
   private readonly tools: ToolCallRecord[] = [];
   private readonly errors: CallErrorRecord[] = [];
+  private summary?: string;
   private finished = false;
 
   constructor(meta: CallRecorderMeta, opts: CallRecorderOptions = {}) {
@@ -138,6 +141,11 @@ export class CallRecorder {
     else this.tools.push(tool);
   }
 
+  /** Set the call's summary (from the agent's summary tool). Last write wins. */
+  setSummary(summary: string): void {
+    if (summary.trim()) this.summary = summary.trim();
+  }
+
   recordError(message: string, turnIndex?: number): void {
     this.errors.push({
       message,
@@ -167,6 +175,7 @@ export class CallRecorder {
       turns: this.turns,
       tools: this.tools,
       errors: this.errors,
+      ...(this.summary ? { summary: this.summary } : {}),
       ...(latencies.length > 0
         ? {
             latency: {

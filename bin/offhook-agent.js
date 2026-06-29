@@ -14,8 +14,8 @@ if (existsSync(dist)) {
   console.log('  (dev checkout: run `npm run build` once, or use `npx tsx src/cli/main.ts`)');
 } else {
   console.log(`
-  offhook — Don't build a voice agent. Deploy one.
+  offhook-agent — Don't build a voice agent. Deploy one.
 
-  v0.1 is in active development. Watch: https://github.com/sekhar197/offhook
+  v0.1 is in active development. Watch: https://github.com/sekhar197/offhook-agent
 `);
 }

@@ -8,7 +8,7 @@
 
 import { mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
-// fastembed is imported lazily inside warmup so importing the offhook core
+// fastembed is imported lazily inside warmup so importing the offhook-agent core
 // never loads native ONNX bindings unless local embeddings are actually used.
 import type { FlagEmbedding } from 'fastembed';
 
@@ -29,7 +29,7 @@ const EMBEDDING_CONFIG = {
   dimensions: 384,
 
   /** Cache directory for model files */
-  cacheDir: process.env.OFFHOOK_MODEL_CACHE_DIR
+  cacheDir: process.env.OFFHOOK_AGENT_MODEL_CACHE_DIR
     || join(process.cwd(), '.cache', 'fastembed'),
 } as const;
 

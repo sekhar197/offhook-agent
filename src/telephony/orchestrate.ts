@@ -1,5 +1,5 @@
 /**
- * Telephony orchestration — the multi-step flows behind `offhook phone`.
+ * Telephony orchestration — the multi-step flows behind `offhook-agent phone`.
  * Takes INJECTED clients (provider + LiveKit SipApi), so the provision →
  * connect → release sequence is unit-tested with fakes and zero accounts; the
  * CLI passes the real clients.
@@ -24,7 +24,7 @@ export async function provisionNumber(opts: {
   const number = available[0]!.phoneNumber;
 
   const { phoneNumberSid } = await opts.client.purchaseNumber(number);
-  const { trunkSid, credentialListSid } = await opts.client.createSipTrunk({ name: `offhook-${opts.agentId}`, livekitSipUri: opts.livekitSipUri });
+  const { trunkSid, credentialListSid } = await opts.client.createSipTrunk({ name: `offhook-agent-${opts.agentId}`, livekitSipUri: opts.livekitSipUri });
   await opts.client.attachNumberToTrunk(phoneNumberSid, trunkSid);
 
   return mergeTelephonyState(
@@ -45,9 +45,9 @@ export async function useExistingNumber(opts: {
 }): Promise<TelephonyState> {
   const owned = await opts.client.findOwnedNumber(opts.number);
   if (!owned) {
-    throw new TelephonyError(`You don't own ${opts.number} on ${opts.client.provider}. Add it to your ${opts.client.provider} account first, or run \`offhook phone provision\` to buy a new one.`);
+    throw new TelephonyError(`You don't own ${opts.number} on ${opts.client.provider}. Add it to your ${opts.client.provider} account first, or run \`offhook-agent phone provision\` to buy a new one.`);
   }
-  const { trunkSid, credentialListSid } = await opts.client.createSipTrunk({ name: `offhook-${opts.agentId}`, livekitSipUri: opts.livekitSipUri });
+  const { trunkSid, credentialListSid } = await opts.client.createSipTrunk({ name: `offhook-agent-${opts.agentId}`, livekitSipUri: opts.livekitSipUri });
   await opts.client.attachNumberToTrunk(owned.phoneNumberSid, trunkSid);
 
   return mergeTelephonyState(
@@ -66,7 +66,19 @@ export async function connectNumber(opts: {
   now?: () => number;
 }): Promise<TelephonyState> {
   const state = loadTelephonyState(opts.statePath);
-  if (!state?.phoneNumber) throw new TelephonyError('No provisioned number — run `offhook phone provision` first.');
+  if (!state?.phoneNumber) throw new TelephonyError('No provisioned number — run `offhook-agent phone provision` first.');
+
+  // Idempotent re-connect: if a LiveKit trunk/dispatch rule is already recorded,
+  // tear it down before creating new ones. Otherwise re-running `offhook-agent phone
+  // connect` orphans the old trunk + rule and risks double-dispatch (two workers
+  // per call). Tolerate already-deleted ids so a stale state still re-connects.
+  if (state.livekitTrunkId || state.livekitDispatchRuleId) {
+    try {
+      await disconnectNumber(opts.sip, state);
+    } catch (e) {
+      console.warn(`[telephony] could not remove existing LiveKit trunk/rule (continuing): ${e instanceof Error ? e.message : String(e)}`);
+    }
+  }
 
   const { livekitTrunkId, livekitDispatchRuleId } = await connectNumberToAgent(opts.sip, { number: state.phoneNumber, agentId: opts.agentId, agentName: opts.agentName });
   return mergeTelephonyState({ provider: state.provider, livekitTrunkId, livekitDispatchRuleId, agentName: opts.agentName }, opts.statePath, opts.now);

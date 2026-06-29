@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+/* ── design tokens (OLED dark + rose→iris "voice console" accent) ───────────── */
+@theme {
+  --color-bg: #070709;
+  --color-card: #0d0e13;
+  --color-card2: #111219;
+  --color-line: rgba(255, 255, 255, 0.07);
+  --color-line2: rgba(255, 255, 255, 0.12);
+  --color-text: #f3f4f8;
+  --color-dim: #8a8c99;
+  --color-faint: #565869;
+  --color-rose: #fb7185;
+  --color-iris: #818cf8;
+  --color-ok: #34d399;
+  --color-bad: #ff5d73;
+  --color-warn: #e6c34f;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+}
+
+@property --bd { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.011em;
+}
+
+/* aurora + faint grid backdrop, fixed behind everything */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(45% 38% at 18% 8%, rgba(251, 113, 133, 0.10), transparent 62%),
+    radial-gradient(48% 42% at 88% 92%, rgba(129, 140, 248, 0.11), transparent 64%),
+    radial-gradient(38% 34% at 62% 30%, rgba(129, 140, 248, 0.05), transparent 70%);
+  filter: blur(8px);
+}
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.5;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(120% 90% at 50% 0%, #000 35%, transparent 80%);
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #1b1c25; border-radius: 6px; border: 2px solid var(--color-bg); }
+::-webkit-scrollbar-thumb:hover { background: #262733; }
+
+/* ── reusable premium surfaces ──────────────────────────────────────────────── */
+.glass {
+  background: color-mix(in oklab, var(--color-card) 78%, transparent);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  border: 1px solid var(--color-line);
+}
+.card {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.022), transparent 40%),
+    var(--color-card);
+  border: 1px solid var(--color-line);
+  border-radius: 18px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 24px 60px -34px rgba(0, 0, 0, 0.9);
+}
+/* animated conic gradient border (the 21st.dev ring) */
+.glow-border { position: relative; }
+.glow-border::before {
+  content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; z-index: 0;
+  background: conic-gradient(from var(--bd),
+    transparent 0deg, rgba(251, 113, 133, 0.55) 70deg, rgba(129, 140, 248, 0.55) 150deg, transparent 220deg, transparent 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: bd-spin 7s linear infinite;
+}
+@keyframes bd-spin { to { --bd: 360deg; } }
+
+/* soft top-center spotlight inside a card on hover */
+.spot::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: 0; pointer-events: none;
+  background: radial-gradient(420px 200px at var(--mx, 50%) -10%, rgba(129, 140, 248, 0.10), transparent 60%);
+  opacity: 0; transition: opacity 0.3s ease;
+}
+.spot:hover::after { opacity: 1; }
+
+/* numerics: tabular mono */
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-faint); font-weight: 600; }
+
+/* gradient text for the wordmark / hero numbers */
+.grad { background: linear-gradient(92deg, var(--color-rose), var(--color-iris)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* ── keyframes ──────────────────────────────────────────────────────────────── */
+@keyframes wv { 0%, 100% { transform: scaleY(0.35); } 50% { transform: scaleY(1); } }
+@keyframes pulse-dot { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.5); } 50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(52, 211, 153, 0); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 0.9s linear infinite; }
+
+button { font-family: inherit; cursor: pointer; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--color-iris); outline-offset: 2px; border-radius: 6px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}

@@ -1,5 +1,5 @@
 /**
- * `offhook dev` — local browser voice session.
+ * `offhook-agent dev` — local browser voice session.
  *
  * Starts the token+web server, then runs the LiveKit worker in dev mode in the
  * same process. Open the printed URL, click "Start call", and talk to your
@@ -16,7 +16,7 @@ export function devCommand(): void {
 
   if (!livekitUrl || !apiKey || !apiSecret) {
     console.error(
-      '\n  offhook dev needs LiveKit connection info:\n' +
+      '\n  offhook-agent dev needs LiveKit connection info:\n' +
       '    LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET\n\n' +
       '  Local (self-hosted, zero cloud): the dev LiveKit server uses\n' +
       '    LIVEKIT_URL=ws://localhost:7880  LIVEKIT_API_KEY=devkey  LIVEKIT_API_SECRET=secret\n' +
@@ -29,8 +29,8 @@ export function devCommand(): void {
     livekitUrl,
     apiKey,
     apiSecret,
-    agentName: process.env.OFFHOOK_AGENT_NAME || 'offhook',
-    port: Number(process.env.OFFHOOK_DEV_PORT || 3000),
+    agentName: process.env.OFFHOOK_AGENT_NAME || 'offhook-agent',
+    port: Number(process.env.OFFHOOK_AGENT_DEV_PORT || 3000),
   });
 
   // Run the worker in the same process (dev mode). cli.runApp reads argv;

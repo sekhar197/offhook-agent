@@ -15,7 +15,7 @@ function rec(id: string, over: Partial<CallRecord> = {}): CallRecord {
 }
 
 function writeJsonl(records: CallRecord[], extra = ''): { dir: string; path: string } {
-  const dir = mkdtempSync(join(tmpdir(), 'offhook-store-'));
+  const dir = mkdtempSync(join(tmpdir(), 'offhook-agent-store-'));
   const path = join(dir, 'call-records.jsonl');
   writeFileSync(path, records.map(r => JSON.stringify(r)).join('\n') + '\n' + extra);
   return { dir, path };

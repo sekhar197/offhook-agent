@@ -1,6 +1,6 @@
 /**
  * The provider menus + where to get each key — the data behind the guided
- * `offhook init` wizard. Pure and testable; the interactive shell and the
+ * `offhook-agent init` wizard. Pure and testable; the interactive shell and the
  * browser/clipboard helpers live elsewhere.
  *
  * Tiers map to how far a developer wants to go (and how many keys that costs):

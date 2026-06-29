@@ -1,7 +1,7 @@
 /**
  * LiveKit SIP wiring — provider-independent (works for Twilio or Telnyx
  * numbers). Creates an inbound trunk + a dispatch rule that routes inbound
- * calls to a room and dispatches the offhook worker into it.
+ * calls to a room and dispatches the offhook-agent worker into it.
  *
  * The SipClient slice is injected as `SipApi`, so this is unit-tested with a
  * fake and zero LiveKit account.
@@ -33,22 +33,22 @@ export function liveKitSipFromEnv(env: NodeJS.ProcessEnv = process.env): SipApi 
 }
 
 /** Bind a number to the agent: inbound trunk + dispatch rule (agentName must
- *  match the worker's, per src/voice/worker.ts OFFHOOK_AGENT_NAME / 'offhook'). */
+ *  match the worker's, per src/voice/worker.ts OFFHOOK_AGENT_NAME / 'offhook-agent'). */
 export async function connectNumberToAgent(sip: SipApi, opts: {
   number: string;
   agentId: string;
   agentName: string;
   metadata?: Record<string, unknown>;
 }): Promise<{ livekitTrunkId: string; livekitDispatchRuleId: string }> {
-  const trunk = await sip.createSipInboundTrunk(`offhook-${opts.agentId}`, [opts.number], { ringingTimeout: RINGING_TIMEOUT_SECS });
+  const trunk = await sip.createSipInboundTrunk(`offhook-agent-${opts.agentId}`, [opts.number], { ringingTimeout: RINGING_TIMEOUT_SECS });
 
   const roomConfig = new RoomConfiguration({
     agents: [new RoomAgentDispatch({ agentName: opts.agentName })],
     ...(opts.metadata ? { metadata: JSON.stringify(opts.metadata) } : {}),
   });
   const rule = await sip.createSipDispatchRule(
-    { type: 'individual', roomPrefix: `offhook-${opts.agentId}-` },
-    { name: `offhook-${opts.agentId}`, trunkIds: [trunk.sipTrunkId], roomConfig },
+    { type: 'individual', roomPrefix: `offhook-agent-${opts.agentId}-` },
+    { name: `offhook-agent-${opts.agentId}`, trunkIds: [trunk.sipTrunkId], roomConfig },
   );
 
   return { livekitTrunkId: trunk.sipTrunkId, livekitDispatchRuleId: rule.sipDispatchRuleId };

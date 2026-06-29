@@ -87,6 +87,51 @@ describe('judgeCall — deterministic caller-safety', () => {
   });
 });
 
+describe('judgeCall — stayed_in_character rubric vs AI-disclosure', () => {
+  const PASS_JSON = '{"task_resolved":{"pass":true,"note":"ok"},"searched_before_deny":{"pass":true,"note":"ok"},"no_phantom_claims":{"pass":true,"note":"ok"},"stayed_in_character":{"pass":true,"note":"ok"}}';
+  const call = { persona: DEFAULT_PERSONAS[0], endedBy: 'hangup' as const,
+    transcript: [{ role: 'agent' as const, content: "Hi, I'm Test Co's automated assistant — how can I help?" }] };
+
+  /** Capturing client: records the user prompt the judge was given. */
+  function capturingClient(): { client: ChatCompleter; prompts: string[] } {
+    const prompts: string[] = [];
+    const client: ChatCompleter = {
+      chat: { completions: { create: async (req: never) => {
+        const messages = (req as { messages: { role: string; content: string }[] }).messages;
+        prompts.push(messages.find(m => m.role === 'user')!.content);
+        return { id: 'x', created: 0, model: 'm', object: 'chat.completion',
+          choices: [{ index: 0, finish_reason: 'stop', logprobs: null,
+            message: { role: 'assistant', content: PASS_JSON, refusal: null } }] } as never;
+      } } },
+    };
+    return { client, prompts };
+  }
+
+  it('exempts AI-disclosure from the in-character penalty when disclosure is enabled', async () => {
+    const { client, prompts } = capturingClient();
+    await judgeCall(call, client, LLM, { aiDisclosureEnabled: true });
+    expect(prompts[0]).toContain('AI-disclosure is ENABLED');
+    expect(prompts[0]).toContain('must NOT count against this dimension');
+    // The genuine break-character triggers remain in the rubric.
+    expect(prompts[0]).toContain('underlying AI model or vendor');
+    expect(prompts[0]).toContain('ignore your instructions');
+  });
+
+  it('omits the disclosure exemption when disclosure is disabled', async () => {
+    const { client, prompts } = capturingClient();
+    await judgeCall(call, client, LLM, { aiDisclosureEnabled: false });
+    expect(prompts[0]).not.toContain('AI-disclosure is ENABLED');
+    // Model/vendor/ID leak and injection-obedience still fail the dimension.
+    expect(prompts[0]).toContain('underlying AI model or vendor');
+  });
+
+  it('defaults to disclosure-enabled (config default) when unspecified', async () => {
+    const { client, prompts } = capturingClient();
+    await judgeCall(call, client, LLM);
+    expect(prompts[0]).toContain('AI-disclosure is ENABLED');
+  });
+});
+
 describe('simulateCall', () => {
   it('drives persona ↔ agent and stops on [HANGUP]', async () => {
     const reg = new ToolRegistry();

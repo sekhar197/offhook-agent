@@ -1,5 +1,5 @@
 /**
- * `offhook deploy --target <docker|fly|railway|render|k8s>` — emit the platform
+ * `offhook-agent deploy --target <docker|fly|railway|render|k8s>` — emit the platform
  * wrapper around the repo's tested Dockerfile, with the secrets your config
  * actually needs. One image, any platform.
  */
@@ -10,7 +10,7 @@ import { generateDeploy, DEPLOY_TARGETS, type DeployTarget } from '../deploy/gen
 
 export function deployCommand(configPath: string, target: string | undefined): void {
   if (!target || !DEPLOY_TARGETS.includes(target as DeployTarget)) {
-    console.log(`Usage: offhook deploy --target <${DEPLOY_TARGETS.join(' | ')}>`);
+    console.log(`Usage: offhook-agent deploy --target <${DEPLOY_TARGETS.join(' | ')}>`);
     process.exitCode = 1;
     return;
   }

@@ -4,3 +4,7 @@ call-records.jsonl
 *.call-records.jsonl
 improve/
 .claude/
+
+# React dashboard SOURCE — Vite builds it to web/dashboard/ (which DOES ship).
+# Ship the built static bundle only; end users never build the UI.
+web/ui/

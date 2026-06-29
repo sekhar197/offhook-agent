@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { renderKeys, KEY_TIERS } from './keys.js';
 
-describe('offhook keys', () => {
+describe('offhook-agent keys', () => {
   it('covers four tiers, starting with a zero-key local one', () => {
     const text = renderKeys({} as NodeJS.ProcessEnv).join('\n');
     expect(text).toContain('Tier 0');

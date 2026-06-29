@@ -37,7 +37,7 @@ function fake(opts: { judgeFails: string[]; patch?: string }): ChatCompleter {
 }
 
 function tmpConfig(): { dir: string; path: string } {
-  const dir = mkdtempSync(join(tmpdir(), 'offhook-pipe-'));
+  const dir = mkdtempSync(join(tmpdir(), 'offhook-agent-pipe-'));
   mkdirSync(join(dir, 'knowledge'));
   writeFileSync(join(dir, 'knowledge', 'services.md'), '# Services\n\n## Thing\nA thing.\n');
   const path = join(dir, 'agent.yaml');

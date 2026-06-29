@@ -1,5 +1,5 @@
 /**
- * Local dashboard server — the operator's window into offhook.
+ * Local dashboard server — the operator's window into offhook-agent.
  *
  * A SIBLING to token.ts (not an extension): the dashboard reads FINISHED calls
  * and config, and must run with ZERO LiveKit creds (reviewing logs shouldn't
@@ -195,7 +195,7 @@ export function startDashboardServer(opts: DashboardOptions): { close: () => voi
         if (req.method === 'POST' && path === '/api/phone/connect') {
           try {
             const config = loadAgentConfig(opts.configPath);
-            const state = await connectNumber({ sip: liveKitSipFromEnv(), agentId: config.agent.id, agentName: process.env.OFFHOOK_AGENT_NAME || 'offhook' });
+            const state = await connectNumber({ sip: liveKitSipFromEnv(), agentId: config.agent.id, agentName: process.env.OFFHOOK_AGENT_NAME || 'offhook-agent' });
             return json(res, 200, { ok: true, state });
           } catch (e) { return json(res, 400, { ok: false, error: e instanceof Error ? e.message : String(e) }); }
         }
@@ -226,7 +226,7 @@ export function startDashboardServer(opts: DashboardOptions): { close: () => voi
   });
 
   server.listen(opts.port, host, () => {
-    console.log(`\n  offhook dashboard → http://${host}:${opts.port}/?t=${token}`);
+    console.log(`\n  offhook-agent dashboard → http://${host}:${opts.port}/?t=${token}`);
     if (host !== '127.0.0.1') console.log('  ⚠️  bound to a non-local host — the token is your only guard.');
     console.log('');
   });

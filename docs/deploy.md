@@ -1,6 +1,6 @@
-# Deploying offhook
+# Deploying offhook-agent
 
-offhook runs as a **worker**: it connects *out* to your LiveKit server,
+offhook-agent runs as a **worker**: it connects *out* to your LiveKit server,
 registers, and answers each inbound call (browser or phone) by running the
 agent. There are **no inbound ports to expose** — which makes it simple to run
 anywhere and safe behind a firewall.
@@ -25,14 +25,14 @@ into the image**. Mount them, or extend the image with a `COPY`.
 ## Run it 24/7 (Docker, any host)
 
 ```bash
-docker build -t offhook .
+docker build -t offhook-agent .
 
 docker run --restart unless-stopped \
   -e LIVEKIT_URL -e LIVEKIT_API_KEY -e LIVEKIT_API_SECRET \
   -e OPENAI_API_KEY \
   -v "$PWD/agent.yaml:/app/agent.yaml" \
   -v "$PWD/knowledge:/app/knowledge" \
-  offhook
+  offhook-agent
 ```
 
 `--restart unless-stopped` is what makes it survive crashes and reboots. On

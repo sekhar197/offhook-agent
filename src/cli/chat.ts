@@ -1,5 +1,5 @@
 /**
- * `offhook chat` — the text-mode test agent.
+ * `offhook-agent chat` — the text-mode test agent.
  *
  * Chat with your configured agent in the terminal: real micro-prompts,
  * real phase-filtered tools, real knowledge search, your configured LLM —

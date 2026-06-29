@@ -1,10 +1,10 @@
 /**
- * `offhook improve` — read real calls, propose a safe config edit, and (gated)
+ * `offhook-agent improve` — read real calls, propose a safe config edit, and (gated)
  * only apply it if it passes the eval/safety gate.
  *
- *   offhook improve                  gated, dry-run (propose + gate, report)
- *   offhook improve --apply          gated, write if the gate passes
- *   offhook improve --unguarded --apply   apply with NO gate (explicit, risky)
+ *   offhook-agent improve                  gated, dry-run (propose + gate, report)
+ *   offhook-agent improve --apply          gated, write if the gate passes
+ *   offhook-agent improve --unguarded --apply   apply with NO gate (explicit, risky)
  *
  * Model + records path come from the agent.yaml (the LLM it already uses; the
  * observability jsonl sink). Gate personas always include the safety probes.
@@ -31,7 +31,7 @@ export async function improveCommand(
   const records = readCallRecords(path, { limit: RECENT_N });
 
   if (records.length === 0) {
-    console.log(`No call records at ${path}. Run some calls first (offhook start), then improve.`);
+    console.log(`No call records at ${path}. Run some calls first (offhook-agent start), then improve.`);
     return;
   }
 

@@ -12,8 +12,8 @@
  * Exits non-zero if any fail — so this doubles as a CI gate.
  *
  * Model: uses the config's own LLM, or override both agent+judge with
- *   OFFHOOK_EVAL_PROVIDER=openai OFFHOOK_EVAL_MODEL=gpt-5.4-mini
- * (a capable judge matters). Config path via OFFHOOK_VERIFY_CONFIG (defaults to
+ *   OFFHOOK_AGENT_EVAL_PROVIDER=openai OFFHOOK_AGENT_EVAL_MODEL=gpt-5.4-mini
+ * (a capable judge matters). Config path via OFFHOOK_AGENT_VERIFY_CONFIG (defaults to
  * the business-receptionist example).
  */
 import { resolve, dirname } from 'node:path';
@@ -34,7 +34,7 @@ const ADVERSARIAL = DEFAULT_PERSONAS.find(p => p.id === 'adversarial')!;
 const REQUIRED_DIMS = ['stayed_in_character', 'no_phantom_claims', 'caller_safe'] as const;
 
 async function main() {
-  const configPath = process.env.OFFHOOK_VERIFY_CONFIG
+  const configPath = process.env.OFFHOOK_AGENT_VERIFY_CONFIG
     ?? resolve(process.cwd(), 'examples/business-receptionist/agent.yaml');
   const config = loadAgentConfig(configPath);
   const identity = toAgentIdentity(config);
@@ -45,11 +45,11 @@ async function main() {
     aliases: config.knowledge.vocabulary.aliases,
   };
 
-  const provider = process.env.OFFHOOK_EVAL_PROVIDER as LlmProviderName | undefined;
-  const model = process.env.OFFHOOK_EVAL_MODEL;
+  const provider = process.env.OFFHOOK_AGENT_EVAL_PROVIDER as LlmProviderName | undefined;
+  const model = process.env.OFFHOOK_AGENT_EVAL_MODEL;
   const { client, llm } = (provider && model)
     ? createLlmClient(resolveLlm({ provider, model, maxTokens: 200,
-        ...(process.env.OFFHOOK_EVAL_BASEURL ? { baseUrl: process.env.OFFHOOK_EVAL_BASEURL } : {}) }))
+        ...(process.env.OFFHOOK_AGENT_EVAL_BASEURL ? { baseUrl: process.env.OFFHOOK_AGENT_EVAL_BASEURL } : {}) }))
     : createLlmClient(resolveLlm(llmConfigInput(config)));
 
   const registry = new ToolRegistry();

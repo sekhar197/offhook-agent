@@ -1,5 +1,5 @@
 /**
- * Browser-assisted key entry — the "feels automatic" part of `offhook init`.
+ * Browser-assisted key entry — the "feels automatic" part of `offhook-agent init`.
  *
  * We CAN'T log into a developer's provider account and scrape their key (no API,
  * security/ToS). What we can do: open the exact key page for them, then read the

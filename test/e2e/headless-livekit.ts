@@ -1,7 +1,7 @@
 /**
  * Headless LiveKit e2e scaffold — the automated counterpart to the manual
  * real-call checklist (docs/runbook-livecall.md). It joins a real LiveKit room
- * as a participant, dispatches the offhook worker into it, and (the documented
+ * as a participant, dispatches the offhook-agent worker into it, and (the documented
  * live step) publishes a TTS-rendered utterance and asserts the agent publishes
  * audio back + the expected tool fires.
  *
@@ -30,8 +30,8 @@ async function main(): Promise<void> {
   const httpUrl = url.replace(/^ws/, 'http');
   const key = process.env.LIVEKIT_API_KEY!;
   const secret = process.env.LIVEKIT_API_SECRET!;
-  const agentName = process.env.OFFHOOK_AGENT_NAME || 'offhook';
-  const room = `offhook-e2e-${Date.now()}`;
+  const agentName = process.env.OFFHOOK_AGENT_NAME || 'offhook-agent';
+  const room = `offhook-agent-e2e-${Date.now()}`;
 
   const rooms = new RoomServiceClient(httpUrl, key, secret);
   const dispatch = new AgentDispatchClient(httpUrl, key, secret);
@@ -48,7 +48,7 @@ async function main(): Promise<void> {
   const agentJoined = participants.some(p => p.identity.includes(agentName) || p.kind === 3 /* AGENT */);
 
   if (!agentJoined) {
-    console.log('✗ agent did not join — is the worker running? (offhook start, registered to this LiveKit)');
+    console.log('✗ agent did not join — is the worker running? (offhook-agent start, registered to this LiveKit)');
     await rooms.deleteRoom(room);
     process.exitCode = 1;
     return;

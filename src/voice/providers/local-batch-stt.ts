@@ -10,7 +10,7 @@
  * + a VAD, which chunks the mic into utterances and calls us per utterance —
  * giving streaming-style behavior over a batch backend.
  *
- * This is the keystone of offhook's data-sovereignty story: with this, the
+ * This is the keystone of offhook-agent's data-sovereignty story: with this, the
  * `openai-compatible` STT provider runs 100% on your own machine.
  */
 
@@ -50,7 +50,7 @@ function encodeWav(frames: AudioFrame[]): Buffer {
 /** Non-streaming STT that POSTs an utterance to a local OpenAI-compatible
  *  Whisper server. Wrap with `stt.StreamAdapter(this, vad)` for the pipeline. */
 export class LocalBatchSTT extends sttNs.STT {
-  label = 'offhook.LocalBatchSTT';
+  label = 'offhook-agent.LocalBatchSTT';
   #baseUrl: string;
   #apiKey: string;
   #model: string;

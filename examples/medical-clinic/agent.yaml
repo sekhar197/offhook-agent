@@ -1,4 +1,4 @@
-# offhook example: medical front desk (clinical-safety routing)
+# offhook-agent example: medical front desk (clinical-safety routing)
 # Books appointments, answers logistics, and — critically — NEVER gives medical
 # advice. Symptom/medication/result questions route to staff; emergencies → 911.
 agent:

@@ -13,7 +13,7 @@ reports it even with the pin — but the pin is still correct, because the only
 fix is tar 7.x, which fastembed cannot use.
 
 **Why this is acceptable:** the advisories all require extracting a *malicious*
-archive. In offhook, tar is invoked **only** to extract trusted model archives
+archive. In offhook-agent, tar is invoked **only** to extract trusted model archives
 from pinned sources (fastembed's BGE-small download; the LiveKit Silero VAD
 model). No code path extracts user-supplied or caller-supplied tarballs, so the
 hardlink/symlink-traversal class does not apply to our threat model. The CI

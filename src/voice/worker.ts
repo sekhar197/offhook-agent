@@ -19,7 +19,7 @@ export function runVoiceWorker(): void {
   cli.runApp(
     new ServerOptions({
       agent: entryFile(),
-      agentName: process.env.OFFHOOK_AGENT_NAME || 'offhook',
+      agentName: process.env.OFFHOOK_AGENT_NAME || 'offhook-agent',
     }),
   );
 }

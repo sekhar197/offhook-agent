@@ -16,11 +16,11 @@ path has **not** yet been verified in this repo — see [testing-status.md](test
 **LiveKit deploy:** Cloud | self-hosted (version)
 **Models:** LLM ____ · STT ____ · TTS ____ · mode: cascaded | realtime
 **Number:** +1•••••••••• (redacted)
-**offhook version:** `offhook --version`
+**offhook-agent version:** `offhook-agent --version`
 
 | # | Check | Result | Notes (latency, audio quality, anything off) |
 |---|---|---|---|
-| 0 | `offhook doctor` clean | ⬜ | |
+| 0 | `offhook-agent doctor` clean | ⬜ | |
 | 1 | Answers + AI disclosure | ⬜ | |
 | 2 | Knowledge question answered (searched first) | ⬜ | |
 | 3 | Take-a-message → name read back → **delivery landed** | ⬜ | |

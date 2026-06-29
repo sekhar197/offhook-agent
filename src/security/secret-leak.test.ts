@@ -1,6 +1,6 @@
 /**
  * Secrets must never reach the dashboard surface. The dashboard is the one place
- * offhook exposes config + key status over HTTP, so a single leaked secret value
+ * offhook-agent exposes config + key status over HTTP, so a single leaked secret value
  * there is fatal for an "enterprise-friendly / self-hosted" project. This sweeps
  * sentinel secrets for EVERY provider through both read projections and asserts
  * none of the values ever appear in the serialized output (only set/missing).
@@ -24,7 +24,7 @@ const SENTINELS: Record<string, string> = {
 };
 
 function tmpConfig(): string {
-  const dir = mkdtempSync(join(tmpdir(), 'offhook-secret-'));
+  const dir = mkdtempSync(join(tmpdir(), 'offhook-agent-secret-'));
   const path = join(dir, 'agent.yaml');
   // Minimal valid config; the schema fills the rest with defaults.
   writeFileSync(path, `agent:\n  id: leak-test\n  businessName: Leak Test\nknowledge:\n  vocabulary:\n    aliases:\n      cleening: Teeth Cleaning\n`);

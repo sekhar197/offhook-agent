@@ -1,4 +1,4 @@
-# offhook multilingual example — Spanish (español).
+# offhook-agent multilingual example — Spanish (español).
 # Demonstrates the language hooks: agent.primaryLanguage + voice.stt.language
 # steer STT/LLM/TTS. Use a MULTILINGUAL STT model (Whisper-large-v3, Deepgram
 # nova-3) — base.en is English-only. See docs/languages.md.

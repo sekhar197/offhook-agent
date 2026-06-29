@@ -1,7 +1,7 @@
 /**
  * Model-agnostic LLM provider layer.
  *
- * offhook talks to ANY model behind an OpenAI-compatible chat-completions
+ * offhook-agent talks to ANY model behind an OpenAI-compatible chat-completions
  * endpoint — which today means effectively every serving stack:
  *
  *   - Hosted APIs: OpenAI, OpenRouter (any model it routes — Qwen, DeepSeek,
@@ -68,7 +68,7 @@ export class LlmConfigError extends Error {}
 /**
  * Resolve a config-level LLM spec into connection settings.
  * Pure — reads no env; key lookup happens at client-creation time so
- * `offhook doctor` can report exactly which env var is missing.
+ * `offhook-agent doctor` can report exactly which env var is missing.
  */
 export function resolveLlm(input: LlmConfigInput): ResolvedLlm {
   const provider = input.provider ?? 'openai';

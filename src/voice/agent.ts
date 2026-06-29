@@ -1,5 +1,5 @@
 /**
- * OffhookAgent — LiveKit voice.Agent with offhook's brain layered in.
+ * OffhookAgent — LiveKit voice.Agent with offhook-agent's brain layered in.
  *
  * What this overrides vs. the stock agent:
  * - `ttsNode`: applies the naturalize + pronunciation text transforms before
@@ -7,7 +7,7 @@
  * - instructions: the phase-aware micro-prompt (the persona + knowledge +
  *   directives), passed at construction and refreshed per user turn by the
  *   entry hook.
- * - tools: the offhook ToolRegistry, adapted so every call runs through
+ * - tools: the offhook-agent ToolRegistry, adapted so every call runs through
  *   caller-safety + the executors.
  *
  * The LLM node itself is LiveKit's native streaming path — so barge-in,

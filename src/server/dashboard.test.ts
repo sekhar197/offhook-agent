@@ -6,7 +6,7 @@ import type { IncomingMessage } from 'node:http';
 import { getConfigSummary, getKeysStatus, getScorecard, extractToken } from './dashboard.js';
 
 function tmpConfig(extra = ''): { dir: string; path: string } {
-  const dir = mkdtempSync(join(tmpdir(), 'offhook-dash-'));
+  const dir = mkdtempSync(join(tmpdir(), 'offhook-agent-dash-'));
   const path = join(dir, 'agent.yaml');
   writeFileSync(path, `agent:\n  id: test-biz\n  businessName: Test Biz\nknowledge:\n  vocabulary:\n    aliases:\n      cleening: Teeth Cleaning\n${extra}`);
   return { dir, path };

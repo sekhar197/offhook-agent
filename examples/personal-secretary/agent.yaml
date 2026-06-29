@@ -1,4 +1,4 @@
-# offhook example: personal secretary
+# offhook-agent example: personal secretary
 # Screens unknown callers, takes messages, sends you summaries.
 # Pair with conditional call forwarding (*61* codes) so it only answers
 # calls you miss — see docs/telephony (Milestone B).
@@ -23,4 +23,4 @@ knowledge:
 
 tools:
   enabled: [answer_from_knowledge, take_message, send_summary, end_call]
-  # webhookUrl: https://your-server.example.com/offhook  # texts you the message
+  # webhookUrl: https://your-server.example.com/offhook-agent  # texts you the message

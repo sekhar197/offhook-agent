@@ -1,11 +1,11 @@
 /**
- * `offhook keys` — the guided "what do I need, and where do I get it" map.
+ * `offhook-agent keys` — the guided "what do I need, and where do I get it" map.
  *
  * Account-free and config-free: a fresh clone can run it to understand the
  * tiers before touching anything. Reads process.env only to show what's already
  * SET (✓) vs not (·) — never the values.
  *
- * The whole point: nobody should create six accounts to try offhook. Tier 0 is
+ * The whole point: nobody should create six accounts to try offhook-agent. Tier 0 is
  * zero-key and fully local. Keys are a PRODUCTION concern, added one tier at a
  * time — not a barrier to the first run.
  */
@@ -59,7 +59,7 @@ export const KEY_TIERS: Tier[] = [
 export function renderKeys(env: NodeJS.ProcessEnv = process.env): string[] {
   const out: string[] = [
     '',
-    '  offhook keys — what you need, by how far you want to go.',
+    '  offhook-agent keys — what you need, by how far you want to go.',
     '  Nobody creates six accounts to try this. Start at Tier 0; add a tier when you want more.',
     '',
   ];
@@ -74,8 +74,8 @@ export function renderKeys(env: NodeJS.ProcessEnv = process.env): string[] {
     }
     out.push('');
   }
-  out.push("  Put keys in .env (offhook auto-loads it; it's gitignored — keys never leave your machine).");
-  out.push('  Re-run `offhook keys` anytime · check a specific config with `offhook doctor`.');
+  out.push("  Put keys in .env (offhook-agent auto-loads it; it's gitignored — keys never leave your machine).");
+  out.push('  Re-run `offhook-agent keys` anytime · check a specific config with `offhook-agent doctor`.');
   out.push('');
   return out;
 }

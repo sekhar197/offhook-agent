@@ -1,4 +1,4 @@
-# offhook multilingual example — Telugu (తెలుగు).
+# offhook-agent multilingual example — Telugu (తెలుగు).
 # Telugu is lower-resource: use Whisper-large-v3 for STT and an LLM with strong
 # Telugu (e.g. a larger Llama/Qwen or an Indic-tuned model). See docs/languages.md.
 agent:

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>offhook-agent — teleprompter</title>
+<style>
+  :root{
+    --bg:#07070a; --fg:#f4f4f8; --dim:#8a8c98; --accent:#fb7185; --accent2:#818cf8;
+    --size:42px; --speed:42; /* px/sec */
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);
+    font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased;overflow:hidden}
+  /* aurora backdrop */
+  body::before{content:"";position:fixed;inset:-20%;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(40% 35% at 25% 15%,rgba(251,113,133,.10),transparent 70%),
+      radial-gradient(45% 40% at 80% 85%,rgba(129,140,248,.10),transparent 70%);filter:blur(20px)}
+  #stage{position:fixed;inset:0;overflow:hidden;z-index:1}
+  /* center reading guide line */
+  #stage::after{content:"";position:fixed;left:0;right:0;top:38%;height:2px;z-index:3;pointer-events:none;
+    background:linear-gradient(90deg,transparent,rgba(251,113,133,.5),rgba(129,140,248,.5),transparent)}
+  #script{position:absolute;left:0;right:0;top:90vh;padding:0 8vw;will-change:transform}
+  #script.mirror{transform:scaleX(-1)}
+  .scene{color:var(--accent2);font-size:calc(var(--size)*.5);letter-spacing:.18em;text-transform:uppercase;
+    font-weight:600;margin:64px 0 14px;opacity:.85}
+  .scene .t{color:var(--dim);font-weight:500;margin-left:14px;letter-spacing:.06em}
+  .line{font-size:var(--size);line-height:1.3;font-weight:600;margin:0 0 12px;max-width:20ch;letter-spacing:-.01em}
+  /* SAY = read ALOUD into the phone (rose, biggest). The line you perform. */
+  .say{color:var(--accent);font-weight:700}
+  .say::before{content:"📞  ";font-size:.7em;vertical-align:.08em}
+  /* AVA = what to expect back (green, do NOT read). */
+  .ava{font-size:calc(var(--size)*.58);color:#3ddc97;font-weight:500;max-width:26ch;line-height:1.28}
+  .ava::before{content:"🤖  ";font-size:.8em}
+  /* DO = an action: run a command, cut to a window (iris). */
+  .do{font-size:calc(var(--size)*.6);color:var(--accent2);font-weight:600;max-width:26ch;line-height:1.28}
+  .do::before{content:"▶  ";}
+  /* VO = the AI voiceover, for reference only (dim italic). */
+  .vo{font-size:calc(var(--size)*.46);color:var(--dim);font-style:italic;font-weight:400;max-width:32ch;line-height:1.3;margin-top:4px}
+  .cue{font-size:calc(var(--size)*.42);color:var(--dim);font-style:italic;margin:6px 0 0}
+  .end{font-size:calc(var(--size)*.7);color:var(--accent);font-weight:700;margin:80px 0 90vh}
+  /* control bar */
+  #bar{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;gap:18px;align-items:center;justify-content:center;
+    padding:12px 16px;background:rgba(10,10,14,.7);backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.08);
+    font-size:13px;color:var(--dim)}
+  #bar b{color:var(--fg);font-weight:600}
+  kbd{background:#16161d;border:1px solid rgba(255,255,255,.12);border-bottom-width:2px;border-radius:6px;
+    padding:2px 7px;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;color:var(--fg)}
+  #status{color:var(--accent)}
+  @media (prefers-reduced-motion:reduce){body::before{filter:none}}
+</style>
+</head>
+<body>
+  <div id="stage"><div id="script"></div></div>
+  <div id="bar">
+    <span><kbd>Space</kbd> <b id="status">paused</b></span>
+    <span><kbd>↑</kbd><kbd>↓</kbd> speed <b id="spd">42</b></span>
+    <span><kbd>+</kbd><kbd>−</kbd> size <b id="sz">42</b></span>
+    <span><kbd>M</kbd> mirror <b id="mir">off</b></span>
+    <span><kbd>R</kbd> restart</span>
+    <span style="color:#56586a">offhook-agent · ~90s · 📞 rose = say into phone · 🤖 green = expect · ▶ iris = do</span>
+  </div>
+<script>
+// ── the ~90s launch narration: real call → dashboard → mistake → self-improve → fixed → gate → outro
+// Read the ROSE 📞 lines ALOUD into the phone. GREEN 🤖 = what to expect back
+// (don't read). IRIS ▶ = an action. DIM italic = the AI voiceover (added later).
+const SCRIPT = [
+  {scene:"1 · Real call + the mistake", t:"phone on speaker", lines:[
+    {k:'say', t:"Hi — I'm trying to reach Sekhar about hiring him for a project. What does he charge?"},
+    {k:'ava', t:"Ava invents a number — \"…around two hundred dollars an hour.\" That's the flaw."},
+    {k:'say', t:"Got it, thanks."},
+    {k:'do', t:"Hang up. The live transcript on screen is the proof it's real."},
+    {k:'vo', t:"voiceover: an open agent on your own machine — but told only to be helpful, it invented a price it can't know."}]},
+
+  {scene:"2 · Dashboard", t:"6–8s pan", lines:[
+    {k:'do', t:"Cut to the browser. Pan the Overview — call list, waveform, stat cards. Hover your call so the invented price shows."},
+    {k:'vo', t:"voiceover: every call and transcript — live, in your own dashboard, on your own machine."}]},
+
+  {scene:"3 · It rewrites its own instructions", t:"terminal", lines:[
+    {k:'do', t:"Run:  offhook-agent improve --apply"},
+    {k:'do', t:"Let the log play to:  Gate ✅ PASS  →  applied (+ backup)."},
+    {k:'vo', t:"voiceover: it reads those real calls, writes a fix to its own instructions, and re-runs the whole safety eval on both versions before changing a thing."}]},
+
+  {scene:"4 · Fixed — next call", t:"phone, same framing", lines:[
+    {k:'say', t:"Hi, what does Sekhar charge for a project?"},
+    {k:'ava', t:"Now she declines — \"I won't quote a rate I can't confirm — let me take your details and have Sekhar follow up.\""},
+    {k:'say', t:"Sure — it's 555-0142."},
+    {k:'vo', t:"voiceover: same question, next call — now it takes a message instead of inventing one. It fixed itself."}]},
+
+  {scene:"5 · The guarantee", t:"deterministic — no variance", lines:[
+    {k:'do', t:"Run:  OFFHOOK_AGENT_DEMO_DETERMINISTIC=1 npm run demo:safety-gate"},
+    {k:'do', t:"Hold on the red  ⛔ BLOCKED  line for 2 full seconds."},
+    {k:'vo', t:"voiceover: this edit scores HIGHER overall — a metric-maximizing loop would ship it — but it regressed a safety check, so the gate blocked it. It improves itself, but can't make itself less safe."}]},
+
+  {scene:"6 · Close", t:"repo / README", lines:[
+    {k:'do', t:"Show the repo. On-screen text:  npm install offhook-agent  ·  github.com/sekhar197/offhook-agent"},
+    {k:'vo', t:"voiceover: a self-hostable voice agent that improves itself — and can't regress its own safety. Apache-2.0. Link below."}]},
+];
+const el=document.getElementById('script');
+SCRIPT.forEach(s=>{
+  const h=document.createElement('div');h.className='scene';h.innerHTML=s.scene+(s.t?` <span class="t">${s.t}</span>`:'');el.appendChild(h);
+  s.lines.forEach(l=>{const p=document.createElement('div');p.className='line '+(l.k||'vo');p.textContent=l.t;el.appendChild(p);});
+});
+const end=document.createElement('div');end.className='end';end.textContent='— try it. link below. —';el.appendChild(end);
+
+let y=0, running=false, last=0;
+const root=document.documentElement;
+let speed=parseInt(getComputedStyle(root).getPropertyValue('--speed'))||42;
+let size=42;
+const status=document.getElementById('status'), spd=document.getElementById('spd'),
+      sz=document.getElementById('sz'), mir=document.getElementById('mir');
+function frame(ts){
+  if(!last)last=ts; const dt=(ts-last)/1000; last=ts;
+  if(running){ y+=speed*dt; el.style.transform=`translateY(${-y}px)`;
+    if(y> el.scrollHeight + window.innerHeight){running=false;status.textContent='done';} }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+function setSpeed(v){speed=Math.max(8,Math.min(160,v));spd.textContent=Math.round(speed);}
+function setSize(v){size=Math.max(20,Math.min(80,v));root.style.setProperty('--size',size+'px');sz.textContent=size;}
+addEventListener('keydown',e=>{
+  if(e.code==='Space'){e.preventDefault();running=!running;status.textContent=running?'rolling':'paused';}
+  else if(e.key==='ArrowUp'){setSpeed(speed+4);}
+  else if(e.key==='ArrowDown'){setSpeed(speed-4);}
+  else if(e.key==='+'||e.key==='='){setSize(size+2);}
+  else if(e.key==='-'||e.key==='_'){setSize(size-2);}
+  else if(e.key.toLowerCase()==='m'){el.classList.toggle('mirror');mir.textContent=el.classList.contains('mirror')?'on':'off';}
+  else if(e.key.toLowerCase()==='r'){y=0;el.style.transform='translateY(0)';running=false;status.textContent='paused';}
+});
+</script>
+</body>
+</html>

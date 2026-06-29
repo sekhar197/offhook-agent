@@ -64,7 +64,7 @@ export function createTwilioClient(opts: TwilioOpts = {}): TelephonyClient {
       const trunkSid = String(trunk.sid);
       // Point origination at LiveKit so inbound PSTN calls reach the agent.
       await call(`${trunking}/Trunks/${trunkSid}/OriginationUrls`, 'POST', {
-        FriendlyName: 'offhook → LiveKit', SipUrl: livekitSipUri, Weight: '1', Priority: '1', Enabled: 'true',
+        FriendlyName: 'offhook-agent → LiveKit', SipUrl: livekitSipUri, Weight: '1', Priority: '1', Enabled: 'true',
       });
       return { trunkSid };
     },

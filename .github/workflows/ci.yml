@@ -25,6 +25,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build the worker image
-        run: docker build -t offhook:ci .
+        run: docker build -t offhook-agent:ci .
       - name: Smoke-test the built CLI in the image
-        run: docker run --rm offhook:ci node bin/offhook.js help
+        run: docker run --rm offhook-agent:ci node bin/offhook-agent.js help

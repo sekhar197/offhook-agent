@@ -45,6 +45,6 @@ body:
   - type: input
     id: version
     attributes:
-      label: offhook version / commit
+      label: offhook-agent version / commit
     validations:
       required: true

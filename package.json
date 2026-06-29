@@ -1,5 +1,5 @@
 {
-  "name": "offhook",
+  "name": "offhook-agent",
   "version": "0.1.1",
   "description": "The open, safety-first voice agent: it tests itself with adversarial callers and improves itself from real calls — gated so it can't break its own safety. Self-hostable, BYOK, any model.",
   "license": "Apache-2.0",
@@ -7,10 +7,10 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sekhar197/offhook.git"
+    "url": "git+https://github.com/sekhar197/offhook-agent.git"
   },
-  "homepage": "https://github.com/sekhar197/offhook#readme",
-  "bugs": "https://github.com/sekhar197/offhook/issues",
+  "homepage": "https://github.com/sekhar197/offhook-agent#readme",
+  "bugs": "https://github.com/sekhar197/offhook-agent/issues",
   "keywords": [
     "voice-agent",
     "voice-ai",
@@ -28,19 +28,22 @@
     "mcp"
   ],
   "bin": {
-    "offhook": "bin/offhook.js"
+    "offhook-agent": "bin/offhook-agent.js",
+    "offhook": "bin/offhook-agent.js"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "bin/",
     "dist/",
-    "web/",
+    "web/dashboard/",
     "examples/"
   ],
   "scripts": {
     "prepack": "npm run build",
-    "build": "tsc",
+    "build": "tsc && npm run build:ui",
+    "build:ui": "vite build --config web/ui/vite.config.ts",
+    "dev:ui": "vite --config web/ui/vite.config.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -49,6 +52,7 @@
     "eval": "tsx src/evals/run.ts",
     "eval:usecases": "tsx src/evals/run-usecases.ts",
     "verify:safety": "tsx src/evals/verify-safety.ts",
+    "demo:safety-gate": "tsx demo/safety-gate.ts",
     "test:mutation": "stryker run",
     "test:stress": "vitest run test/stress",
     "e2e": "tsx test/e2e/headless-livekit.ts"
@@ -56,6 +60,8 @@
   "dependencies": {
     "@clack/prompts": "^1.5.1",
     "@livekit/agents": "^1.4.6",
+    "@livekit/agents-plugin-cartesia": "^1.4.6",
+    "@livekit/agents-plugin-deepgram": "^1.4.6",
     "@livekit/agents-plugin-openai": "^1.4.6",
     "@livekit/agents-plugin-silero": "^1.4.6",
     "fastembed": "^2.1.0",
@@ -68,8 +74,17 @@
   "devDependencies": {
     "@stryker-mutator/core": "^9.6.1",
     "@stryker-mutator/vitest-runner": "^9.6.1",
+    "@tailwindcss/vite": "^4.3.1",
     "@types/node": "^22.0.0",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^6.0.3",
     "fast-check": "^4.8.0",
+    "framer-motion": "^11.18.2",
+    "lucide-react": "^1.21.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwindcss": "^4.3.1",
     "tsx": "^4.22.4",
     "typescript": "^6.0.3",
     "vitest": "^4.1.8"

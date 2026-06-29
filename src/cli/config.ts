@@ -1,5 +1,5 @@
 /**
- * `offhook config get <path>` / `offhook config set <path> <value>` — read or
+ * `offhook-agent config get <path>` / `offhook-agent config set <path> <value>` — read or
  * safely edit agent.yaml from the terminal. Edits go through the same
  * validate-then-backup path as the dashboard and the self-improve loop.
  */
@@ -38,6 +38,6 @@ export function configCommand(configPath: string, args: string[]): void {
     return;
   }
 
-  console.log('Usage:\n  offhook config get <path>\n  offhook config set <path> <value>   (value: JSON or plain text)');
+  console.log('Usage:\n  offhook-agent config get <path>\n  offhook-agent config set <path> <value>   (value: JSON or plain text)');
   process.exitCode = 1;
 }

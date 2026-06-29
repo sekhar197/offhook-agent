@@ -1,5 +1,5 @@
 /**
- * Read call records back from the jsonl sink. Shared by `offhook improve`
+ * Read call records back from the jsonl sink. Shared by `offhook-agent improve`
  * (learns from real calls) and the dashboard (lists/shows them).
  *
  * Defensive by design: the file is appended to by a live worker, so the last

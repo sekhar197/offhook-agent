@@ -1,4 +1,4 @@
-# offhook self-hosted example — 100% local, no cloud, no API keys.
+# offhook-agent self-hosted example — 100% local, no cloud, no API keys.
 # Pair with docker-compose.selfhost.yml (LiveKit + Whisper + Kokoro) and a
 # local Ollama. Audio never leaves your machine.
 agent:

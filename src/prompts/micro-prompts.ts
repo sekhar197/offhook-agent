@@ -23,8 +23,11 @@
  *   volatile tail. If you need a new stable signal, put it on
  *   AgentIdentity first.
  * - No forced pre-tool fillers. The character brief lets the model choose
- *   whether to acknowledge before a tool call; ambient/thinking audio in
- *   middleware covers dead-air. Do not re-add a hardcoded filler rule.
+ *   whether to acknowledge before a tool call (a forced 1-3 word filler was
+ *   the #1 audible AI tell). NOTE: ambient/thinking background audio is NOT yet
+ *   wired in offhook-agent — until it is, the model's own optional acknowledgement is
+ *   the only dead-air cover during slow tool calls (roadmap: BackgroundAudioPlayer).
+ *   Do not re-add a hardcoded filler rule.
  * - Phase prompts ADD, never negate base rules.
  */
 

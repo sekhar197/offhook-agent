@@ -1,6 +1,6 @@
 # Languages & accents
 
-offhook is **multilingual by config** — there is no separate "language plugin"
+offhook-agent is **multilingual by config** — there is no separate "language plugin"
 to install. You point STT/LLM/TTS at multilingual models and set the language;
 the persona, knowledge, and tools all work in that language.
 
@@ -20,9 +20,9 @@ Spanish (`agent.es.yaml`), Hindi (`agent.hi.yaml`), Telugu (`agent.te.yaml`).
 
 ## Accents vs. languages — be precise
 
-- **Accents are mostly a model choice, not offhook code.** A multilingual,
+- **Accents are mostly a model choice, not offhook-agent code.** A multilingual,
   accent-robust STT (Whisper-large-v3, Deepgram nova-3) handles regional accents
-  well. The one offhook-specific accent feature is the **per-language phonetic
+  well. The one offhook-agent-specific accent feature is the **per-language phonetic
   backend** for correcting misheard *entity names* (the resolver registry).
 - **Languages are config + a capable model.** Set the three hooks above and
   choose models that actually know the language. For lower-resource languages
@@ -41,6 +41,6 @@ endpointing.
   correction of entity names (the registry exists; backends are English-only today).
 - Multilingual turn-taking nuances.
 
-The honest one-liner: **offhook speaks whatever your models speak. Set the
+The honest one-liner: **offhook-agent speaks whatever your models speak. Set the
 language, pick multilingual models, and it works — accent robustness comes from
 your STT, and code-switching is on the roadmap.**

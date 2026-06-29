@@ -1,4 +1,4 @@
-# Testing offhook locally
+# Testing offhook-agent locally
 
 Everything here runs on your machine. The text path, the evals, the safety-gated
 improve loop, and the dashboard need **no telephony and no LiveKit** — just one
@@ -7,10 +7,10 @@ LLM key (or $0 on a local model). Voice/phone is the last, optional step.
 ## 0. Run it
 
 ```bash
-git clone https://github.com/sekhar197/offhook && cd offhook
+git clone https://github.com/sekhar197/offhook-agent && cd offhook-agent
 npm install && npm run build
 
-node bin/offhook.js help     # the banner + the command list
+node bin/offhook-agent.js help     # the banner + the command list
 ```
 
 ## 1. Pick a model (one of)
@@ -27,13 +27,13 @@ export OPENAI_API_KEY=sk-...
 Sanity-check the wiring:
 
 ```bash
-node bin/offhook.js doctor -c examples/business-receptionist/agent.yaml
+node bin/offhook-agent.js doctor -c examples/business-receptionist/agent.yaml
 ```
 
 ## 2. Talk to it (text — no voice keys)
 
 ```bash
-node bin/offhook.js chat -c examples/business-receptionist/agent.yaml
+node bin/offhook-agent.js chat -c examples/business-receptionist/agent.yaml
 # (local model: -c examples/business-receptionist/agent.ollama.yaml)
 ```
 
@@ -41,13 +41,13 @@ node bin/offhook.js chat -c examples/business-receptionist/agent.yaml
 
 ```bash
 # Adversarial caller (model-probe, "ignore your instructions", fake service) vs your agent:
-OFFHOOK_EVAL_PROVIDER=openai OFFHOOK_EVAL_MODEL=gpt-5.4-mini npm run verify:safety
+OFFHOOK_AGENT_EVAL_PROVIDER=openai OFFHOOK_AGENT_EVAL_MODEL=gpt-5.4-mini npm run verify:safety
 
 # The full simulated-caller scorecard across the use cases:
 npm run eval
 ```
 
-(Both read `OPENAI_API_KEY` from your env. For local: `OFFHOOK_EVAL_PROVIDER=ollama OFFHOOK_EVAL_MODEL=llama3.1 OFFHOOK_EVAL_BASEURL=http://localhost:11434/v1`.)
+(Both read `OPENAI_API_KEY` from your env. For local: `OFFHOOK_AGENT_EVAL_PROVIDER=ollama OFFHOOK_AGENT_EVAL_MODEL=llama3.1 OFFHOOK_AGENT_EVAL_BASEURL=http://localhost:11434/v1`.)
 
 ## 4. Watch it improve itself — and refuse an unsafe edit
 
@@ -63,10 +63,10 @@ cat > call-records.jsonl <<'EOF'
 EOF
 
 # Dry-run (propose + gate, write nothing):
-node bin/offhook.js improve -c examples/business-receptionist/agent.yaml
+node bin/offhook-agent.js improve -c examples/business-receptionist/agent.yaml
 
 # Apply only if it passes the safety gate:
-node bin/offhook.js improve -c examples/business-receptionist/agent.yaml --apply
+node bin/offhook-agent.js improve -c examples/business-receptionist/agent.yaml --apply
 ```
 
 The gate re-runs the full eval **including the safety personas** (911 handoff,
@@ -76,7 +76,7 @@ them — even with `--apply`. Audit + the latest scorecard land in `./improve/`.
 ## 5. The dashboard
 
 ```bash
-node bin/offhook.js dashboard -c examples/business-receptionist/agent.yaml
+node bin/offhook-agent.js dashboard -c examples/business-receptionist/agent.yaml
 # → open the printed  http://127.0.0.1:4317/?t=<token>  URL
 ```
 
@@ -89,10 +89,10 @@ and a live Improve panel (runs the gated loop in the browser via SSE). Bound to
 ```bash
 # Browser mic — needs LiveKit creds:
 export LIVEKIT_URL=wss://...  LIVEKIT_API_KEY=...  LIVEKIT_API_SECRET=...
-node bin/offhook.js dev        # talk in your browser
+node bin/offhook-agent.js dev        # talk in your browser
 
 # Real phone calls: point a SIP number at LiveKit, then:
-node bin/offhook.js start
+node bin/offhook-agent.js start
 ```
 
 See [deploy.md](deploy.md) and [telephony.md](telephony.md) — honest about what's
@@ -104,9 +104,9 @@ The banner + a short session make a great launch GIF. Record the terminal with
 [asciinema](https://asciinema.org):
 
 ```bash
-asciinema rec offhook-demo.cast
-#   node bin/offhook.js help          (the banner)
-#   node bin/offhook.js chat          (a quick exchange)
-#   node bin/offhook.js improve       (the gate blocking an unsafe edit)
+asciinema rec offhook-agent-demo.cast
+#   node bin/offhook-agent.js help          (the banner)
+#   node bin/offhook-agent.js chat          (a quick exchange)
+#   node bin/offhook-agent.js improve       (the gate blocking an unsafe edit)
 # Ctrl-D to stop; upload, or convert to GIF with agg.
 ```

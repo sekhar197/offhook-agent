@@ -44,8 +44,11 @@ export interface ToolContext {
   searchKnowledge?: (query: string, excludeIds?: string[]) => Promise<Array<{ id: string; name: string; category: string; description?: string }>>;
   /** Execute a side-effecting action via the deployment webhook. */
   executeAction?: (actionType: string, payload: Record<string, unknown>) => Promise<{ status: string }>;
-  /** Initiate a SIP/host transfer. */
-  transferToHuman?: (reason: string) => Promise<void>;
+  /** Initiate a SIP/host transfer. Resolves to `{ transferred: false }` when the
+   *  transfer could not be placed (no SIP leg, REFER rejected, no number) so the
+   *  agent never falsely claims it connected the caller. `void`/undefined is
+   *  treated as success (used by sims where transfer == task complete). */
+  transferToHuman?: (reason: string) => Promise<{ transferred: boolean } | void>;
   /** End the call after the current utterance finishes playing. */
   endCall?: () => Promise<void>;
   /** Mutable per-call scratch (working set, caller info) owned by the host. */

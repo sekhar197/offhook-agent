@@ -15,7 +15,7 @@ describe('executor — burst concurrency', () => {
   it('every concurrent call gets a unique idempotency key and lands exactly once', async () => {
     const seen: string[] = [];
     const okFetch = (async (_url: string, init: { headers: Record<string, string> }) => {
-      seen.push(init.headers['X-Offhook-Idempotency-Key']);
+      seen.push(init.headers['X-Offhook-Agent-Idempotency-Key']);
       return { ok: true, status: 200, json: async () => ({}) };
     }) as unknown as typeof fetch;
 

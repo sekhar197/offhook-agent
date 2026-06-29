@@ -1,5 +1,5 @@
 /**
- * Safe, general config editing — the surface the dashboard + `offhook config`
+ * Safe, general config editing — the surface the dashboard + `offhook-agent config`
  * use. It REUSES the three guarantees of the self-improve safe-edit path
  * (src/improve/apply.ts): yaml Document set-path → MANDATORY parseAgentConfig
  * revalidate → backup before write. The difference: instead of the deliberately

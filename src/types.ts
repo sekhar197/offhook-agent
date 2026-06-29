@@ -1,5 +1,5 @@
 /**
- * offhook — core type definitions.
+ * offhook-agent — core type definitions.
  *
  * KnowledgeEntry is the unit of retrievable knowledge: a thing the agent can
  * find, talk about, and act on. For a receptionist it's an FAQ entry or a

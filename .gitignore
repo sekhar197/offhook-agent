@@ -44,4 +44,4 @@ reports/
 .stryker-tmp/
 
 # local telephony state (provisioned number/trunk/dispatch IDs)
-.offhook/
+.offhook-agent/

@@ -35,8 +35,8 @@ function fakeSip(): { sip: SipApi; calls: string[] } {
 }
 
 function tmpState(): { dir: string; path: string } {
-  const dir = mkdtempSync(join(tmpdir(), 'offhook-orch-'));
-  return { dir, path: join(dir, '.offhook', 'telephony.json') };
+  const dir = mkdtempSync(join(tmpdir(), 'offhook-agent-orch-'));
+  return { dir, path: join(dir, '.offhook-agent', 'telephony.json') };
 }
 
 describe('provisionNumber', () => {
@@ -85,7 +85,7 @@ describe('connectNumber', () => {
     const { dir, path } = tmpState();
     const { sip } = fakeSip();
     try {
-      await expect(connectNumber({ sip, agentId: 'x', agentName: 'offhook', statePath: path })).rejects.toThrow(/provision/);
+      await expect(connectNumber({ sip, agentId: 'x', agentName: 'offhook-agent', statePath: path })).rejects.toThrow(/provision/);
     } finally { rmSync(dir, { recursive: true, force: true }); }
   });
 
@@ -94,9 +94,21 @@ describe('connectNumber', () => {
     const { sip, calls } = fakeSip();
     try {
       writeTelephonyState({ provider: 'twilio', phoneNumber: '+15551234567', phoneNumberSid: 'PN1', trunkSid: 'TR1' }, path);
-      const state = await connectNumber({ sip, agentId: 'clinic', agentName: 'offhook', statePath: path, now: () => 2 });
+      const state = await connectNumber({ sip, agentId: 'clinic', agentName: 'offhook-agent', statePath: path, now: () => 2 });
       expect(calls).toEqual(['inbound', 'dispatch']);
-      expect(state).toMatchObject({ livekitTrunkId: 'ST1', livekitDispatchRuleId: 'SDR1', agentName: 'offhook' });
+      expect(state).toMatchObject({ livekitTrunkId: 'ST1', livekitDispatchRuleId: 'SDR1', agentName: 'offhook-agent' });
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  it('is idempotent: re-connecting tears down the existing trunk + rule before re-creating (no orphans)', async () => {
+    const { dir, path } = tmpState();
+    const { sip, calls } = fakeSip();
+    try {
+      // state already has a LiveKit trunk + rule from a prior connect
+      writeTelephonyState({ provider: 'twilio', phoneNumber: '+15551234567', phoneNumberSid: 'PN1', trunkSid: 'TR1', livekitTrunkId: 'ST0', livekitDispatchRuleId: 'SDR0' }, path);
+      await connectNumber({ sip, agentId: 'clinic', agentName: 'offhook-agent', statePath: path, now: () => 2 });
+      // old rule + trunk deleted FIRST, then the new ones created
+      expect(calls).toEqual(['delSDR:SDR0', 'delST:ST0', 'inbound', 'dispatch']);
     } finally { rmSync(dir, { recursive: true, force: true }); }
   });
 });

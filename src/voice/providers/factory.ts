@@ -33,7 +33,7 @@ async function importPlugin(pkg: string, forWhat: string): Promise<Record<string
  */
 export async function createStt(r: ResolvedStt, env = process.env, vad?: VAD): Promise<sttNs.STT> {
   // Local servers (openai-compatible) speak the BATCH transcription endpoint,
-  // not OpenAI's realtime WS — route them to offhook's local batch adapter
+  // not OpenAI's realtime WS — route them to offhook-agent's local batch adapter
   // (wrapped with VAD for streaming). Fully-local STT, no provider lock-in.
   if (r.provider === 'openai-compatible') {
     if (!vad) {

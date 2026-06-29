@@ -1,4 +1,4 @@
-# offhook example: home services dispatch (HVAC + plumbing)
+# offhook-agent example: home services dispatch (HVAC + plumbing)
 # Books service calls, answers pricing/coverage, and fast-tracks emergencies.
 agent:
   id: reliable-air-and-plumbing

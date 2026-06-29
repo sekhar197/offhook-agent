@@ -1,5 +1,5 @@
 # 100%-local config — Nemotron-Mini (4B) via Ollama. No API keys.
-# Try it: `ollama pull nemotron-mini`, then `offhook chat -c agent.ollama.yaml`.
+# Try it: `ollama pull nemotron-mini`, then `offhook-agent chat -c agent.ollama.yaml`.
 agent:
   id: bright-smile-dental
   businessName: Bright Smile Dental

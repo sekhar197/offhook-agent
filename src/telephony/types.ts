@@ -1,7 +1,7 @@
 /**
  * Telephony types — provider-agnostic by construction, so Twilio ships first and
  * Telnyx drops in as the same `TelephonyClient` interface (no rewrite). This is
- * the "any SIP provider, no lock-in" promise that separates offhook from the
+ * the "any SIP provider, no lock-in" promise that separates offhook-agent from the
  * closed SaaS.
  */
 
@@ -9,7 +9,7 @@ export class TelephonyError extends Error {}
 
 export type TelephonyProviderName = 'twilio' | 'telnyx';
 
-/** A provisioned phone number's lifecycle, persisted to .offhook/telephony.json
+/** A provisioned phone number's lifecycle, persisted to .offhook-agent/telephony.json
  *  (infra IDs — NOT agent behavior, so they stay out of agent.yaml). */
 export interface TelephonyState {
   provider: TelephonyProviderName;

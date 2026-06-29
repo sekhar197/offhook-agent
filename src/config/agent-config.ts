@@ -1,5 +1,5 @@
 /**
- * agent.yaml — the single config surface of an offhook deployment.
+ * agent.yaml — the single config surface of an offhook-agent deployment.
  *
  * Everything domain-specific lives here: who the agent is, what it knows,
  * which tools it may call, and the vocabulary that tunes search and ASR
@@ -78,7 +78,7 @@ export const AgentConfigSchema = z.object({
     webhookUrl: z.string().url().optional(),
     /**
      * How take_message / send_summary actually reach the owner. When omitted,
-     * offhook uses the webhook (if webhookUrl is set) or logs to console. Set
+     * offhook-agent uses the webhook (if webhookUrl is set) or logs to console. Set
      * this to deliver directly with one BYO key — no receiver to build:
      *   delivery: { channel: sms, to: "+1...", from: "+1<twilio#>" }
      *   delivery: { channel: email, to: "owner@biz.com", from: "agent@biz.com" }
@@ -232,7 +232,7 @@ export type AgentIdentity = AgentConfig['agent'] & AgentConfig['business'] & {
 export class ConfigError extends Error {}
 
 /** Parse + validate an agent.yaml string. Throws ConfigError with a readable
- *  message on invalid config — this surfaces in `offhook doctor`. */
+ *  message on invalid config — this surfaces in `offhook-agent doctor`. */
 export function parseAgentConfig(yamlText: string): AgentConfig {
   let raw: unknown;
   try {

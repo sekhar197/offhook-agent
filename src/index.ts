@@ -1,5 +1,5 @@
 /**
- * offhook — public API surface.
+ * offhook-agent — public API surface.
  *
  * Modules are exported here as they land during the v0.1 extraction.
  */

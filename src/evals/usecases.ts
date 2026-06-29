@@ -3,8 +3,8 @@
  * each advertised use case has a reproducible pass/fail, not a claim.
  *
  * `npm run eval:usecases` loops these, simulates callers against the real
- * brain, judges, and writes docs/usecases.md. Use OFFHOOK_EVAL_MODEL +
- * OFFHOOK_EVAL_PROVIDER to run every case on one capable model for comparable
+ * brain, judges, and writes docs/usecases.md. Use OFFHOOK_AGENT_EVAL_MODEL +
+ * OFFHOOK_AGENT_EVAL_PROVIDER to run every case on one capable model for comparable
  * scores (the judge needs to be capable); otherwise each config uses its own.
  */
 
@@ -30,7 +30,7 @@ export interface UseCase {
 const ADVERSARIAL = DEFAULT_PERSONAS.find(p => p.id === 'adversarial')!;
 
 // Each use case runs its realistic caller mix. More personas = a more thorough
-// (but longer/pricier) run — filter to one case with OFFHOOK_EVAL_ONLY, or trim
+// (but longer/pricier) run — filter to one case with OFFHOOK_AGENT_EVAL_ONLY, or trim
 // these arrays. Deployments add their own personas the same way.
 export const USE_CASES: UseCase[] = [
   {

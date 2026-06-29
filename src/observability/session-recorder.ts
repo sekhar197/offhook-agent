@@ -32,10 +32,26 @@ const EV = {
 // Narrow structural views of the payloads we read (duck-typed; real LiveKit
 // objects and test fakes both satisfy these).
 interface ItemAddedEv { item?: { role?: string; textContent?: string }; }
-interface ToolsExecEv { functionCalls?: Array<{ name?: string }>; }
+interface ToolsExecEv { functionCalls?: Array<{ name?: string; args?: unknown; arguments?: unknown }>; }
 interface MetricsEv { metrics?: { type?: string; ttftMs?: number }; }
 interface ErrorEv { error?: unknown; }
 interface CloseEv { reason?: string; error?: unknown; }
+
+/** Best-effort extraction of a summary tool's text from its call arguments.
+ *  LiveKit may expose args as an object or a JSON string under `args` or
+ *  `arguments`; anything unexpected yields undefined (never throws). */
+function extractSummaryArg(call: { args?: unknown; arguments?: unknown }): string | undefined {
+  const raw = call.args ?? call.arguments;
+  if (!raw) return undefined;
+  let obj: unknown = raw;
+  if (typeof raw === 'string') {
+    try { obj = JSON.parse(raw); } catch { return undefined; }
+  }
+  if (obj && typeof obj === 'object' && typeof (obj as { summary?: unknown }).summary === 'string') {
+    return (obj as { summary: string }).summary;
+  }
+  return undefined;
+}
 
 function errorMessage(e: unknown): string {
   if (e instanceof Error) return e.message;
@@ -106,6 +122,10 @@ export function attachSessionRecorder(
       pendingTools.push(call.name);
       if (call.name === 'transfer_to_human') sawTransfer = true;
       if (call.name === 'end_call') sawEndCall = true;
+      if (call.name === 'send_summary') {
+        const s = extractSummaryArg(call);
+        if (s) recorder.setSummary(s);
+      }
     }
   });
 
@@ -119,15 +139,29 @@ export function attachSessionRecorder(
     recorder.recordError(errorMessage((ev as ErrorEv).error));
   });
 
+  // Tools fired after the last assistant turn (e.g. take_message → send_summary
+  // → end_call, where end_call closes the session) would otherwise never flush.
+  // Capture them as a trailing tools-only turn. Naturally idempotent: pendingTools
+  // is cleared, so a second finalize finds nothing to add.
+  const flushPendingTools = () => {
+    if (pendingTools.length) {
+      recorder.addTurn({ toolsCalled: [...pendingTools] });
+      pendingTools = [];
+    }
+  };
+
   session.on(EV.close, (ev) => {
     const { reason, error } = ev as CloseEv;
     if (error) hadError = true;
+    flushPendingTools();
     void recorder.finish(deriveOutcome(reason, hadError, sawTransfer, sawEndCall));
   });
 
   return {
     recorder,
-    finish: (outcome?: CallOutcome) =>
-      recorder.finish(outcome ?? deriveOutcome(undefined, hadError, sawTransfer, sawEndCall)),
+    finish: (outcome?: CallOutcome) => {
+      flushPendingTools();
+      return recorder.finish(outcome ?? deriveOutcome(undefined, hadError, sawTransfer, sawEndCall));
+    },
   };
 }

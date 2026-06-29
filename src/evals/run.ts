@@ -4,9 +4,9 @@
  *
  * Uses the LLM from your agent.yaml for the agent, the persona, and the judge
  * (so it can run 100% free on local Ollama). Override the eval config path with
- * OFFHOOK_EVAL_CONFIG (default: examples/business-receptionist/agent.yaml).
+ * OFFHOOK_AGENT_EVAL_CONFIG (default: examples/business-receptionist/agent.yaml).
  *
- * Exit code is non-zero if the overall pass rate is below OFFHOOK_EVAL_MIN
+ * Exit code is non-zero if the overall pass rate is below OFFHOOK_AGENT_EVAL_MIN
  * (default 0.8) — so this doubles as the CI quality gate.
  */
 
@@ -27,9 +27,9 @@ import { judgeCall } from './judge.js';
 import { aggregate, renderScorecard } from './metrics.js';
 
 async function main() {
-  const configPath = process.env.OFFHOOK_EVAL_CONFIG
+  const configPath = process.env.OFFHOOK_AGENT_EVAL_CONFIG
     || 'examples/business-receptionist/agent.yaml';
-  const minPass = Number(process.env.OFFHOOK_EVAL_MIN || '0.8');
+  const minPass = Number(process.env.OFFHOOK_AGENT_EVAL_MIN || '0.8');
 
   const config = loadAgentConfig(configPath);
   const identity = toAgentIdentity(config);
@@ -45,12 +45,12 @@ async function main() {
 
   // The JUDGE should be a capable model even when the agent is small — a weak
   // judge can't produce reliable verdicts (it safe-defaults to FAIL). Point
-  // OFFHOOK_JUDGE_CONFIG at another agent.yaml to use its LLM for judging;
+  // OFFHOOK_AGENT_JUDGE_CONFIG at another agent.yaml to use its LLM for judging;
   // otherwise the judge reuses the agent's model.
   let judgeClient = client;
   let judgeLlm = llm;
-  if (process.env.OFFHOOK_JUDGE_CONFIG) {
-    const judgeCfg = loadAgentConfig(process.env.OFFHOOK_JUDGE_CONFIG);
+  if (process.env.OFFHOOK_AGENT_JUDGE_CONFIG) {
+    const judgeCfg = loadAgentConfig(process.env.OFFHOOK_AGENT_JUDGE_CONFIG);
     judgeLlm = resolveLlm(llmConfigInput(judgeCfg));
     judgeClient = createLlmClient(judgeLlm).client;
     console.log(`(judge model: ${judgeLlm.provider}/${judgeLlm.model})`);
@@ -80,7 +80,9 @@ async function main() {
       registry, enabledTools: config.tools.enabled, toolContext,
       promptContext: { identity, entries },
     });
-    const verdict = await judgeCall(call, judgeClient, judgeLlm);
+    const verdict = await judgeCall(call, judgeClient, judgeLlm, {
+      aiDisclosureEnabled: identity.aiDisclosure !== false,
+    });
     verdicts.push(verdict);
     console.log(`${verdict.passed}/${verdict.total} (${call.transcript.length} turns, ${call.endedBy})`);
   }

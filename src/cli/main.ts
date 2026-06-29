@@ -1,5 +1,5 @@
 /**
- * offhook CLI entry. Subcommands:
+ * offhook-agent CLI entry. Subcommands:
  *   init    — interactive setup wizard (writes agent.yaml, knowledge/, .env)
  *   doctor  — preflight checks: config, knowledge, keys, endpoint
  *   chat    — text-mode test agent (real brain, no voice keys needed)
@@ -10,9 +10,9 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const HELP = `
-  offhook — Don't build a voice agent. Deploy one.
+  offhook-agent — Don't build a voice agent. Deploy one.
 
-  Usage: offhook <command> [options]
+  Usage: offhook-agent <command> [options]
 
     init             set up a new agent in the current folder (interactive)
     doctor           verify config, knowledge, and keys
@@ -30,7 +30,7 @@ const HELP = `
     --apply          (improve) write the change if the gate passes
     --unguarded      (improve) apply with NO safety gate — explicit, risky
 
-  Repo: https://github.com/sekhar197/offhook
+  Repo: https://github.com/sekhar197/offhook-agent
 `;
 
 function loadDotEnv(dir: string): void {

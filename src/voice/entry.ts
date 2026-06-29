@@ -6,7 +6,7 @@
  * connects to the room, greets, and wires graceful shutdown. One worker
  * process handles one call; the worker pool (worker.ts) scales concurrency.
  *
- * Config path comes from OFFHOOK_CONFIG (default ./agent.yaml). Per-turn
+ * Config path comes from OFFHOOK_AGENT_CONFIG (default ./agent.yaml). Per-turn
  * prompt refresh (phase + ASR annotation) is a refinement noted inline.
  */
 
@@ -27,7 +27,7 @@ import { EMPTY_VOCABULARY, type SearchVocabulary } from '../types.js';
 import { CallRecorder, sinkFromConfig, attachSessionRecorder } from '../observability/index.js';
 
 function configPath(): string {
-  return process.env.OFFHOOK_CONFIG || resolve(process.cwd(), 'agent.yaml');
+  return process.env.OFFHOOK_AGENT_CONFIG || resolve(process.cwd(), 'agent.yaml');
 }
 
 /** Extract the caller's phone number from the SIP participant (identity or the
@@ -90,7 +90,7 @@ export async function runEntry(ctx: JobContext): Promise<void> {
       const phone = config.tools.transferPhone;
       if (!phone) {
         console.log(`[transfer] requested (${reason}) — no transferPhone configured`);
-        return;
+        return { transferred: false };
       }
       // Find the caller's SIP leg; browser/test sessions have none.
       let identity: string | undefined;
@@ -98,18 +98,26 @@ export async function runEntry(ctx: JobContext): Promise<void> {
         if (p.attributes?.['sip.phoneNumber'] || p.identity?.startsWith('sip_')) { identity = p.identity; break; }
       }
       if (!identity) {
-        console.log(`[transfer] no SIP leg (non-phone session) — agent reads ${phone} instead`);
-        return;
+        console.log(`[transfer] no SIP leg (non-phone session) — cannot transfer, agent offers a message`);
+        return { transferred: false };
       }
       try {
         const { liveKitTransferFromEnv, transferCaller } = await import('../telephony/transfer.js');
         const { loadTelephonyState } = await import('../telephony/state.js');
         const provider = loadTelephonyState()?.provider ?? 'twilio';
+        // Announce BEFORE the REFER — a SIP REFER detaches the caller, so a
+        // post-transfer line never reaches them. This is a deterministic
+        // pre-handoff announcement, NOT thinking filler (the one sanctioned
+        // session.say). transferCaller plays a dial tone during the ring.
+        await session.say('Connecting you now — one moment.');
         await transferCaller({ sip: liveKitTransferFromEnv(), roomName: ctx.room.name ?? correlationId, participantIdentity: identity, transferPhone: phone, provider });
         console.log(`[transfer] REFER → ${phone}`);
+        return { transferred: true };
       } catch (e) {
-        // Never dead-air: fall back to the read-the-number behavior.
-        console.log(`[transfer] REFER failed (${e instanceof Error ? e.message : String(e)}) — agent falls back to reading ${phone}`);
+        // Never dead-air, never a false claim: the tool message tells the agent
+        // to offer a message instead of saying it connected the caller.
+        console.log(`[transfer] REFER failed (${e instanceof Error ? e.message : String(e)}) — agent offers a message instead`);
+        return { transferred: false };
       }
     },
     endCall: async () => { ctx.shutdown('agent ended call'); },

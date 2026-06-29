@@ -60,4 +60,14 @@ describe('gateDecision', () => {
     expect(r.apply).toBe(false);
     expect(r.blockedReason).toContain('caller_safe');
   });
+
+  it('BLOCKS when a candidate safety dimension has zero scored calls (unverifiable, even if baseline is also empty)', () => {
+    const baseline = scorecard(0.9);
+    baseline.byDimension['no_phantom_claims'] = { pass: 0, total: 0, rate: 0 };
+    const candidate = scorecard(0.95);
+    candidate.byDimension['no_phantom_claims'] = { pass: 0, total: 0, rate: 0 }; // no evidence on BOTH sides
+    const r = gateDecision(baseline, candidate);
+    expect(r.apply).toBe(false);
+    expect(r.blockedReason).toContain('insufficient safety evidence');
+  });
 });

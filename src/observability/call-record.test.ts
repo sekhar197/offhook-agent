@@ -101,7 +101,7 @@ describe('CallRecorder', () => {
 
 describe('sinks', () => {
   it('jsonlFileSink appends one JSON line per call', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'offhook-obs-'));
+    const dir = mkdtempSync(join(tmpdir(), 'offhook-agent-obs-'));
     const path = join(dir, 'nested', 'calls.jsonl');
     try {
       const sink = jsonlFileSink(path);

@@ -1,5 +1,5 @@
 /**
- * Branded CLI banner — the welcome shown on `offhook` / `offhook help`.
+ * Branded CLI banner — the welcome shown on `offhook-agent` / `offhook-agent help`.
  * ANSI-art wordmark with the ember→saffron gradient. Degrades to plain text
  * when stdout isn't a TTY or NO_COLOR is set.
  */
@@ -31,7 +31,7 @@ export function banner(): string {
   return `
 ${wordmark()}
 
-  ${em('the open, safety-first voice agent')}
+  ${em('offhook-agent')} ${dim('· the open, safety-first voice agent')}
   ${dim('it tests itself · it improves itself · it won\'t break its own safety')}
 
   ${dim('Commands')}
@@ -46,7 +46,7 @@ ${wordmark()}
     ${em('start')}      answer real phone calls (needs LiveKit + provider keys)
     ${em('doctor')}     verify config, knowledge, and keys
 
-  ${dim('v0.1 · Apache-2.0 ·')} ${em('github.com/sekhar197/offhook')}
+  ${dim('v0.1 · Apache-2.0 ·')} ${em('github.com/sekhar197/offhook-agent')}
 `;
 }
 

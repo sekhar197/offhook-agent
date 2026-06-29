@@ -76,6 +76,28 @@ describe('attachSessionRecorder', () => {
     expect(captured[0]!.tools.map(t => t.name)).toContain('transfer_to_human');
   });
 
+  it('flushes terminal tools (no following turn) and captures the summary', async () => {
+    const { session, captured } = setup();
+    // caller leaves a message; agent confirms (a normal paired turn).
+    session.emit('conversation_item_added', { item: { role: 'user', textContent: 'message for Sekhar' } });
+    session.emit('conversation_item_added', { item: { role: 'assistant', textContent: 'Got it.' } });
+    // Then the agent runs the closing tools — and end_call ends the call with NO
+    // following assistant item to flush them onto.
+    session.emit('function_tools_executed', { functionCalls: [
+      { name: 'take_message', args: { caller_name: 'Mark' } },
+      { name: 'send_summary', args: '{"summary":"Mark wants a callback about a partnership."}' },
+      { name: 'end_call' },
+    ] });
+    session.emit('close', { reason: 'user_initiated', error: null });
+    await Promise.resolve();
+
+    const r = captured[0]!;
+    const toolNames = r.tools.map(t => t.name);
+    expect(toolNames).toEqual(expect.arrayContaining(['take_message', 'send_summary', 'end_call']));
+    expect(r.outcome).toBe('completed'); // end_call → completed
+    expect(r.summary).toBe('Mark wants a callback about a partnership.');
+  });
+
   it('records errors and reports an error outcome', async () => {
     const { session, captured } = setup();
     session.emit('error', { error: new Error('TTS provider 503') });

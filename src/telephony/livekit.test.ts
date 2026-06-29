@@ -29,13 +29,13 @@ function fakeSip(): { sip: SipApi; rec: Rec } {
 describe('connectNumberToAgent', () => {
   it('creates an inbound trunk with the 30s ringing timeout + a dispatch rule carrying the agentName', async () => {
     const { sip, rec } = fakeSip();
-    const out = await connectNumberToAgent(sip, { number: '+15551234567', agentId: 'clinic', agentName: 'offhook' });
+    const out = await connectNumberToAgent(sip, { number: '+15551234567', agentId: 'clinic', agentName: 'offhook-agent' });
 
     expect(rec.inboundTrunk?.numbers).toEqual(['+15551234567']);
     expect(rec.inboundTrunk?.ringingTimeout).toBe(30);
 
     expect(rec.dispatchRule?.trunkIds).toEqual(['ST1']);
-    expect(rec.dispatchRule?.firstAgentName).toBe('offhook');
+    expect(rec.dispatchRule?.firstAgentName).toBe('offhook-agent');
 
     expect(out).toEqual({ livekitTrunkId: 'ST1', livekitDispatchRuleId: 'SDR1' });
   });
