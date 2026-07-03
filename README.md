@@ -63,6 +63,11 @@ A weekend gets you a voice agent that *talks*. What it doesn't get you is the ha
 - **A self-improvement loop gated by that suite** — it learns from your real calls and edits its own config, but a self-edit that regresses any safety check is blocked before it ships.
 - **A local dashboard** — every call, transcript, tool call, outcome, and per-turn latency at `127.0.0.1`, never a cloud.
 
+<p align="center">
+  <img src="docs/launch/dashboard.gif" alt="The offhook-agent dashboard: call log, transcript with tool calls, and the self-improvement loop ending in a real blocked verdict" width="820">
+  <br/><sub><b>The dashboard, live:</b> calls → a real transcript (watch it refuse to share a home address) → the self-improvement loop — ending in a <b>real ⛔ BLOCK</b>: the gate refusing the agent's own patch because it regressed <code>no_phantom_claims</code>. The config on disk was left untouched.</sub>
+</p>
+
 ## ⚡ How it works
 
 ```text
