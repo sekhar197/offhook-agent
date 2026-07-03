@@ -38,19 +38,22 @@
 
 <!-- ── HOW-TO-USE VIDEO ─────────────────────────────────────────────────────
   To embed the walkthrough video: open this README in the GitHub web editor
-  (github.com → README.md → ✏️), then DRAG the .mp4 onto the line below.
+  (github.com → README.md → ✏️), then DRAG the .mp4 into this section.
   GitHub uploads it and inserts a https://github.com/user-attachments/... URL
   that renders as an inline player (this is the ONLY way GitHub plays video —
   <video> tags and YouTube embeds do not render). Script for the recording:
   docs/launch/walkthrough-script.md. Keep it under 10 MB ≈ 3 min at 1080p/low-fps.
 ─────────────────────────────────────────────────────────────────────────── -->
-## 📺 Watch: from install to a number that answers
+## 📺 See it run
 
-*(video coming with launch — the full walkthrough script is [here](docs/launch/walkthrough-script.md))*
+<p align="center">
+  <img src="docs/launch/cli-tour.gif" alt="The offhook-agent CLI: the command menu, doctor verifying config and keys, and a live chat exchange with the agent" width="820">
+  <br/><sub><b>The real CLI:</b> <code>offhook-agent</code> → <code>doctor</code> verifies config, knowledge, and keys → <code>chat</code> talks to your actual agent (watch it search the knowledge, answer, and end the call with real tool calls). Regenerate: <code>vhs docs/launch/cli-tour.tape</code>.</sub>
+</p>
 
 <p align="center">
   <img src="docs/launch/safety-gate.gif" alt="The offhook-agent safety gate rejecting a self-edit that scored higher overall because it regressed a safety check" width="820">
-  <br/><sub><b>Live:</b> a self-edit that scored <i>higher overall</i> but regressed a safety check → <b>⛔ blocked</b> — the case a naive self-improvement loop would ship. Reproducible with <b>no API key</b>: <code>npm run demo:safety-gate</code>. Regenerate this GIF from source: <code>vhs docs/launch/safety-gate.tape</code>.</sub>
+  <br/><sub><b>The guarantee:</b> a self-edit that scored <i>higher overall</i> but regressed a safety check → <b>⛔ blocked</b> — the case a naive self-improvement loop would ship. Reproducible with <b>no API key</b>: <code>npm run demo:safety-gate</code>. Regenerate: <code>vhs docs/launch/safety-gate.tape</code>.</sub>
 </p>
 
 ## What it does

@@ -23,6 +23,9 @@ import { runTextTurn, newTurnSession } from '../conversation/text-turn.js';
 import { EMPTY_VOCABULARY, type SearchVocabulary } from '../types.js';
 
 export async function chatCommand(configPath: string): Promise<void> {
+  // Human-facing REPL: keep structured JSON traces out of the conversation
+  // (errors still print). Respect an explicit user override.
+  process.env.OFFHOOK_AGENT_TRACE ??= '0';
   const config = loadAgentConfig(configPath);
   const identity = toAgentIdentity(config);
   const knowledgeDir = resolve(dirname(resolve(configPath)), config.knowledge.folder);
