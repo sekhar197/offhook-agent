@@ -5,7 +5,7 @@ page is deliberately blunt about what is and isn't verified. No silent caps: if 
 claim is only proven by a unit test with a fake, it says so; if a path has never
 run on real audio in *this* repo, it says that too.
 
-**Last updated:** 2026-06-27 · **Suite:** 386 tests, all passing, ~2s, fully
+**Last updated:** 2026-07-03 · **Suite:** 388 tests, all passing, ~3s, fully
 account-free (`npm test`). (Count is the clean `npx vitest run` figure — the
 gitignored `.stryker-tmp/` sandbox, if present from a mutation run, duplicates
 test files and inflates the count; ignore it.)

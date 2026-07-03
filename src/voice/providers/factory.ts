@@ -84,6 +84,9 @@ export async function createTts(r: ResolvedTts, env = process.env): Promise<ttsN
     ...(r.viaOpenAiPlugin && r.baseUrl ? { baseURL: r.baseUrl } : {}),
     ...(r.model ? { model: r.model } : {}),
     ...(r.voice ? { voice: r.voice } : {}),
+    // Cartesia sonic defaults run a touch fast on the phone; ease off ~10% so it
+    // reads clearly. (sonic-3 accepts speed 0.6–2.0; ignored by other providers.)
+    ...(r.provider === 'cartesia' ? { speed: 0.9 } : {}),
   });
 }
 

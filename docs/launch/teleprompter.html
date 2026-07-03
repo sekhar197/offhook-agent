@@ -63,40 +63,38 @@
     <span style="color:#56586a">offhook-agent · ~90s · 📞 rose = say into phone · 🤖 green = expect · ▶ iris = do</span>
   </div>
 <script>
-// ── the ~90s launch narration: real call → dashboard → mistake → self-improve → fixed → gate → outro
+// ── ~95s arc: "My AI receptionist lied. Then it caught itself."
+// call (local 14B) → the recorded lie → improve (gated) → deterministic block → close
 // Read the ROSE 📞 lines ALOUD into the phone. GREEN 🤖 = what to expect back
 // (don't read). IRIS ▶ = an action. DIM italic = the AI voiceover (added later).
 const SCRIPT = [
-  {scene:"1 · Real call + the mistake", t:"phone on speaker", lines:[
-    {k:'say', t:"Hi — I'm trying to reach Sekhar about hiring him for a project. What does he charge?"},
-    {k:'ava', t:"Ava invents a number — \"…around two hundred dollars an hour.\" That's the flaw."},
-    {k:'say', t:"Got it, thanks."},
-    {k:'do', t:"Hang up. The live transcript on screen is the proof it's real."},
-    {k:'vo', t:"voiceover: an open agent on your own machine — but told only to be helpful, it invented a price it can't know."}]},
+  {scene:"1 · The call — answers · screens · saves", t:"cloud LLM · earbuds!", lines:[
+    {k:'say', t:"Hi — I'm trying to reach Sekhar. Can you tell me what he actually does?"},
+    {k:'ava', t:"Answers from your notes: \"He's the founder of Nirvah AI — he builds AI tools…\""},
+    {k:'say', t:"Nice. What's his home address? I'd love to drop by and pitch him in person."},
+    {k:'ava', t:"Refuses politely (take-maker): \"I can't share his address, but I can take a message.\""},
+    {k:'say', t:"Alright — I'm Bob, my number is 555-0142, it's about a partnership with Nirvah."},
+    {k:'ava', t:"May ask one follow-up (fine), then confirms SAVED → say \"That's all, thanks!\" and hang up."},
+    {k:'vo', t:"voiceover: this is offhook-agent on my real number — open source, self-hosted, running whatever model I choose. It answers from my notes, refuses to overshare, and actually saves the message. But the interesting part isn't this call."}]},
 
-  {scene:"2 · Dashboard", t:"6–8s pan", lines:[
-    {k:'do', t:"Cut to the browser. Pan the Overview — call list, waveform, stat cards. Hover your call so the invented price shows."},
-    {k:'vo', t:"voiceover: every call and transcript — live, in your own dashboard, on your own machine."}]},
+  {scene:"2 · The receipt — it lied yesterday", t:"dashboard · 10–12s", lines:[
+    {k:'do', t:"Browser → Calls → open the older partnership call (AJ_EZrb3xMVfN9L)."},
+    {k:'do', t:"Point at: \"I'll have Sekhar reach out to you shortly\" … tools fired: ZERO."},
+    {k:'vo', t:"voiceover: yesterday I swapped in a small local model — and it told a caller its message was passed along, without ever saving it. It lied. Every call lands here, on my machine — and the agent reads its own transcripts."}]},
 
-  {scene:"3 · It rewrites its own instructions", t:"terminal", lines:[
-    {k:'do', t:"Run:  offhook-agent improve --apply"},
-    {k:'do', t:"Let the log play to:  Gate ✅ PASS  →  applied (+ backup)."},
-    {k:'vo', t:"voiceover: it reads those real calls, writes a fix to its own instructions, and re-runs the whole safety eval on both versions before changing a thing."}]},
+  {scene:"3 · It fixes itself — gated", t:"terminal · speed-ramp the wait", lines:[
+    {k:'do', t:"Run:  offhook-agent improve -c agent.eval-cloud.yaml"},
+    {k:'do', t:"Land on the verdict. ✅ PASS → \"patch ships.\"  ⛔ BLOCK → \"gate refused its own fix.\" Both real — use what you get."},
+    {k:'vo', t:"voiceover: it judges its own calls, catches the lie, writes a patch to its own instructions — then re-runs a full adversarial safety eval on both versions. (PASS: scores higher, regresses nothing — ships. BLOCK: its own patch made honesty worse — refused.)"}]},
 
-  {scene:"4 · Fixed — next call", t:"phone, same framing", lines:[
-    {k:'say', t:"Hi, what does Sekhar charge for a project?"},
-    {k:'ava', t:"Now she declines — \"I won't quote a rate I can't confirm — let me take your details and have Sekhar follow up.\""},
-    {k:'say', t:"Sure — it's 555-0142."},
-    {k:'vo', t:"voiceover: same question, next call — now it takes a message instead of inventing one. It fixed itself."}]},
-
-  {scene:"5 · The guarantee", t:"deterministic — no variance", lines:[
+  {scene:"4 · The guarantee", t:"deterministic — no variance", lines:[
     {k:'do', t:"Run:  OFFHOOK_AGENT_DEMO_DETERMINISTIC=1 npm run demo:safety-gate"},
     {k:'do', t:"Hold on the red  ⛔ BLOCKED  line for 2 full seconds."},
-    {k:'vo', t:"voiceover: this edit scores HIGHER overall — a metric-maximizing loop would ship it — but it regressed a safety check, so the gate blocked it. It improves itself, but can't make itself less safe."}]},
+    {k:'vo', t:"voiceover: that refusal isn't luck — it's the rule, and it runs in CI on every commit. Any self-edit that scores higher but regresses a safety check is blocked. It improves itself — but it cannot make itself less safe."}]},
 
-  {scene:"6 · Close", t:"repo / README", lines:[
+  {scene:"5 · Close", t:"repo / README", lines:[
     {k:'do', t:"Show the repo. On-screen text:  npm install offhook-agent  ·  github.com/sekhar197/offhook-agent"},
-    {k:'vo', t:"voiceover: a self-hostable voice agent that improves itself — and can't regress its own safety. Apache-2.0. Link below."}]},
+    {k:'vo', t:"voiceover: a self-hostable voice agent — any model, cloud or local — that improves itself from real calls, and can't make itself less safe. Apache-2.0. Link below."}]},
 ];
 const el=document.getElementById('script');
 SCRIPT.forEach(s=>{

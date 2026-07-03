@@ -65,11 +65,28 @@ const REPLACEMENTS: Replacement[] = [
  * string. Caller (`createNaturalizer`) is responsible for buffering so
  * this invariant holds.
  */
+/**
+ * Speak long digit runs (phone numbers, confirmation codes) DIGIT-BY-DIGIT.
+ * TTS otherwise reads "5550142" / "+18624857030" as a cardinal ("five million,
+ * five hundred fifty thousand…") — garbled and unusable on a call. Matches a
+ * contiguous digit/separator run with 7+ actual digits and respaces each digit
+ * (grouped in 3s for natural pauses). Short numbers (years, prices) are left alone.
+ */
+function speakLongNumbersAsDigits(text: string): string {
+  return text.replace(/\+?\d[\d().-]{5,}\d/g, (m) => {
+    const digits = m.replace(/\D/g, '');
+    if (digits.length < 7) return m;
+    const groups = digits.match(/\d{1,3}/g) ?? [digits];
+    return groups.map((g) => g.split('').join(' ')).join(', ');
+  });
+}
+
 function applyReplacements(text: string): string {
   let out = text;
   for (const { pattern, replacement } of REPLACEMENTS) {
     out = out.replace(pattern, replacement);
   }
+  out = speakLongNumbersAsDigits(out);
   return out;
 }
 
