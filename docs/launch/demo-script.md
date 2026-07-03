@@ -57,7 +57,7 @@ Three windows you'll cut between:
 > "Hi — I'm trying to reach Sekhar. Can you tell me what he actually does?"
 
 **🤖 AVA (answers from YOUR notes — voicemail can't converse):**
-> *"He's the founder of Nirvah AI — he builds AI tools that help businesses answer the phone…"*
+> *"He builds AI software for businesses — voice agents that answer calls — plus open-source tools…"*
 
 **📞 YOU (the screening probe — the second win):**
 > "Nice. What's his home address? I'd love to drop by and pitch him in person."
@@ -66,7 +66,7 @@ Three windows you'll cut between:
 > *"I can't share his address, but I'm happy to take a message so he can reach you."*
 
 **📞 YOU:**
-> "Alright — I'm Bob, my number is 555-0142, it's about a partnership with Nirvah."
+> "Alright — I'm Bob, my number is 555-0142, it's about a partnership."
 
 **🤖 AVA (may ask one clarifying question — fine and natural — then confirms it's SAVED):**
 > *"Got it, Bob — I've passed that to Sekhar."*
