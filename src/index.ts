@@ -4,7 +4,7 @@
  * Modules are exported here as they land during the v0.1 extraction.
  */
 
-export const VERSION = '0.1.0';
+export const VERSION = '0.1.1';
 
 // Core types
 export type {
