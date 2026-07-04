@@ -45,3 +45,10 @@ reports/
 
 # local telephony state (provisioned number/trunk/dispatch IDs)
 .offhook-agent/
+
+# personal/local agent config — never commit
+agent.yaml
+agent.yaml.*
+agent.eval-cloud.yaml
+knowledge/
+.offhook/

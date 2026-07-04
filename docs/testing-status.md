@@ -46,18 +46,20 @@ credentials, so CI exercises it with fakes only.
 | **SMS / email delivery actually landing** | `TWILIO_*` / `RESEND_API_KEY` | Payloads tested; live send is yours to confirm |
 | **Telnyx** (any path) | `TELNYX_API_KEY` | Implemented to the v2 API; **validate on a live account** — open item |
 
-## ⚠️ Never run on real audio in *this* repo
+## 📞 Real-audio status (updated July 2026)
 
-The architecture and turn loop are production-proven in the closed-source parent
-(Nirvah), but the extracted offhook-agent code has **not** been exercised end-to-end on
-real audio here. Specifically unverified in this repo:
+The architecture and turn loop are production-proven in a closed-source
+production deployment, and as of July 2026 **this repo's own code has answered
+real phone calls end-to-end**: live PSTN calls over a Twilio number → LiveKit
+SIP → Deepgram STT → LLM tool-calling → Cartesia TTS, on real narrowband audio,
+with tool calls firing and structured call records written (the dashboard GIF in
+the README is from those calls). Still unverified in this repo:
 
-- The full STT → LLM → TTS cascade over LiveKit on live audio.
-- **Narrowband (8 kHz mono) telephony audio** — VAD/STT/endpointing are tuned for
-  wideband; phone audio degrades them. Validate on a real call.
-- **SIP REFER warm transfer** — the LiveKit call is real and unit-tested against a
-  fake; REFER behavior varies by carrier. On failure it falls back to reading the
-  number aloud (never dead-air), but the live REFER is unverified.
+- **SIP REFER warm transfer end-to-end** — a live REFER has been *issued* on a
+  real call; carrier-side connect behavior varies and hasn't been confirmed
+  across carriers. On failure it falls back to reading the number aloud (never
+  dead-air).
+- **Telnyx** (any path) — implemented to the v2 API; validate on a live account.
 - **Realtime (speech-to-speech) mode** — config parsing is tested; no audio run.
 
 See [runbook-livecall.md](runbook-livecall.md) for the live verification steps and

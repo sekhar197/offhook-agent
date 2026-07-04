@@ -67,7 +67,7 @@ const REPLACEMENTS: Replacement[] = [
  */
 /**
  * Speak long digit runs (phone numbers, confirmation codes) DIGIT-BY-DIGIT.
- * TTS otherwise reads "5550142" / "+18624857030" as a cardinal ("five million,
+ * TTS otherwise reads "5550142" / "+15550123456" as a cardinal ("five million,
  * five hundred fifty thousand…") — garbled and unusable on a call. Matches a
  * contiguous digit/separator run with 7+ actual digits and respaces each digit
  * (grouped in 3s for natural pauses). Short numbers (years, prices) are left alone.

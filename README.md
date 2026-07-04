@@ -1,11 +1,6 @@
-<div align="center"><pre>
-   ██████╗ ███████╗███████╗██╗  ██╗ ██████╗  ██████╗ ██╗  ██╗
-  ██╔═══██╗██╔════╝██╔════╝██║  ██║██╔═══██╗██╔═══██╗██║ ██╔╝
-  ██║   ██║█████╗  █████╗  ███████║██║   ██║██║   ██║█████╔╝
-  ██║   ██║██╔══╝  ██╔══╝  ██╔══██║██║   ██║██║   ██║██╔═██╗
-  ╚██████╔╝██║     ██║     ██║  ██║╚██████╔╝╚██████╔╝██║  ██╗
-   ╚═════╝ ╚═╝     ╚═╝     ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝ -agent
-</pre></div>
+<p align="center">
+  <img src="docs/launch/wordmark.png" alt="offhook-agent" width="560">
+</p>
 
 <p align="center">
   <b>The open, self-hostable voice agent that tests itself, improves itself from real calls — and can't make itself less safe.</b>
@@ -209,7 +204,7 @@ Every published number is regenerable by one command; the personas and judge pro
 | [Telephony](docs/telephony.md) | phone setup, both providers, BYO number, transfer |
 | [Deploy](docs/deploy.md) | fly / railway / render / k8s / docker / air-gapped |
 | [Testing status](docs/testing-status.md) | exact, honest: tested vs needs-live-accounts vs never-run-on-real-audio |
-| [Lessons](docs/lessons/) | production scar tissue: endpointing, fillers, idempotent actions |
+| [Lessons: building an open eval harness](docs/lessons/building-an-open-eval-harness.md) | production scar tissue from the eval-harness build (more essays coming) |
 
 ## 🚧 Status
 

@@ -1,8 +1,8 @@
 # Safety-Gated Self-Improvement for Production Voice Agents
 
 **Sekhar Makkapati**
-Independent / Nirvah AI
-`founder@nirvah.ai`
+Independent
+`sekharmakkapati@gmail.com`
 
 *Preprint, v0.1 — June 2026. Intended categories: cs.SE (primary), cs.CL, cs.AI.
 This is a working draft accompanying the open-source reference implementation `offhook-agent`.*
