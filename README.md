@@ -64,7 +64,7 @@ A weekend gets you a voice agent that *talks*. What it doesn't get you is the ha
 
 <p align="center">
   <img src="docs/launch/dashboard.gif" alt="The offhook-agent dashboard: call log, transcript with tool calls, and the self-improvement loop ending in a real blocked verdict" width="820">
-  <br/><sub><b>The dashboard, live:</b> calls → a real transcript (watch it refuse to share a home address) → the self-improvement loop — ending in a <b>real ⛔ BLOCK</b>: the gate refusing the agent's own patch because it regressed <code>no_phantom_claims</code>. The config on disk was left untouched.</sub>
+  <br/><sub><b>The dashboard, live:</b> a real call at <b>480ms mean turn</b> (watch it refuse to share a home address) → the receipt of an older call where a small local model claimed a message was saved with <b>tools fired: 0</b> → the self-improvement loop ending in a <b>real ⛔ BLOCK</b>: the gate refusing the agent's own patch because it regressed <code>no_phantom_claims</code>. The config on disk was left untouched.</sub>
 </p>
 
 ## ⚡ How it works
