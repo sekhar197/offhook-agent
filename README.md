@@ -12,6 +12,7 @@
 
 <p align="center">
   <a href="https://github.com/sekhar197/offhook-agent/actions/workflows/ci.yml"><img src="https://github.com/sekhar197/offhook-agent/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://www.npmjs.com/package/offhook-agent"><img src="https://img.shields.io/npm/v/offhook-agent" alt="npm"></a>
   <img src="https://img.shields.io/badge/tests-388%20passing-brightgreen" alt="388 tests">
   <img src="https://img.shields.io/badge/node-%3E%3D20-blue" alt="node >= 20">
   <img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="Apache-2.0">
